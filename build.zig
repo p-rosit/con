@@ -1,18 +1,7 @@
 const std = @import("std");
 
-// Although this function looks imperative, note that its job is to
-// declaratively construct a build graph that will be executed by an external
-// runner.
 pub fn build(b: *std.Build) void {
-    // Standard target options allows the person running `zig build` to choose
-    // what target to build for. Here we do not override the defaults, which
-    // means any target is allowed, and the default is native. Other options
-    // for restricting supported target set are available.
     const target = b.standardTargetOptions(.{});
-
-    // Standard optimization options allow the person running `zig build` to select
-    // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall. Here we do not
-    // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
     const serialize = b.addStaticLibrary(.{
@@ -22,9 +11,6 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
-    // This declares intent for the library to be installed into the standard
-    // location when the user invokes the "install" step (the default step when
-    // running `zig build`).
     b.installArtifact(serialize);
 
     const fls: []const []const u8 = &.{"serialize.c"};
@@ -32,7 +18,10 @@ pub fn build(b: *std.Build) void {
         .root = b.path("src/serialize"),
         .files = fls,
     });
-    serialize.installHeader(b.path("src/serialize/serialize.h"), "serialize.h");
+    serialize.installHeader(
+        b.path("src/serialize/serialize.h"),
+        "serialize.h",
+    );
 
     const deserialize = b.addStaticLibrary(.{
         .name = "con-deserialize",
@@ -48,7 +37,10 @@ pub fn build(b: *std.Build) void {
         .root = b.path("src/deserialize"),
         .files = dls,
     });
-    deserialize.installHeader(b.path("src/deserialize/deserialize.h"), "deserialize.h");
+    deserialize.installHeader(
+        b.path("src/deserialize/deserialize.h"),
+        "deserialize.h",
+    );
 
     // // Creates a step for unit testing. This only builds the test executable
     // // but does not run it.
