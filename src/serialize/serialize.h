@@ -7,10 +7,14 @@ enum ConSerializeError {
 };
 
 struct ConSerialize {
+    char *out_buffer;
+    int out_buffer_size;
 };
 
 enum ConSerializeError con_serialize_context_init(
-    struct ConSerialize *context
+    struct ConSerialize *context,
+    char *out_buffer,
+    int out_buffer_size
 );
 
 #endif
