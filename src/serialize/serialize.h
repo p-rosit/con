@@ -4,6 +4,7 @@
 
 enum ConSerializeError {
     CON_SERIALIZE_OK,
+    CON_SERIALIZE_NULL
 };
 
 struct ConSerialize {
