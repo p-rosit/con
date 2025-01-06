@@ -6,7 +6,7 @@ const con = @cImport({
 
 test "init" {
     var context: con.ConSerialize = undefined;
-    var buffer: [5]u8 = undefined;
+    var buffer: [5]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(&context, @ptrCast(&buffer), buffer.len);
     assert(init_err == con.CON_SERIALIZE_OK);
