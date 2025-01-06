@@ -1,12 +1,12 @@
 const testing = @import("std").testing;
 const assert = @import("std").debug.assert;
-const cons = @cImport({
+const con = @cImport({
     @cInclude("serialize.h");
 });
 
 test "init" {
-    var context: cons.ConSerialize = undefined;
+    var context: con.ConSerialize = undefined;
 
-    const err = cons.con_serialize_context_init(&context);
-    assert(err == cons.CON_SERIALIZE_OK);
+    const err = con.con_serialize_context_init(&context);
+    assert(err == con.CON_SERIALIZE_OK);
 }
