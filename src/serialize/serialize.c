@@ -15,6 +15,7 @@ enum ConSerializeError con_serialize_context_init(
 
     context->out_buffer = out_buffer;
     context->out_buffer_size = out_buffer_size;
+    context->current_position = 0;
 
     return CON_SERIALIZE_OK;
 }

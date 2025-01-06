@@ -12,4 +12,5 @@ test "init" {
     assert(init_err == con.CON_SERIALIZE_OK);
     assert(context.out_buffer == @as([*c]u8, @ptrCast(&buffer)));
     assert(context.out_buffer_size == buffer.len);
+    assert(context.current_position == 0);
 }
