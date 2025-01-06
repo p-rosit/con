@@ -1,5 +1,7 @@
+#include <assert.h>
 #include "serialize.h"
 
-int func(int a) {
-    return a;
+enum ConSerializeError con_serialize_context_init(struct ConSerialize *context) {
+    assert(context != NULL);
+    return CON_SERIALIZE_OK;
 }
