@@ -22,6 +22,10 @@ pub const Serialize = struct {
         return context;
     }
 
+    pub fn currentPosition(self: Serialize) c_int {
+        return self.inner.current_position;
+    }
+
     pub fn bufferSet(self: *Serialize, buffer: []c_char) !void {
         if (buffer.len > std.math.maxInt(c_int)) {
             return error.Overflow;
@@ -61,6 +65,15 @@ test "init" {
 //     const result = Serialize.init(buffer);
 //     try testing.expectError(error.Overflow, result);
 // }
+
+test "current_position" {
+    var buffer: [2]c_char = undefined;
+    var context = try Serialize.init(&buffer);
+    try testing.expectEqual(context.currentPosition(), 0);
+
+    context.inner.current_position = 2;
+    try testing.expectEqual(context.currentPosition(), 2);
+}
 
 test "set_buffer" {
     var buffer: [5]c_char = undefined;
