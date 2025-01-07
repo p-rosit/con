@@ -31,12 +31,15 @@ pub const Serialize = struct {
     }
 };
 
-const testing = @import("std").testing;
-const assert = @import("std").debug.assert;
+const testing = std.testing;
+const assert = std.debug.assert;
 
 test "init" {
     var buffer: [5]c_char = undefined;
-    _ = try Serialize.init(&buffer);
+    const context = try Serialize.init(&buffer);
+    assert(context.c.out_buffer == @as([*c]u8, @ptrCast(&buffer)));
+    assert(context.c.out_buffer_size == buffer.len);
+    assert(context.c.current_position == 0);
 }
 
 test "large_buffer" {
