@@ -18,3 +18,23 @@ test "init" {
     assert(context.out_buffer_size == buffer.len);
     assert(context.current_position == 0);
 }
+
+test "init_null_context" {
+    var buffer: [5]c_char = undefined;
+    const init_err = con.con_serialize_context_init(null, @ptrCast(&buffer), buffer.len);
+    assert(init_err == con.CON_SERIALIZE_NULL);
+}
+
+test "init_null_buffer" {
+    var context: con.ConSerialize = undefined;
+    const init_err = con.con_serialize_context_init(&context, null, 10);
+    assert(init_err == con.CON_SERIALIZE_NULL);
+}
+
+test "init_negative_buffer" {
+    var context: con.ConSerialize = undefined;
+    var buffer: [5]c_char = undefined;
+
+    const init_err = con.con_serialize_context_init(&context, @ptrCast(&buffer), -1);
+    assert(init_err == con.CON_SERIALIZE_BUFFER);
+}
