@@ -4,6 +4,10 @@ const con = @cImport({
     @cInclude("serialize.h");
 });
 
+test "zig_bindings" {
+    _ = @import("serialize.zig");
+}
+
 test "init" {
     var context: con.ConSerialize = undefined;
     var buffer: [5]c_char = undefined;
