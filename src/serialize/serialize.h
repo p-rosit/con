@@ -20,4 +20,6 @@ enum ConSerializeError con_serialize_context_init(
     int out_buffer_size
 );
 
+enum ConSerializeError con_serialize_buffer_set(struct ConSerialize *context, char *out_buffer, int out_buffer_size);
+
 #endif
