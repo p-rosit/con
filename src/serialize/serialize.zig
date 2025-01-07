@@ -4,7 +4,7 @@ const con = @cImport({
 });
 
 pub const Serialize = struct {
-    data: con.ConSerialize,
+    c: con.ConSerialize,
 
     pub fn init(buffer: []c_char) !Serialize {
         var context: Serialize = undefined;
@@ -13,7 +13,7 @@ pub const Serialize = struct {
         }
 
         const err = con.con_serialize_context_init(
-            @ptrCast(&context.data),
+            @ptrCast(&context.c),
             @ptrCast(buffer),
             @intCast(buffer.len),
         );
