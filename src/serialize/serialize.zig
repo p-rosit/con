@@ -17,7 +17,7 @@ pub const Serialize = struct {
             @ptrCast(buffer),
             @intCast(buffer.len),
         );
-        assert(err == con.CON_SERIALIZE_OK);
+        std.debug.assert(err == con.CON_SERIALIZE_OK);
 
         return context;
     }
@@ -32,14 +32,13 @@ pub const Serialize = struct {
 };
 
 const testing = std.testing;
-const assert = std.debug.assert;
 
 test "init" {
     var buffer: [5]c_char = undefined;
     const context = try Serialize.init(&buffer);
-    assert(context.inner.out_buffer == @as([*c]u8, @ptrCast(&buffer)));
-    assert(context.inner.out_buffer_size == buffer.len);
-    assert(context.inner.current_position == 0);
+    try testing.expectEqual(context.inner.out_buffer, @as([*c]u8, @ptrCast(&buffer)));
+    try testing.expectEqual(context.inner.out_buffer_size, @as(c_int, @intCast(buffer.len)));
+    try testing.expectEqual(context.inner.current_position, 0);
 }
 
 test "large_buffer" {
@@ -47,9 +46,5 @@ test "large_buffer" {
     defer testing.allocator.free(buffer);
 
     const result = Serialize.init(buffer);
-    if (result) |_| {
-        assert(false);
-    } else |err| {
-        assert(err == error.Overflow);
-    }
+    try testing.expectError(error.Overflow, result);
 }
