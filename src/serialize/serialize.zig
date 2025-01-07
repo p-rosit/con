@@ -4,7 +4,7 @@ const con = @cImport({
 });
 
 pub const Serialize = struct {
-    c: con.ConSerialize,
+    inner: con.ConSerialize,
 
     pub fn init(buffer: []c_char) !Serialize {
         var context: Serialize = undefined;
@@ -13,7 +13,7 @@ pub const Serialize = struct {
         }
 
         const err = con.con_serialize_context_init(
-            @ptrCast(&context.c),
+            @ptrCast(&context.inner),
             @ptrCast(buffer),
             @intCast(buffer.len),
         );
@@ -37,9 +37,9 @@ const assert = std.debug.assert;
 test "init" {
     var buffer: [5]c_char = undefined;
     const context = try Serialize.init(&buffer);
-    assert(context.c.out_buffer == @as([*c]u8, @ptrCast(&buffer)));
-    assert(context.c.out_buffer_size == buffer.len);
-    assert(context.c.current_position == 0);
+    assert(context.inner.out_buffer == @as([*c]u8, @ptrCast(&buffer)));
+    assert(context.inner.out_buffer_size == buffer.len);
+    assert(context.inner.current_position == 0);
 }
 
 test "large_buffer" {
