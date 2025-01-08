@@ -17,8 +17,10 @@ enum ConSerializeError con_serialize_context_init(
     return CON_SERIALIZE_OK;
 }
 
-int con_serialize_current_position(struct ConSerialize *context) {
-    return context->current_position;
+enum ConSerializeError con_serialize_current_position(struct ConSerialize *context, int *current_position) {
+    if (current_position == NULL) { return CON_SERIALIZE_NULL; }
+    *current_position = context->current_position;
+    return CON_SERIALIZE_OK;
 }
 
 enum ConSerializeError con_serialize_buffer_set(struct ConSerialize *context, char *out_buffer, int out_buffer_size) {

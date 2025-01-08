@@ -23,7 +23,10 @@ pub const Serialize = struct {
     }
 
     pub fn currentPosition(self: *Serialize) c_int {
-        return con.con_serialize_current_position(&self.inner);
+        var current_position: c_int = undefined;
+        const err = con.con_serialize_current_position(&self.inner, &current_position);
+        std.debug.assert(err == con.CON_SERIALIZE_OK);
+        return current_position;
     }
 
     pub fn bufferSet(self: *Serialize, buffer: []c_char) !void {
