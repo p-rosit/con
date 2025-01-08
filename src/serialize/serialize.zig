@@ -39,6 +39,18 @@ pub const Serialize = struct {
         std.debug.assert(err == con.CON_SERIALIZE_OK);
     }
 
+    pub fn bufferGet(self: *Serialize) []c_char {
+        var ptr: [*c]c_char = undefined;
+        var len: c_int = undefined;
+
+        const err = con.con_serialize_buffer_get(&self.inner, @ptrCast(&ptr), &len);
+        std.debug.assert(err == con.CON_SERIALIZE_OK);
+        std.debug.assert(ptr != null);
+        std.debug.assert(len >= 0);
+
+        return @as(*[]c_char, @ptrCast(@constCast(&.{ .ptr = ptr, .len = len }))).*;
+    }
+
     fn enum_to_error(err: con.ConSerializeError) !void {
         switch (err) {
             con.CON_SERIALIZE_OK => return,
@@ -97,3 +109,11 @@ test "set_buffer" {
 //     const result = context.bufferSet(new);
 //     try testing.expectError(error.Overflow, result);
 // }
+
+test "get_buffer" {
+    var buffer: [5]c_char = undefined;
+
+    var context = try Serialize.init(&buffer);
+    const b = context.bufferGet();
+    try testing.expectEqual(&buffer, b);
+}

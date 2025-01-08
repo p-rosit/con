@@ -88,3 +88,44 @@ test "set_negative_buffer" {
     const set_err = con.con_serialize_buffer_set(&context, @ptrCast(&new), -2);
     try testing.expectEqual(set_err, con.CON_SERIALIZE_BUFFER);
 }
+
+test "get_buffer" {
+    var context: con.ConSerialize = undefined;
+    var buffer: [5]c_char = undefined;
+
+    const init_err = con.con_serialize_context_init(&context, @ptrCast(&buffer), buffer.len);
+    try testing.expectEqual(init_err, con.CON_SERIALIZE_OK);
+
+    var get_size: c_int = undefined;
+    var get_buffer: [*c]c_char = undefined;
+    const get_err = con.con_serialize_buffer_get(&context, @ptrCast(&get_buffer), &get_size);
+    try testing.expectEqual(get_err, con.CON_SERIALIZE_OK);
+    try testing.expectEqual(get_buffer, @as([*c]c_char, @ptrCast(&buffer)));
+    try testing.expectEqual(get_size, 5);
+}
+
+test "get_buffer_null_buffer_out" {
+    var context: con.ConSerialize = undefined;
+    var buffer: [5]c_char = undefined;
+
+    const init_err = con.con_serialize_context_init(&context, @ptrCast(&buffer), buffer.len);
+    try testing.expectEqual(init_err, con.CON_SERIALIZE_OK);
+
+    var get_size: c_int = 2;
+    const get_err = con.con_serialize_buffer_get(&context, null, &get_size);
+    try testing.expectEqual(get_err, con.CON_SERIALIZE_NULL);
+    try testing.expectEqual(get_size, 2);
+}
+
+test "get_buffer_null_size_out" {
+    var context: con.ConSerialize = undefined;
+    var buffer: [5]c_char = undefined;
+
+    const init_err = con.con_serialize_context_init(&context, @ptrCast(&buffer), buffer.len);
+    try testing.expectEqual(init_err, con.CON_SERIALIZE_OK);
+
+    var get_buffer: [*c]c_char = 2;
+    const get_err = con.con_serialize_buffer_get(&context, @ptrCast(&get_buffer), null);
+    try testing.expectEqual(get_err, con.CON_SERIALIZE_NULL);
+    try testing.expectEqual(get_buffer, 2);
+}

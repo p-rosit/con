@@ -30,3 +30,12 @@ enum ConSerializeError con_serialize_buffer_set(struct ConSerialize *context, ch
     context->current_position = 0;
     return CON_SERIALIZE_OK;
 }
+
+enum ConSerializeError con_serialize_buffer_get(struct ConSerialize *context, char **out_buffer, int *out_buffer_size) {
+    if (out_buffer == NULL) { return CON_SERIALIZE_NULL; }
+    if (out_buffer_size == NULL) { return CON_SERIALIZE_NULL; }
+
+    *out_buffer = context->out_buffer;
+    *out_buffer_size = context->out_buffer_size;
+    return CON_SERIALIZE_OK;
+}
