@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "serialize.h"
 
 enum ConSerializeError con_serialize_context_init(

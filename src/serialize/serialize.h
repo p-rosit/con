@@ -1,6 +1,5 @@
 #ifndef CON_SERIALIZE_H
 #define CON_SERIALIZE_H
-#include <stddef.h>
 
 enum ConSerializeError {
     CON_SERIALIZE_OK,
