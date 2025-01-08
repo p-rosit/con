@@ -22,5 +22,6 @@ enum ConSerializeError con_serialize_context_init(
 enum ConSerializeError con_serialize_current_position(struct ConSerialize *context, int *current_position);
 enum ConSerializeError con_serialize_buffer_set(struct ConSerialize *context, char *out_buffer, int out_buffer_size);
 enum ConSerializeError con_serialize_buffer_get(struct ConSerialize *context, char **out_buffer, int *out_buffer_size);
+enum ConSerializeError con_serialize_buffer_clear(struct ConSerialize *context);
 
 #endif

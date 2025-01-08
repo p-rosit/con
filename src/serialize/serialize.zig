@@ -54,6 +54,11 @@ pub const Serialize = struct {
         return @as(*[]c_char, @ptrCast(@constCast(&.{ .ptr = ptr, .len = len }))).*;
     }
 
+    pub fn bufferClear(self: *Serialize) void {
+        const err = con.con_serialize_buffer_clear(&self.inner);
+        std.debug.assert(err == con.CON_SERIALIZE_OK);
+    }
+
     fn enum_to_error(err: con.ConSerializeError) !void {
         switch (err) {
             con.CON_SERIALIZE_OK => return,
@@ -119,4 +124,13 @@ test "get_buffer" {
     var context = try Serialize.init(&buffer);
     const b = context.bufferGet();
     try testing.expectEqual(&buffer, b);
+}
+
+test "clear_buffer" {
+    var buffer: [5]c_char = undefined;
+    var context = try Serialize.init(&buffer);
+    context.inner.current_position = 3;
+
+    context.bufferClear();
+    try testing.expectEqual(context.inner.current_position, 0);
 }

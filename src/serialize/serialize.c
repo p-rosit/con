@@ -41,3 +41,8 @@ enum ConSerializeError con_serialize_buffer_get(struct ConSerialize *context, ch
     *out_buffer_size = context->out_buffer_size;
     return CON_SERIALIZE_OK;
 }
+
+enum ConSerializeError con_serialize_buffer_clear(struct ConSerialize *context) {
+    context->current_position = 0;
+    return CON_SERIALIZE_OK;
+}

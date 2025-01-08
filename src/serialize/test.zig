@@ -144,3 +144,16 @@ test "get_buffer_null_size_out" {
     try testing.expectEqual(get_err, con.CON_SERIALIZE_NULL);
     try testing.expectEqual(get_buffer, 2);
 }
+
+test "clear_buffer" {
+    var context: con.ConSerialize = undefined;
+    var buffer: [5]c_char = undefined;
+
+    const init_err = con.con_serialize_context_init(&context, @ptrCast(&buffer), buffer.len);
+    try testing.expectEqual(init_err, con.CON_SERIALIZE_OK);
+    context.current_position = 3;
+
+    const clear_err = con.con_serialize_buffer_clear(&context);
+    try testing.expectEqual(clear_err, con.CON_SERIALIZE_OK);
+    context.current_position = 0;
+}
