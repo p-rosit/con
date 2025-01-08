@@ -73,9 +73,9 @@ const testing = std.testing;
 test "init" {
     var buffer: [5]c_char = undefined;
     const context = try Serialize.init(&buffer);
-    try testing.expectEqual(context.inner.out_buffer, @as([*c]u8, @ptrCast(&buffer)));
-    try testing.expectEqual(context.inner.out_buffer_size, @as(c_int, @intCast(buffer.len)));
-    try testing.expectEqual(context.inner.current_position, 0);
+    try testing.expectEqual(@as([*c]u8, @ptrCast(&buffer)), context.inner.out_buffer);
+    try testing.expectEqual(@as(c_int, @intCast(buffer.len)), context.inner.out_buffer_size);
+    try testing.expectEqual(0, context.inner.current_position);
 }
 
 // test "large_buffer" {
@@ -89,10 +89,10 @@ test "init" {
 test "current_position" {
     var buffer: [2]c_char = undefined;
     var context = try Serialize.init(&buffer);
-    try testing.expectEqual(context.currentPosition(), 0);
+    try testing.expectEqual(0, context.currentPosition());
 
     context.inner.current_position = 2;
-    try testing.expectEqual(context.currentPosition(), 2);
+    try testing.expectEqual(2, context.currentPosition());
 }
 
 test "set_buffer" {
@@ -103,9 +103,9 @@ test "set_buffer" {
     context.inner.current_position = 1;
 
     try context.bufferSet(&new);
-    try testing.expectEqual(context.inner.out_buffer, @as([*c]u8, @ptrCast(&new)));
-    try testing.expectEqual(context.inner.out_buffer_size, @as(c_int, @intCast(new.len)));
-    try testing.expectEqual(context.inner.current_position, 0);
+    try testing.expectEqual(@as([*c]u8, @ptrCast(&new)), context.inner.out_buffer);
+    try testing.expectEqual(@as(c_int, @intCast(new.len)), context.inner.out_buffer_size);
+    try testing.expectEqual(0, context.inner.current_position);
 }
 
 // test "set_large_buffer" {
@@ -123,7 +123,7 @@ test "get_buffer" {
 
     var context = try Serialize.init(&buffer);
     const b = context.bufferGet();
-    try testing.expectEqual(&buffer, b);
+    try testing.expectEqual(b, &buffer);
 }
 
 test "clear_buffer" {
@@ -132,5 +132,5 @@ test "clear_buffer" {
     context.inner.current_position = 3;
 
     context.bufferClear();
-    try testing.expectEqual(context.inner.current_position, 0);
+    try testing.expectEqual(0, context.inner.current_position);
 }
