@@ -22,8 +22,8 @@ pub const Serialize = struct {
         return context;
     }
 
-    pub fn currentPosition(self: Serialize) c_int {
-        return self.inner.current_position;
+    pub fn currentPosition(self: *Serialize) c_int {
+        return con.con_serialize_current_position(&self.inner);
     }
 
     pub fn bufferSet(self: *Serialize, buffer: []c_char) !void {

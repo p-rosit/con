@@ -38,6 +38,18 @@ test "init_negative_buffer" {
     try testing.expectEqual(init_err, con.CON_SERIALIZE_BUFFER);
 }
 
+test "current_position" {
+    var context: con.ConSerialize = undefined;
+    var buffer: [5]c_char = undefined;
+
+    const init_err = con.con_serialize_context_init(&context, @ptrCast(&buffer), buffer.len);
+    try testing.expectEqual(init_err, con.CON_SERIALIZE_OK);
+    try testing.expectEqual(con.con_serialize_current_position(&context), 0);
+
+    context.current_position = 3;
+    try testing.expectEqual(con.con_serialize_current_position(&context), 3);
+}
+
 test "set_buffer" {
     var context: con.ConSerialize = undefined;
     var buffer: [5]c_char = undefined;
