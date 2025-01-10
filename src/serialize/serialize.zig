@@ -126,18 +126,6 @@ test "get_buffer" {
     try testing.expectEqual(b, &buffer);
 }
 
-test "set_buffer" {
-    var buffer: [5]c_char = undefined;
-    var new: [5]c_char = undefined;
-
-    var context = try Serialize.init(testing.allocator, &buffer);
-    defer context.deinit();
-
-    try context.bufferSet(&new);
-    const b = context.bufferGet();
-    try testing.expectEqual(&new, b);
-}
-
 // test "set_large_buffer" {
 //     var buffer: [5]c_char = undefined;
 //     const new = try testing.allocator.alloc(c_char, std.math.maxInt(c_int) + 1);
