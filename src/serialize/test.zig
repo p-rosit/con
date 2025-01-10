@@ -11,7 +11,7 @@ test "zig_bindings" {
 
 fn alloc(allocator: *anyopaque, size: usize) callconv(.C) [*c]u8 {
     const a = @as(*const std.mem.Allocator, @alignCast(@ptrCast(allocator)));
-    const ptr = a.alloc(u8, size) catch null;
+    const ptr = a.alignedAlloc(u8, 8, size) catch null;
     return @ptrCast(ptr);
 }
 
@@ -19,7 +19,7 @@ fn free(allocator: *anyopaque, data: [*c]u8, size: usize) callconv(.C) void {
     std.debug.assert(null != data);
     const a = @as(*const std.mem.Allocator, @alignCast(@ptrCast(allocator)));
     const p = data[0..size];
-    a.free(p);
+    a.free(@as([]align(8) u8, @alignCast(p)));
 }
 
 test "init" {
