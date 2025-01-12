@@ -8,7 +8,7 @@ pub const Serialize = struct {
     allocator: Allocator,
     inner: *con.ConSerialize,
 
-    pub fn init(alloc: Allocator, buffer: []c_char) !Serialize {
+    pub fn init(alloc: Allocator, buffer: []u8) !Serialize {
         var context: Serialize = .{ .inner = undefined, .allocator = alloc };
         if (buffer.len > std.math.maxInt(c_int)) {
             return error.Overflow;
@@ -42,7 +42,7 @@ pub const Serialize = struct {
         return @intCast(current_position);
     }
 
-    pub fn bufferSet(self: *Serialize, buffer: []c_char) !void {
+    pub fn bufferSet(self: *Serialize, buffer: []u8) !void {
         if (buffer.len > std.math.maxInt(c_int)) {
             return error.Overflow;
         }
@@ -55,7 +55,7 @@ pub const Serialize = struct {
         std.debug.assert(err == con.CON_SERIALIZE_OK);
     }
 
-    pub fn bufferGet(self: *Serialize) []c_char {
+    pub fn bufferGet(self: *Serialize) []u8 {
         var ptr: [*c]c_char = null;
         var len: c_int = 0;
 
@@ -64,7 +64,7 @@ pub const Serialize = struct {
         std.debug.assert(ptr != null);
         std.debug.assert(len >= 0);
 
-        return @as(*[]c_char, @ptrCast(@constCast(&.{ .ptr = ptr, .len = @as(usize, @intCast(len)) }))).*;
+        return @as(*[]u8, @ptrCast(@constCast(&.{ .ptr = ptr, .len = @as(usize, @intCast(len)) }))).*;
     }
 
     pub fn bufferClear(self: *Serialize) void {
@@ -109,16 +109,16 @@ pub const Serialize = struct {
 const testing = std.testing;
 
 test "init" {
-    var buffer: [5]c_char = undefined;
+    var buffer: [5]u8 = undefined;
     const context = try Serialize.init(testing.allocator, &buffer);
     defer context.deinit();
 }
 
 test "large_buffer" {
-    const buffer = try testing.allocator.alloc(c_char, 3);
+    const buffer = try testing.allocator.alloc(u8, 3);
     defer testing.allocator.free(buffer);
 
-    const fake_large_buffer: []c_char = @as(*[]c_char, @alignCast(@ptrCast(@constCast(&.{
+    const fake_large_buffer: []u8 = @as(*[]u8, @alignCast(@ptrCast(@constCast(&.{
         .ptr = buffer.ptr,
         .len = @as(usize, std.math.maxInt(c_int)) + 1,
     })))).*;
@@ -128,14 +128,14 @@ test "large_buffer" {
 }
 
 test "current_position" {
-    var buffer: [2]c_char = undefined;
+    var buffer: [2]u8 = undefined;
     var context = try Serialize.init(testing.allocator, &buffer);
     defer context.deinit();
     try testing.expectEqual(0, context.currentPosition());
 }
 
 test "get_buffer" {
-    var buffer: [5]c_char = undefined;
+    var buffer: [5]u8 = undefined;
 
     var context = try Serialize.init(testing.allocator, &buffer);
     defer context.deinit();
@@ -145,7 +145,7 @@ test "get_buffer" {
 }
 
 test "clear_buffer" {
-    var buffer: [5]c_char = undefined;
+    var buffer: [5]u8 = undefined;
     var context = try Serialize.init(testing.allocator, &buffer);
     defer context.deinit();
 
@@ -154,12 +154,12 @@ test "clear_buffer" {
 }
 
 test "array" {
-    var buffer: [2]c_char = undefined;
+    var buffer: [2]u8 = undefined;
     var context = try Serialize.init(testing.allocator, &buffer);
     defer context.deinit();
 
     try context.arrayOpen();
     try context.arrayClose();
 
-    try testing.expectEqualStrings("[]", @ptrCast(&buffer));
+    try testing.expectEqualStrings("[]", &buffer);
 }
