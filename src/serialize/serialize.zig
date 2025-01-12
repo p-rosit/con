@@ -8,18 +8,18 @@ pub const Serialize = struct {
     allocator: Allocator,
     inner: *con.ConSerialize,
 
-    pub fn init(alloc: Allocator, buffer: []u8) !Serialize {
+    pub fn init(alloc: Allocator, buffer_size: usize) !Serialize {
         var context: Serialize = .{ .inner = undefined, .allocator = alloc };
-        if (buffer.len > std.math.maxInt(c_int)) {
+        if (buffer_size > std.math.maxInt(c_int)) {
             return error.Overflow;
         }
 
         const err = con.con_serialize_context_init(
             @ptrCast(&context.inner),
-            @ptrCast(buffer),
-            @intCast(buffer.len),
             @ptrCast(@constCast(&alloc)),
             @ptrCast(&Serialize.allocCallback),
+            @ptrCast(&Serialize.freeCallback),
+            @intCast(buffer_size),
         );
 
         Serialize.enum_to_error(err) catch |new_err| {
@@ -110,51 +110,65 @@ pub const Serialize = struct {
 
 const testing = std.testing;
 
-test "init" {
-    var buffer: [5]u8 = undefined;
-    const context = try Serialize.init(testing.allocator, &buffer);
-    defer context.deinit();
-}
+test "init_failing_first_alloc" {
+    const fail_alloc = @constCast(&testing.FailingAllocator.init(
+        testing.allocator,
+        .{ .fail_index = 0 },
+    )).allocator();
 
-test "init_failing_alloc" {
-    var buffer: [5]u8 = undefined;
-    const err = Serialize.init(testing.failing_allocator, &buffer);
+    const buffer_size = 5;
+    const err = Serialize.init(fail_alloc, buffer_size);
     try testing.expectError(error.Mem, err);
 }
 
+test "init_failing_second_alloc" {
+    const fail_alloc = @constCast(&testing.FailingAllocator.init(
+        testing.allocator,
+        .{ .fail_index = 1 },
+    )).allocator();
+
+    const buffer_size = 5;
+    const err = Serialize.init(fail_alloc, buffer_size);
+    try testing.expectError(error.Mem, err);
+}
+
+test "init" {
+    const fail_alloc = @constCast(&testing.FailingAllocator.init(
+        testing.allocator,
+        .{ .fail_index = 2 },
+    )).allocator();
+
+    const buffer_size = 3;
+    const context = try Serialize.init(fail_alloc, buffer_size);
+    defer context.deinit();
+}
+
 test "large_buffer" {
-    const buffer = try testing.allocator.alloc(u8, 3);
-    defer testing.allocator.free(buffer);
-
-    const fake_large_buffer: []u8 = @as(*[]u8, @alignCast(@ptrCast(@constCast(&.{
-        .ptr = buffer.ptr,
-        .len = @as(usize, std.math.maxInt(c_int)) + 1,
-    })))).*;
-
-    const result = Serialize.init(testing.allocator, fake_large_buffer);
+    const buffer_size = @as(usize, std.math.maxInt(c_int)) + 1;
+    const result = Serialize.init(testing.allocator, buffer_size);
     try testing.expectError(error.Overflow, result);
 }
 
 test "current_position" {
-    var buffer: [2]u8 = undefined;
-    var context = try Serialize.init(testing.allocator, &buffer);
+    const buffer_size = 5;
+    var context = try Serialize.init(testing.allocator, buffer_size);
     defer context.deinit();
+
     try testing.expectEqual(0, context.currentPosition());
 }
 
 test "get_buffer" {
-    var buffer: [5]u8 = undefined;
-
-    var context = try Serialize.init(testing.allocator, &buffer);
+    const buffer_size = 5;
+    var context = try Serialize.init(testing.allocator, buffer_size);
     defer context.deinit();
 
     const b = context.bufferGet();
-    try testing.expectEqual(b, &buffer);
+    try testing.expectEqual(b.len, buffer_size);
 }
 
 test "clear_buffer" {
-    var buffer: [5]u8 = undefined;
-    var context = try Serialize.init(testing.allocator, &buffer);
+    const buffer_size = 5;
+    var context = try Serialize.init(testing.allocator, buffer_size);
     defer context.deinit();
 
     context.bufferClear();
@@ -162,12 +176,12 @@ test "clear_buffer" {
 }
 
 test "array" {
-    var buffer: [2]u8 = undefined;
-    var context = try Serialize.init(testing.allocator, &buffer);
+    const buffer_size = 2;
+    var context = try Serialize.init(testing.allocator, buffer_size);
     defer context.deinit();
 
     try context.arrayOpen();
     try context.arrayClose();
 
-    try testing.expectEqualStrings("[]", &buffer);
+    try testing.expectEqualStrings("[]", context.bufferGet());
 }

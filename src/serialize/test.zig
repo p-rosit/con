@@ -21,18 +21,59 @@ fn free(allocator: *anyopaque, data: [*c]u8, size: usize) callconv(.C) void {
     a.free(@as([]align(8) u8, @alignCast(p)));
 }
 
-test "init" {
+test "init_failing_first_alloc" {
+    var fail_alloc = @constCast(&testing.FailingAllocator.init(
+        testing.allocator,
+        .{ .fail_index = 0 },
+    )).allocator();
+    const buffer_size = 5;
     var context: *con.ConSerialize = undefined;
-    var buffer: [5]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(&buffer),
-        buffer.len,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(@constCast(&fail_alloc)),
         @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_MEM), init_err);
+}
+
+test "init_failing_second_alloc" {
+    var fail_alloc = @constCast(&testing.FailingAllocator.init(
+        testing.allocator,
+        .{ .fail_index = 1 },
+    )).allocator();
+    const buffer_size = 5;
+    var context: *con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_context_init(
+        @ptrCast(&context),
+        @ptrCast(@constCast(&fail_alloc)),
+        @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_MEM), init_err);
+}
+
+test "init" {
+    var fail_alloc = @constCast(&testing.FailingAllocator.init(
+        testing.allocator,
+        .{ .fail_index = 2 },
+    )).allocator();
+    const buffer_size = 5;
+    var context: *con.ConSerialize = @ptrFromInt(1);
+
+    const init_err = con.con_serialize_context_init(
+        @ptrCast(&context),
+        @ptrCast(@constCast(&fail_alloc)),
+        @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expect(context != @as(*con.ConSerialize, @ptrFromInt(1)));
     defer con.con_serialize_context_deinit(
         context,
         @ptrCast(@constCast(&testing.allocator)),
@@ -40,68 +81,42 @@ test "init" {
     );
 }
 
-test "init_failing_alloc" {
-    var context: *con.ConSerialize = undefined;
-    var buffer: [4]c_char = undefined;
-
-    const init_err = con.con_serialize_context_init(
-        @ptrCast(&context),
-        @ptrCast(&buffer),
-        buffer.len,
-        @ptrCast(@constCast(&testing.failing_allocator)),
-        @ptrCast(&alloc),
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_MEM), init_err);
-}
-
 test "init_null_context" {
-    var buffer: [5]c_char = undefined;
+    const buffer_size = 5;
     const init_err = con.con_serialize_context_init(
         null,
-        @ptrCast(&buffer),
-        buffer.len,
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&alloc),
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
-}
-
-test "init_null_buffer" {
-    var context: *con.ConSerialize = undefined;
-    const init_err = con.con_serialize_context_init(
-        @ptrCast(&context),
-        null,
-        10,
-        @ptrCast(@constCast(&testing.allocator)),
-        @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
 }
 
 test "init_negative_buffer" {
+    const buffer_size = -1;
     var context: *con.ConSerialize = undefined;
-    var buffer: [5]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(&buffer),
-        -1,
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_BUFFER), init_err);
 }
 
 test "current_position" {
+    const buffer_size = 5;
     var context: *con.ConSerialize = undefined;
-    var buffer: [5]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(&buffer),
-        buffer.len,
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
@@ -117,15 +132,15 @@ test "current_position" {
 }
 
 test "current_position_null_out" {
+    const buffer_size = 5;
     var context: *con.ConSerialize = undefined;
-    var buffer: [5]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(&buffer),
-        buffer.len,
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
@@ -138,15 +153,15 @@ test "current_position_null_out" {
 }
 
 test "get_buffer" {
+    const buffer_size = 5;
     var context: *con.ConSerialize = undefined;
-    var buffer: [5]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(&buffer),
-        buffer.len,
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
@@ -156,23 +171,24 @@ test "get_buffer" {
     );
 
     var get_size: c_int = undefined;
-    var get_buffer: [*c]c_char = undefined;
+    var get_buffer: [*c]c_char = 1;
     const get_err = con.con_serialize_buffer_get(context, @ptrCast(&get_buffer), &get_size);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), get_err);
-    try testing.expectEqual(@as([*c]c_char, @ptrCast(&buffer)), get_buffer);
+    try testing.expect(get_buffer != null);
+    try testing.expect(get_buffer != 1);
     try testing.expectEqual(5, get_size);
 }
 
 test "get_buffer_null_buffer_out" {
+    const buffer_size = 5;
     var context: *con.ConSerialize = undefined;
-    var buffer: [5]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(&buffer),
-        buffer.len,
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
@@ -188,15 +204,15 @@ test "get_buffer_null_buffer_out" {
 }
 
 test "get_buffer_null_size_out" {
+    const buffer_size = 5;
     var context: *con.ConSerialize = undefined;
-    var buffer: [5]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(&buffer),
-        buffer.len,
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
@@ -212,15 +228,15 @@ test "get_buffer_null_size_out" {
 }
 
 test "clear_buffer" {
+    const buffer_size = 3;
     var context: *con.ConSerialize = undefined;
-    var buffer: [5]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(&buffer),
-        buffer.len,
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
@@ -239,15 +255,15 @@ test "clear_buffer" {
 }
 
 test "array" {
+    const buffer_size = 2;
     var context: *con.ConSerialize = undefined;
-    var buffer: [2]c_char = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(&buffer),
-        buffer.len,
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
@@ -262,5 +278,11 @@ test "array" {
     const close_err = con.con_serialize_array_close(context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
 
-    try testing.expectEqualStrings("[]", @ptrCast(&buffer));
+    var get_size: c_int = undefined;
+    var get_buffer: [*c]c_char = undefined;
+    const get_err = con.con_serialize_buffer_get(context, @ptrCast(&get_buffer), &get_size);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), get_err);
+
+    const b = get_buffer[0..@intCast(get_size)];
+    try testing.expectEqualStrings("[]", @ptrCast(b));
 }

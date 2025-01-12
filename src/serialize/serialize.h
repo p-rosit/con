@@ -15,10 +15,10 @@ typedef void (ConFree)(void *context, void *data, size_t size);
 
 enum ConSerializeError con_serialize_context_init(
     struct ConSerialize **context,
-    char *out_buffer,
-    int out_buffer_size,
     void *allocator_context,
-    ConAlloc *allocator
+    ConAlloc *alloc,
+    ConFree *free,
+    int out_buffer_size
 );
 void con_serialize_context_deinit(
     struct ConSerialize *context,
