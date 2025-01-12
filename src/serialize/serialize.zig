@@ -111,35 +111,29 @@ pub const Serialize = struct {
 const testing = std.testing;
 
 test "init_failing_first_alloc" {
-    const fail_alloc = @constCast(&testing.FailingAllocator.init(
-        testing.allocator,
-        .{ .fail_index = 0 },
-    )).allocator();
+    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
+    const allocator = failing_allocator.allocator();
 
     const buffer_size = 5;
-    const err = Serialize.init(fail_alloc, buffer_size);
+    const err = Serialize.init(allocator, buffer_size);
     try testing.expectError(error.Mem, err);
 }
 
 test "init_failing_second_alloc" {
-    const fail_alloc = @constCast(&testing.FailingAllocator.init(
-        testing.allocator,
-        .{ .fail_index = 1 },
-    )).allocator();
+    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 1 });
+    const allocator = failing_allocator.allocator();
 
     const buffer_size = 5;
-    const err = Serialize.init(fail_alloc, buffer_size);
+    const err = Serialize.init(allocator, buffer_size);
     try testing.expectError(error.Mem, err);
 }
 
 test "init" {
-    const fail_alloc = @constCast(&testing.FailingAllocator.init(
-        testing.allocator,
-        .{ .fail_index = 2 },
-    )).allocator();
+    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 2 });
+    const allocator = failing_allocator.allocator();
 
     const buffer_size = 3;
-    const context = try Serialize.init(fail_alloc, buffer_size);
+    const context = try Serialize.init(allocator, buffer_size);
     defer context.deinit();
 }
 

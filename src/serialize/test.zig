@@ -22,16 +22,14 @@ fn free(allocator: *anyopaque, data: [*c]u8, size: usize) callconv(.C) void {
 }
 
 test "init_failing_first_alloc" {
-    var fail_alloc = @constCast(&testing.FailingAllocator.init(
-        testing.allocator,
-        .{ .fail_index = 0 },
-    )).allocator();
+    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
+    const allocator = failing_allocator.allocator();
     const buffer_size = 5;
     var context: *con.ConSerialize = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&fail_alloc)),
+        @ptrCast(@constCast(&allocator)),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -40,16 +38,14 @@ test "init_failing_first_alloc" {
 }
 
 test "init_failing_second_alloc" {
-    var fail_alloc = @constCast(&testing.FailingAllocator.init(
-        testing.allocator,
-        .{ .fail_index = 1 },
-    )).allocator();
+    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 1 });
+    const allocator = failing_allocator.allocator();
     const buffer_size = 5;
     var context: *con.ConSerialize = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&fail_alloc)),
+        @ptrCast(@constCast(&allocator)),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -58,16 +54,14 @@ test "init_failing_second_alloc" {
 }
 
 test "init" {
-    var fail_alloc = @constCast(&testing.FailingAllocator.init(
-        testing.allocator,
-        .{ .fail_index = 2 },
-    )).allocator();
+    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 2 });
+    const allocator = failing_allocator.allocator();
     const buffer_size = 5;
     var context: *con.ConSerialize = @ptrFromInt(1);
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&fail_alloc)),
+        @ptrCast(@constCast(&allocator)),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
