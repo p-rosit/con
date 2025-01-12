@@ -21,8 +21,10 @@ pub const Serialize = struct {
             @ptrCast(@constCast(&alloc)),
             @ptrCast(&Serialize.allocCallback),
         );
-        std.debug.assert(err == con.CON_SERIALIZE_OK);
 
+        Serialize.enum_to_error(err) catch |new_err| {
+            return new_err;
+        };
         return context;
     }
 
@@ -112,6 +114,12 @@ test "init" {
     var buffer: [5]u8 = undefined;
     const context = try Serialize.init(testing.allocator, &buffer);
     defer context.deinit();
+}
+
+test "init_failing_alloc" {
+    var buffer: [5]u8 = undefined;
+    const err = Serialize.init(testing.failing_allocator, &buffer);
+    try testing.expectError(error.Mem, err);
 }
 
 test "large_buffer" {

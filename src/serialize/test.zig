@@ -40,6 +40,20 @@ test "init" {
     );
 }
 
+test "init_failing_alloc" {
+    var context: *con.ConSerialize = undefined;
+    var buffer: [4]c_char = undefined;
+
+    const init_err = con.con_serialize_context_init(
+        @ptrCast(&context),
+        @ptrCast(&buffer),
+        buffer.len,
+        @ptrCast(@constCast(&testing.failing_allocator)),
+        @ptrCast(&alloc),
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_MEM), init_err);
+}
+
 test "init_null_context" {
     var buffer: [5]c_char = undefined;
     const init_err = con.con_serialize_context_init(
