@@ -29,11 +29,12 @@ pub const Serialize = struct {
     }
 
     pub fn deinit(self: Serialize) void {
-        con.con_serialize_context_deinit(
+        const err = con.con_serialize_context_deinit(
             self.inner,
             @ptrCast(&self.allocator),
             @ptrCast(&Serialize.freeCallback),
         );
+        std.debug.assert(err == con.CON_SERIALIZE_OK);
     }
 
     pub fn currentPosition(self: *Serialize) usize {

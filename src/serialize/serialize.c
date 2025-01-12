@@ -36,16 +36,17 @@ enum ConSerializeError con_serialize_context_init(
     return CON_SERIALIZE_OK;
 }
 
-void con_serialize_context_deinit(
+enum ConSerializeError con_serialize_context_deinit(
     struct ConSerialize *context,
     void const *allocator_context,
     ConFree *free
 ) {
     assert(context != NULL);
-    assert(free != NULL);
+    if (free == NULL) { return CON_SERIALIZE_NULL; }
 
     free(allocator_context, context->out_buffer, context->out_buffer_size * sizeof(char));
     free(allocator_context, context, sizeof(struct ConSerialize));
+    return CON_SERIALIZE_OK;
 }
 
 enum ConSerializeError con_serialize_current_position(struct ConSerialize *context, int *current_position) {

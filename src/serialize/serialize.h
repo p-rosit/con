@@ -21,7 +21,7 @@ enum ConSerializeError con_serialize_context_init(
     ConFree *free,
     int out_buffer_size
 );
-void con_serialize_context_deinit(
+enum ConSerializeError con_serialize_context_deinit(
     struct ConSerialize *context,
     void const *allocator_context,
     ConFree *free
