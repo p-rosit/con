@@ -7,22 +7,23 @@ enum ConSerializeError {
     CON_SERIALIZE_NULL,
     CON_SERIALIZE_BUFFER,
     CON_SERIALIZE_MEM,
+    CON_SERIALIZE_UNCLOSED,
 };
 
 struct ConSerialize;
-typedef void *(ConAlloc)(void *context, size_t size);
-typedef void (ConFree)(void *context, void *data, size_t size);
+typedef void *(ConAlloc)(void const *context, size_t size);
+typedef void (ConFree)(void const *context, void *data, size_t size);
 
 enum ConSerializeError con_serialize_context_init(
     struct ConSerialize **context,
-    void *allocator_context,
+    void const *allocator_context,
     ConAlloc *alloc,
     ConFree *free,
     int out_buffer_size
 );
 void con_serialize_context_deinit(
     struct ConSerialize *context,
-    void *allocator_context,
+    void const *allocator_context,
     ConFree *free
 );
 

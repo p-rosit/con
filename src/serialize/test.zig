@@ -8,13 +8,13 @@ test "zig_bindings" {
     _ = @import("serialize.zig");
 }
 
-fn alloc(allocator: *anyopaque, size: usize) callconv(.C) [*c]u8 {
+fn alloc(allocator: *const anyopaque, size: usize) callconv(.C) [*c]u8 {
     const a = @as(*const std.mem.Allocator, @alignCast(@ptrCast(allocator)));
     const ptr = a.alignedAlloc(u8, 8, size) catch null;
     return @ptrCast(ptr);
 }
 
-fn free(allocator: *anyopaque, data: [*c]u8, size: usize) callconv(.C) void {
+fn free(allocator: *const anyopaque, data: [*c]u8, size: usize) callconv(.C) void {
     std.debug.assert(null != data);
     const a = @as(*const std.mem.Allocator, @alignCast(@ptrCast(allocator)));
     const p = data[0..size];
@@ -29,7 +29,7 @@ test "init_failing_first_alloc" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&allocator)),
+        @ptrCast(&allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -45,7 +45,7 @@ test "init_failing_second_alloc" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&allocator)),
+        @ptrCast(&allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -61,7 +61,7 @@ test "init" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&allocator)),
+        @ptrCast(&allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -70,7 +70,7 @@ test "init" {
     try testing.expect(context != @as(*con.ConSerialize, @ptrFromInt(1)));
     defer con.con_serialize_context_deinit(
         context,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&free),
     );
 }
@@ -79,7 +79,7 @@ test "init_null_context" {
     const buffer_size = 5;
     const init_err = con.con_serialize_context_init(
         null,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -93,7 +93,7 @@ test "init_negative_buffer" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -107,7 +107,7 @@ test "current_position" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -115,7 +115,7 @@ test "current_position" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
         context,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&free),
     );
 
@@ -131,7 +131,7 @@ test "current_position_null_out" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -139,7 +139,7 @@ test "current_position_null_out" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
         context,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&free),
     );
     const pos_err = con.con_serialize_current_position(context, null);
@@ -152,7 +152,7 @@ test "get_buffer" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -160,7 +160,7 @@ test "get_buffer" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
         context,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&free),
     );
 
@@ -179,7 +179,7 @@ test "get_buffer_null_buffer_out" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -187,7 +187,7 @@ test "get_buffer_null_buffer_out" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
         context,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&free),
     );
 
@@ -203,7 +203,7 @@ test "get_buffer_null_size_out" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -211,7 +211,7 @@ test "get_buffer_null_size_out" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
         context,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&free),
     );
 
@@ -227,7 +227,7 @@ test "clear_buffer" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -235,7 +235,7 @@ test "clear_buffer" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
         context,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&free),
     );
 
@@ -254,7 +254,7 @@ test "array" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
         buffer_size,
@@ -262,7 +262,7 @@ test "array" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
     defer con.con_serialize_context_deinit(
         context,
-        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&testing.allocator),
         @ptrCast(&free),
     );
 

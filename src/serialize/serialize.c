@@ -9,7 +9,7 @@ struct ConSerialize {
 
 enum ConSerializeError con_serialize_context_init(
     struct ConSerialize **context,
-    void *allocator_context,
+    void const *allocator_context,
     ConAlloc *alloc,
     ConFree *free,
     int out_buffer_size
@@ -38,7 +38,7 @@ enum ConSerializeError con_serialize_context_init(
 
 void con_serialize_context_deinit(
     struct ConSerialize *context,
-    void *allocator_context,
+    void const *allocator_context,
     ConFree *free
 ) {
     assert(context != NULL);

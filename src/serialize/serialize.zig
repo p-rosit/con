@@ -16,7 +16,7 @@ pub const Serialize = struct {
 
         const err = con.con_serialize_context_init(
             @ptrCast(&context.inner),
-            @ptrCast(@constCast(&alloc)),
+            @ptrCast(&alloc),
             @ptrCast(&Serialize.allocCallback),
             @ptrCast(&Serialize.freeCallback),
             @intCast(buffer_size),
@@ -31,7 +31,7 @@ pub const Serialize = struct {
     pub fn deinit(self: Serialize) void {
         con.con_serialize_context_deinit(
             self.inner,
-            @ptrCast(@constCast(&self.allocator)),
+            @ptrCast(&self.allocator),
             @ptrCast(&Serialize.freeCallback),
         );
     }
