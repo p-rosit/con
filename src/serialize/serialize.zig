@@ -71,6 +71,16 @@ pub const Serialize = struct {
         std.debug.assert(err == con.CON_SERIALIZE_OK);
     }
 
+    pub fn arrayOpen(self: Serialize) !void {
+        const err = con.con_serialize_array_open(self.inner);
+        return Serialize.enum_to_error(err);
+    }
+
+    pub fn arrayClose(self: Serialize) !void {
+        const err = con.con_serialize_array_close(self.inner);
+        return Serialize.enum_to_error(err);
+    }
+
     fn allocCallback(allocator: *anyopaque, size: usize) callconv(.C) [*c]u8 {
         const a = @as(*const std.mem.Allocator, @ptrCast(@alignCast(allocator)));
         const ptr = a.alignedAlloc(u8, 8, size) catch null;
@@ -140,4 +150,15 @@ test "clear_buffer" {
 
     context.bufferClear();
     try testing.expectEqual(0, context.currentPosition());
+}
+
+test "array" {
+    var buffer: [2]c_char = undefined;
+    var context = try Serialize.init(testing.allocator, &buffer);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[]", @ptrCast(&buffer));
 }

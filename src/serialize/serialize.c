@@ -71,3 +71,21 @@ enum ConSerializeError con_serialize_buffer_clear(struct ConSerialize *context) 
     context->current_position = 0;
     return CON_SERIALIZE_OK;
 }
+
+enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
+    assert(context != NULL);
+
+    context->out_buffer[context->current_position] = '[';
+    context->current_position += 1;
+
+    return CON_SERIALIZE_OK;
+}
+
+enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
+    assert(context != NULL);
+
+    context->out_buffer[context->current_position] = ']';
+    context->current_position += 1;
+
+    return CON_SERIALIZE_OK;
+}

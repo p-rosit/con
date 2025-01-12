@@ -30,4 +30,7 @@ enum ConSerializeError con_serialize_current_position(struct ConSerialize *conte
 enum ConSerializeError con_serialize_buffer_get(struct ConSerialize *context, char **out_buffer, int *out_buffer_size);
 enum ConSerializeError con_serialize_buffer_clear(struct ConSerialize *context);
 
+enum ConSerializeError con_serialize_array_open(struct ConSerialize *context);
+enum ConSerializeError con_serialize_array_close(struct ConSerialize *context);
+
 #endif

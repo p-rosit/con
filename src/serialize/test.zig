@@ -223,3 +223,30 @@ test "clear_buffer" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), pos_err);
     try testing.expectEqual(0, curr);
 }
+
+test "array" {
+    var context: *con.ConSerialize = undefined;
+    var buffer: [2]c_char = undefined;
+
+    const init_err = con.con_serialize_context_init(
+        @ptrCast(&context),
+        @ptrCast(&buffer),
+        buffer.len,
+        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&alloc),
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    defer con.con_serialize_context_deinit(
+        context,
+        @ptrCast(@constCast(&testing.allocator)),
+        @ptrCast(&free),
+    );
+
+    const open_err = con.con_serialize_array_open(context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    const close_err = con.con_serialize_array_close(context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+
+    try testing.expectEqualStrings("[]", @ptrCast(&buffer));
+}
