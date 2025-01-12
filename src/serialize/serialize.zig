@@ -89,6 +89,8 @@ pub const Serialize = struct {
             con.CON_SERIALIZE_OK => return,
             con.CON_SERIALIZE_NULL => return error.Null,
             con.CON_SERIALIZE_BUFFER => return error.Buffer,
+            con.CON_SERIALIZE_MEM => return error.Mem,
+            else => return error.Unknown,
         }
     }
 };
