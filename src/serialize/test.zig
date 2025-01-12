@@ -1,7 +1,6 @@
 const std = @import("std");
 const testing = @import("std").testing;
 const con = @cImport({
-    @cInclude("internal.h");
     @cInclude("serialize.h");
 });
 
@@ -39,9 +38,6 @@ test "init" {
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&free),
     );
-    try testing.expectEqual(@as([*c]u8, @ptrCast(&buffer)), context.out_buffer);
-    try testing.expectEqual(@as(c_int, @intCast(buffer.len)), context.out_buffer_size);
-    try testing.expectEqual(0, context.current_position);
 }
 
 test "init_null_context" {
@@ -85,7 +81,6 @@ test "init_negative_buffer" {
 test "current_position" {
     var context: *con.ConSerialize = undefined;
     var buffer: [5]c_char = undefined;
-    var curr: c_int = undefined;
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
@@ -100,14 +95,11 @@ test "current_position" {
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&free),
     );
-    var pos_err = con.con_serialize_current_position(context, &curr);
+
+    var curr: c_int = undefined;
+    const pos_err = con.con_serialize_current_position(context, &curr);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), pos_err);
     try testing.expectEqual(0, curr);
-
-    context.current_position = 3;
-    pos_err = con.con_serialize_current_position(context, &curr);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), pos_err);
-    try testing.expectEqual(3, curr);
 }
 
 test "current_position_null_out" {
@@ -222,9 +214,12 @@ test "clear_buffer" {
         @ptrCast(@constCast(&testing.allocator)),
         @ptrCast(&free),
     );
-    context.current_position = 3;
 
     const clear_err = con.con_serialize_buffer_clear(context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), clear_err);
-    context.current_position = 0;
+
+    var curr: c_int = undefined;
+    const pos_err = con.con_serialize_current_position(context, &curr);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), pos_err);
+    try testing.expectEqual(0, curr);
 }
