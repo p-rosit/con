@@ -101,13 +101,18 @@ test "init" {
     defer context.deinit();
 }
 
-// test "large_buffer" {
-//     const buffer = try testing.allocator.alloc(c_char, std.math.maxInt(c_int) + 1);
-//     defer testing.allocator.free(buffer);
-//
-//     const result = Serialize.init(testing.allocator, buffer);
-//     try testing.expectError(error.Overflow, result);
-// }
+test "large_buffer" {
+    const buffer = try testing.allocator.alloc(c_char, 3);
+    defer testing.allocator.free(buffer);
+
+    const fake_large_buffer: []c_char = @as(*[]c_char, @alignCast(@ptrCast(@constCast(&.{
+        .ptr = buffer.ptr,
+        .len = @as(usize, std.math.maxInt(c_int)) + 1,
+    })))).*;
+
+    const result = Serialize.init(testing.allocator, fake_large_buffer);
+    try testing.expectError(error.Overflow, result);
+}
 
 test "current_position" {
     var buffer: [2]c_char = undefined;
