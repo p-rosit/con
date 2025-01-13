@@ -117,6 +117,34 @@ test "init_null_free" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
 }
 
+test "deinit_null_free" {
+    const buffer_size = 5;
+    var context: *con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_context_init(
+        @ptrCast(&context),
+        @ptrCast(&testing.allocator),
+        @ptrCast(&alloc),
+        @ptrCast(&free),
+        buffer_size,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const deinit_err = con.con_serialize_context_deinit(
+        context,
+        @ptrCast(&testing.allocator),
+        null,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), deinit_err);
+
+    const deinit_ok = con.con_serialize_context_deinit(
+        context,
+        @ptrCast(&testing.allocator),
+        @ptrCast(&free),
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), deinit_ok);
+}
+
 test "init_negative_buffer" {
     const buffer_size = -1;
     var context: *con.ConSerialize = undefined;
