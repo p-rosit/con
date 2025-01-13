@@ -56,17 +56,6 @@ enum ConSerializeError con_serialize_current_position(struct ConSerialize *conte
     return CON_SERIALIZE_OK;
 }
 
-enum ConSerializeError con_serialize_buffer_set(struct ConSerialize *context, char *out_buffer, int out_buffer_size) {
-    assert(context != NULL);
-    if (out_buffer == NULL) { return CON_SERIALIZE_NULL; }
-    if (out_buffer_size <= 0) { return CON_SERIALIZE_BUFFER; }
-
-    context->out_buffer = out_buffer;
-    context->out_buffer_size = out_buffer_size;
-    context->current_position = 0;
-    return CON_SERIALIZE_OK;
-}
-
 enum ConSerializeError con_serialize_buffer_get(struct ConSerialize *context, char **out_buffer, int *out_buffer_size) {
     assert(context != NULL);
     if (out_buffer == NULL) { return CON_SERIALIZE_NULL; }
