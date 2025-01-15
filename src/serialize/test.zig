@@ -57,7 +57,7 @@ test "init" {
     var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 2 });
     const allocator = failing_allocator.allocator();
     const buffer_size = 5;
-    var context: *con.ConSerialize = @ptrFromInt(1);
+    var context: *con.ConSerialize = @ptrFromInt(8);
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
@@ -67,7 +67,7 @@ test "init" {
         buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
-    try testing.expect(context != @as(*con.ConSerialize, @ptrFromInt(1)));
+    try testing.expect(context != @as(*con.ConSerialize, @ptrFromInt(8)));
 
     const deinit_err = con.con_serialize_context_deinit(
         context,

@@ -14,6 +14,12 @@ struct ConSerialize;
 typedef void *(ConAlloc)(void const *context, size_t size);
 typedef void (ConFree)(void const *context, void *data, size_t size);
 
+struct ConSerialize {
+    char *out_buffer;
+    int out_buffer_size;
+    int current_position;
+};
+
 enum ConSerializeError con_serialize_context_init(
     struct ConSerialize **context,
     void const *allocator_context,
