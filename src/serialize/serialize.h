@@ -21,7 +21,7 @@ struct ConSerialize {
 };
 
 enum ConSerializeError con_serialize_context_init(
-    struct ConSerialize **context,
+    struct ConSerialize *context,
     void const *allocator_context,
     ConAlloc *alloc,
     ConFree *free,

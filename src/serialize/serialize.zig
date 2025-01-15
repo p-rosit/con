@@ -6,7 +6,7 @@ const con = @cImport({
 
 pub const Serialize = struct {
     allocator: Allocator,
-    inner: *con.ConSerialize,
+    inner: con.ConSerialize,
 
     pub fn init(alloc: Allocator, buffer_size: usize) !Serialize {
         var context: Serialize = .{ .inner = undefined, .allocator = alloc };
@@ -15,7 +15,7 @@ pub const Serialize = struct {
         }
 
         const err = con.con_serialize_context_init(
-            @ptrCast(&context.inner),
+            &context.inner,
             @ptrCast(&alloc),
             @ptrCast(&Serialize.allocCallback),
             @ptrCast(&Serialize.freeCallback),
@@ -30,7 +30,7 @@ pub const Serialize = struct {
 
     pub fn deinit(self: Serialize) void {
         const err = con.con_serialize_context_deinit(
-            self.inner,
+            @constCast(&self.inner),
             @ptrCast(&self.allocator),
             @ptrCast(&Serialize.freeCallback),
         );
@@ -39,7 +39,7 @@ pub const Serialize = struct {
 
     pub fn currentPosition(self: *Serialize) usize {
         var current_position: c_int = undefined;
-        const err = con.con_serialize_current_position(self.inner, &current_position);
+        const err = con.con_serialize_current_position(&self.inner, &current_position);
         std.debug.assert(err == con.CON_SERIALIZE_OK);
         std.debug.assert(current_position >= 0);
         return @intCast(current_position);
@@ -51,7 +51,7 @@ pub const Serialize = struct {
         }
 
         const err = con.con_serialize_buffer_set(
-            self.inner,
+            &self.inner,
             @ptrCast(buffer),
             @intCast(buffer.len),
         );
@@ -62,7 +62,7 @@ pub const Serialize = struct {
         var ptr: [*c]c_char = null;
         var len: c_int = 0;
 
-        const err = con.con_serialize_buffer_get(self.inner, @ptrCast(&ptr), &len);
+        const err = con.con_serialize_buffer_get(&self.inner, @ptrCast(&ptr), &len);
         std.debug.assert(err == con.CON_SERIALIZE_OK);
         std.debug.assert(ptr != null);
         std.debug.assert(len >= 0);
@@ -71,17 +71,17 @@ pub const Serialize = struct {
     }
 
     pub fn bufferClear(self: *Serialize) void {
-        const err = con.con_serialize_buffer_clear(self.inner);
+        const err = con.con_serialize_buffer_clear(&self.inner);
         std.debug.assert(err == con.CON_SERIALIZE_OK);
     }
 
-    pub fn arrayOpen(self: Serialize) !void {
-        const err = con.con_serialize_array_open(self.inner);
+    pub fn arrayOpen(self: *Serialize) !void {
+        const err = con.con_serialize_array_open(&self.inner);
         return Serialize.enum_to_error(err);
     }
 
-    pub fn arrayClose(self: Serialize) !void {
-        const err = con.con_serialize_array_close(self.inner);
+    pub fn arrayClose(self: *Serialize) !void {
+        const err = con.con_serialize_array_close(&self.inner);
         return Serialize.enum_to_error(err);
     }
 
@@ -120,17 +120,8 @@ test "init_failing_first_alloc" {
     try testing.expectError(error.Mem, err);
 }
 
-test "init_failing_second_alloc" {
-    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 1 });
-    const allocator = failing_allocator.allocator();
-
-    const buffer_size = 5;
-    const err = Serialize.init(allocator, buffer_size);
-    try testing.expectError(error.Mem, err);
-}
-
 test "init" {
-    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 2 });
+    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 1 });
     const allocator = failing_allocator.allocator();
 
     const buffer_size = 3;

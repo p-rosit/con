@@ -2,7 +2,7 @@
 #include "serialize.h"
 
 enum ConSerializeError con_serialize_context_init(
-    struct ConSerialize **context,
+    struct ConSerialize *context,
     void const *allocator_context,
     ConAlloc *alloc,
     ConFree *free,
@@ -13,20 +13,15 @@ enum ConSerializeError con_serialize_context_init(
     if (free == NULL) { return CON_SERIALIZE_NULL; }
     if (out_buffer_size <= 0) { return CON_SERIALIZE_BUFFER; }
 
-    struct ConSerialize *c = alloc(allocator_context, sizeof(struct ConSerialize));
-    if (c == NULL) { return CON_SERIALIZE_MEM; }
-
     char *out_buffer = alloc(allocator_context, out_buffer_size * sizeof(char));
     if (out_buffer == NULL) {
-        free(allocator_context, c, sizeof(struct ConSerialize));
         return CON_SERIALIZE_MEM;
     }
 
-    c->out_buffer = out_buffer;
-    c->out_buffer_size = out_buffer_size;
-    c->current_position = 0;
+    context->out_buffer = out_buffer;
+    context->out_buffer_size = out_buffer_size;
+    context->current_position = 0;
 
-    *context = c;
     return CON_SERIALIZE_OK;
 }
 
@@ -39,7 +34,6 @@ enum ConSerializeError con_serialize_context_deinit(
     if (free == NULL) { return CON_SERIALIZE_NULL; }
 
     free(allocator_context, context->out_buffer, context->out_buffer_size * sizeof(char));
-    free(allocator_context, context, sizeof(struct ConSerialize));
     return CON_SERIALIZE_OK;
 }
 
