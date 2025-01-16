@@ -13,8 +13,11 @@ enum ConSerializeError {
 struct ConSerialize;
 typedef void *(ConAlloc)(void const *context, size_t size);
 typedef void (ConFree)(void const *context, void *data, size_t size);
+typedef int (ConWrite)(void const *context, char *data);
 
 struct ConSerialize {
+    void const *write_context;
+    ConWrite *write;
     char *out_buffer;
     int out_buffer_size;
     int current_position;
@@ -22,6 +25,8 @@ struct ConSerialize {
 
 enum ConSerializeError con_serialize_context_init(
     struct ConSerialize *context,
+    void const *write_context,
+    ConWrite *write,
     void const *allocator_context,
     ConAlloc *alloc,
     ConFree *free,

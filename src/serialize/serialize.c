@@ -3,12 +3,15 @@
 
 enum ConSerializeError con_serialize_context_init(
     struct ConSerialize *context,
+    void const *write_context,
+    ConWrite *write,
     void const *allocator_context,
     ConAlloc *alloc,
     ConFree *free,
     int out_buffer_size
 ) {
     if (context == NULL) { return CON_SERIALIZE_NULL; }
+    if (write == NULL) { return CON_SERIALIZE_NULL; }
     if (alloc == NULL) { return CON_SERIALIZE_NULL; }
     if (free == NULL) { return CON_SERIALIZE_NULL; }
     if (out_buffer_size <= 0) { return CON_SERIALIZE_BUFFER; }
@@ -18,6 +21,8 @@ enum ConSerializeError con_serialize_context_init(
         return CON_SERIALIZE_MEM;
     }
 
+    context->write_context = write_context;
+    context->write = write;
     context->out_buffer = out_buffer;
     context->out_buffer_size = out_buffer_size;
     context->current_position = 0;

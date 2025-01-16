@@ -21,6 +21,14 @@ fn free(allocator: *const anyopaque, data: [*c]u8, size: usize) callconv(.C) voi
     a.free(@as([]align(8) u8, @alignCast(p)));
 }
 
+fn write(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
+    std.debug.assert(null != writer);
+    std.debug.assert(null != data);
+    const w: *const std.io.AnyWriter = @alignCast(@ptrCast(writer));
+    const d = std.mem.span(data);
+    return @intCast(w.write(d) catch 0);
+}
+
 test "init_failing_first_alloc" {
     var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
     const allocator = failing_allocator.allocator();
@@ -29,6 +37,8 @@ test "init_failing_first_alloc" {
 
     const init_err = con.con_serialize_context_init(
         @ptrCast(&context),
+        null,
+        write,
         @ptrCast(&allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -45,6 +55,8 @@ test "init" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -64,6 +76,8 @@ test "init_null_context" {
     const buffer_size = 5;
     const init_err = con.con_serialize_context_init(
         null,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -78,6 +92,8 @@ test "init_null_alloc" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         null,
         @ptrCast(&free),
@@ -92,6 +108,8 @@ test "init_null_free" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         null,
@@ -106,6 +124,8 @@ test "deinit_null_free" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -134,6 +154,8 @@ test "init_negative_buffer" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -148,6 +170,8 @@ test "current_position" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -176,6 +200,8 @@ test "current_position_null_out" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -202,6 +228,8 @@ test "get_buffer" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -233,6 +261,8 @@ test "get_buffer_null_buffer_out" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -261,6 +291,8 @@ test "get_buffer_null_size_out" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -289,6 +321,8 @@ test "clear_buffer" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
@@ -320,6 +354,8 @@ test "array" {
 
     const init_err = con.con_serialize_context_init(
         &context,
+        null,
+        write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),

@@ -16,6 +16,8 @@ pub const Serialize = struct {
 
         const err = con.con_serialize_context_init(
             &context.inner,
+            null,
+            Serialize.writeCallback,
             @ptrCast(&alloc),
             @ptrCast(&Serialize.allocCallback),
             @ptrCast(&Serialize.freeCallback),
@@ -96,6 +98,14 @@ pub const Serialize = struct {
         const a = @as(*const std.mem.Allocator, @ptrCast(@alignCast(allocator)));
         const p = data[0..size];
         a.free(@as([]align(8) u8, @alignCast(p)));
+    }
+
+    fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
+        std.debug.assert(null != writer);
+        std.debug.assert(null != data);
+        const w: *const std.io.AnyWriter = @alignCast(@ptrCast(writer));
+        const d = std.mem.span(data);
+        return @intCast(w.write(d) catch 0);
     }
 
     fn enum_to_error(err: con.ConSerializeError) !void {
