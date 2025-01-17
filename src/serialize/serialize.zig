@@ -76,14 +76,22 @@ test "init" {
     defer context.deinit();
 }
 
-test "array" {
-    var buffer: [2]u8 = undefined;
+test "open array" {
+    var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer());
     defer context.deinit();
 
     try context.arrayOpen();
-    try context.arrayClose();
+    try testing.expectEqualStrings("[", &buffer);
+}
 
-    try testing.expectEqualStrings("[]", &buffer);
+test "close array" {
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    defer context.deinit();
+
+    try context.arrayClose();
+    try testing.expectEqualStrings("]", &buffer);
 }

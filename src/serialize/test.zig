@@ -51,8 +51,8 @@ test "init null context" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
 }
 
-test "array" {
-    var buffer: [2]u8 = undefined;
+test "open array" {
+    var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
@@ -63,13 +63,26 @@ test "array" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    {
-        const open_err = con.con_serialize_array_open(&context);
-        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-        const close_err = con.con_serialize_array_close(&context);
-        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+    try testing.expectEqualStrings("[", &buffer);
+}
 
-        try testing.expectEqualStrings("[]", &buffer);
-    }
+test "close array" {
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_context_init(
+        &context,
+        &fifo.writer(),
+        write,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const close_err = con.con_serialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+
+    try testing.expectEqualStrings("]", &buffer);
 }
