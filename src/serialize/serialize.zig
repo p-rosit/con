@@ -10,28 +10,19 @@ pub fn Serialize(Writer: type) type {
     return struct {
         const Self = @This();
 
-        allocator: Allocator,
         writer: Writer,
         inner: con.ConSerialize,
 
-        pub fn init(w: Writer, alloc: Allocator, buffer_size: usize) !Self {
+        pub fn init(w: Writer) !Self {
             var context = Self{
                 .writer = w,
-                .allocator = alloc,
                 .inner = undefined,
             };
-            if (buffer_size > std.math.maxInt(c_int)) {
-                return error.Overflow;
-            }
 
             const err = con.con_serialize_context_init(
                 &context.inner,
                 &context.writer,
                 Self.writeCallback,
-                @ptrCast(&alloc),
-                @ptrCast(&Self.allocCallback),
-                @ptrCast(&Self.freeCallback),
-                @intCast(buffer_size),
             );
 
             Self.enum_to_error(err) catch |new_err| {
@@ -41,11 +32,7 @@ pub fn Serialize(Writer: type) type {
         }
 
         pub fn deinit(self: Self) void {
-            const err = con.con_serialize_context_deinit(
-                @constCast(&self.inner),
-                @ptrCast(&self.allocator),
-                @ptrCast(&Self.freeCallback),
-            );
+            const err = con.con_serialize_context_deinit(@constCast(&self.inner));
             std.debug.assert(err == con.CON_SERIALIZE_OK);
         }
 
@@ -61,19 +48,6 @@ pub fn Serialize(Writer: type) type {
             return Self.enum_to_error(err);
         }
 
-        fn allocCallback(allocator: *anyopaque, size: usize) callconv(.C) [*c]u8 {
-            const a = @as(*const std.mem.Allocator, @ptrCast(@alignCast(allocator)));
-            const ptr = a.alignedAlloc(u8, 8, size) catch null;
-            return @ptrCast(ptr);
-        }
-
-        fn freeCallback(allocator: *anyopaque, data: [*c]u8, size: usize) callconv(.C) void {
-            std.debug.assert(null != data);
-            const a = @as(*const std.mem.Allocator, @ptrCast(@alignCast(allocator)));
-            const p = data[0..size];
-            a.free(@as([]align(8) u8, @alignCast(p)));
-        }
-
         fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
             std.debug.assert(null != writer);
             std.debug.assert(null != data);
@@ -86,8 +60,6 @@ pub fn Serialize(Writer: type) type {
             switch (err) {
                 con.CON_SERIALIZE_OK => return,
                 con.CON_SERIALIZE_NULL => return error.Null,
-                con.CON_SERIALIZE_BUFFER => return error.Buffer,
-                con.CON_SERIALIZE_MEM => return error.Mem,
                 else => return error.Unknown,
             }
         }
@@ -100,27 +72,15 @@ const testing = std.testing;
 test "init" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
-    const allocator = failing_allocator.allocator();
 
-    const buffer_size = 3;
-    const context = try Serialize(Fifo.Writer).init(fifo.writer(), allocator, buffer_size);
+    const context = try Serialize(Fifo.Writer).init(fifo.writer());
     defer context.deinit();
-}
-
-test "large_buffer" {
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    const writer = fifo.writer();
-    const buffer_size = @as(usize, std.math.maxInt(c_int)) + 1;
-    const result = Serialize(Fifo.Writer).init(writer, testing.allocator, buffer_size);
-    try testing.expectError(error.Overflow, result);
 }
 
 test "array" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer(), testing.allocator, 2);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
     defer context.deinit();
 
     try context.arrayOpen();

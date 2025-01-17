@@ -32,120 +32,26 @@ fn write(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
 }
 
 test "init" {
-    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
-    const allocator = failing_allocator.allocator();
-    const buffer_size = 5;
     var context: con.ConSerialize = undefined;
 
     const init_err = con.con_serialize_context_init(
         &context,
         null,
         write,
-        @ptrCast(&allocator),
-        @ptrCast(&alloc),
-        @ptrCast(&free),
-        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const deinit_err = con.con_serialize_context_deinit(
-        &context,
-        @ptrCast(&testing.allocator),
-        @ptrCast(&free),
-    );
+    const deinit_err = con.con_serialize_context_deinit(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), deinit_err);
 }
 
 test "init_null_context" {
-    const buffer_size = 5;
     const init_err = con.con_serialize_context_init(
         null,
         null,
         write,
-        @ptrCast(&testing.allocator),
-        @ptrCast(&alloc),
-        @ptrCast(&free),
-        buffer_size,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
-}
-
-test "init_null_alloc" {
-    const buffer_size = -1;
-    var context: con.ConSerialize = undefined;
-
-    const init_err = con.con_serialize_context_init(
-        &context,
-        null,
-        write,
-        @ptrCast(&testing.allocator),
-        null,
-        @ptrCast(&free),
-        buffer_size,
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
-}
-
-test "init_null_free" {
-    const buffer_size = -1;
-    var context: con.ConSerialize = undefined;
-
-    const init_err = con.con_serialize_context_init(
-        &context,
-        null,
-        write,
-        @ptrCast(&testing.allocator),
-        @ptrCast(&alloc),
-        null,
-        buffer_size,
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
-}
-
-test "deinit_null_free" {
-    const buffer_size = 5;
-    var context: con.ConSerialize = undefined;
-
-    const init_err = con.con_serialize_context_init(
-        &context,
-        null,
-        write,
-        @ptrCast(&testing.allocator),
-        @ptrCast(&alloc),
-        @ptrCast(&free),
-        buffer_size,
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
-
-    const deinit_err = con.con_serialize_context_deinit(
-        &context,
-        @ptrCast(&testing.allocator),
-        null,
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), deinit_err);
-
-    const deinit_ok = con.con_serialize_context_deinit(
-        &context,
-        @ptrCast(&testing.allocator),
-        @ptrCast(&free),
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), deinit_ok);
-}
-
-test "init_negative_buffer" {
-    const buffer_size = -1;
-    var context: con.ConSerialize = undefined;
-
-    const init_err = con.con_serialize_context_init(
-        &context,
-        null,
-        write,
-        @ptrCast(&testing.allocator),
-        @ptrCast(&alloc),
-        @ptrCast(&free),
-        buffer_size,
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_BUFFER), init_err);
 }
 
 test "array" {
@@ -157,10 +63,6 @@ test "array" {
         &context,
         &fifo.writer(),
         write,
-        @ptrCast(&testing.allocator),
-        @ptrCast(&alloc),
-        @ptrCast(&free),
-        2,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
@@ -174,10 +76,6 @@ test "array" {
         try testing.expectEqualStrings("[]", &buffer);
     }
 
-    const deinit_err = con.con_serialize_context_deinit(
-        &context,
-        @ptrCast(&testing.allocator),
-        @ptrCast(&free),
-    );
+    const deinit_err = con.con_serialize_context_deinit(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), deinit_err);
 }
