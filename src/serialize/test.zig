@@ -21,10 +21,12 @@ fn free(allocator: *const anyopaque, data: [*c]u8, size: usize) callconv(.C) voi
     a.free(@as([]align(8) u8, @alignCast(p)));
 }
 
+const Fifo = std.fifo.LinearFifo(u8, .Slice);
+
 fn write(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
     std.debug.assert(null != writer);
     std.debug.assert(null != data);
-    const w: *const std.io.AnyWriter = @alignCast(@ptrCast(writer));
+    const w: *const Fifo.Writer = @alignCast(@ptrCast(writer));
     const d = std.mem.span(data);
     return @intCast(w.write(d) catch 0);
 }
@@ -349,17 +351,18 @@ test "clear_buffer" {
 }
 
 test "array" {
-    const buffer_size = 2;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
     const init_err = con.con_serialize_context_init(
         &context,
-        null,
+        &fifo.writer(),
         write,
         @ptrCast(&testing.allocator),
         @ptrCast(&alloc),
         @ptrCast(&free),
-        buffer_size,
+        2,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
@@ -370,13 +373,7 @@ test "array" {
         const close_err = con.con_serialize_array_close(&context);
         try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
 
-        var get_size: c_int = undefined;
-        var get_buffer: [*c]c_char = undefined;
-        const get_err = con.con_serialize_buffer_get(&context, @ptrCast(&get_buffer), &get_size);
-        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), get_err);
-
-        const b = get_buffer[0..@intCast(get_size)];
-        try testing.expectEqualStrings("[]", @ptrCast(b));
+        try testing.expectEqualStrings("[]", &buffer);
     }
 
     const deinit_err = con.con_serialize_context_deinit(

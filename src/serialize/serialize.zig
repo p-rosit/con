@@ -130,43 +130,55 @@ pub fn Serialize(Writer: type) type {
     };
 }
 
+const Fifo = std.fifo.LinearFifo(u8, .Slice);
 const testing = std.testing;
 
 test "init_failing_first_alloc" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
     var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
     const allocator = failing_allocator.allocator();
 
     const buffer_size = 5;
-    const err = Serialize.init(allocator, buffer_size);
+    const err = Serialize(Fifo.Writer).init(fifo.writer(), allocator, buffer_size);
     try testing.expectError(error.Mem, err);
 }
 
 test "init" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
     var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 1 });
     const allocator = failing_allocator.allocator();
 
     const buffer_size = 3;
-    const context = try Serialize.init(allocator, buffer_size);
+    const context = try Serialize(Fifo.Writer).init(fifo.writer(), allocator, buffer_size);
     defer context.deinit();
 }
 
 test "large_buffer" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    const writer = fifo.writer();
     const buffer_size = @as(usize, std.math.maxInt(c_int)) + 1;
-    const result = Serialize.init(testing.allocator, buffer_size);
+    const result = Serialize(Fifo.Writer).init(writer, testing.allocator, buffer_size);
     try testing.expectError(error.Overflow, result);
 }
 
 test "current_position" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
     const buffer_size = 5;
-    var context = try Serialize.init(testing.allocator, buffer_size);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), testing.allocator, buffer_size);
     defer context.deinit();
 
     try testing.expectEqual(0, context.currentPosition());
 }
 
 test "get_buffer" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
     const buffer_size = 5;
-    var context = try Serialize.init(testing.allocator, buffer_size);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), testing.allocator, buffer_size);
     defer context.deinit();
 
     const b = context.bufferGet();
@@ -174,8 +186,10 @@ test "get_buffer" {
 }
 
 test "clear_buffer" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
     const buffer_size = 5;
-    var context = try Serialize.init(testing.allocator, buffer_size);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), testing.allocator, buffer_size);
     defer context.deinit();
 
     context.bufferClear();
@@ -183,12 +197,13 @@ test "clear_buffer" {
 }
 
 test "array" {
-    const buffer_size = 2;
-    var context = try Serialize.init(testing.allocator, buffer_size);
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), testing.allocator, 2);
     defer context.deinit();
 
     try context.arrayOpen();
     try context.arrayClose();
 
-    try testing.expectEqualStrings("[]", context.bufferGet());
+    try testing.expectEqualStrings("[]", &buffer);
 }
