@@ -31,26 +31,8 @@ fn write(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
     return @intCast(w.write(d) catch 0);
 }
 
-test "init_failing_first_alloc" {
-    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
-    const allocator = failing_allocator.allocator();
-    const buffer_size = 5;
-    var context: con.ConSerialize = undefined;
-
-    const init_err = con.con_serialize_context_init(
-        @ptrCast(&context),
-        null,
-        write,
-        @ptrCast(&allocator),
-        @ptrCast(&alloc),
-        @ptrCast(&free),
-        buffer_size,
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_MEM), init_err);
-}
-
 test "init" {
-    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 1 });
+    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
     const allocator = failing_allocator.allocator();
     const buffer_size = 5;
     var context: con.ConSerialize = undefined;

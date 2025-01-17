@@ -18,9 +18,6 @@ typedef int (ConWrite)(void const *context, char *data);
 struct ConSerialize {
     void const *write_context;
     ConWrite *write;
-    char *out_buffer;
-    int out_buffer_size;
-    int current_position;
 };
 
 enum ConSerializeError con_serialize_context_init(

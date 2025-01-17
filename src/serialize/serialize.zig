@@ -95,21 +95,10 @@ pub fn Serialize(Writer: type) type {
 const Fifo = std.fifo.LinearFifo(u8, .Slice);
 const testing = std.testing;
 
-test "init_failing_first_alloc" {
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
-    const allocator = failing_allocator.allocator();
-
-    const buffer_size = 5;
-    const err = Serialize(Fifo.Writer).init(fifo.writer(), allocator, buffer_size);
-    try testing.expectError(error.Mem, err);
-}
-
 test "init" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 1 });
+    var failing_allocator = testing.FailingAllocator.init(testing.allocator, .{ .fail_index = 0 });
     const allocator = failing_allocator.allocator();
 
     const buffer_size = 3;
