@@ -6,7 +6,7 @@ enum ConSerializeError {
     CON_SERIALIZE_OK,
     CON_SERIALIZE_NULL,
     CON_SERIALIZE_WRITER,
-    CON_SERIALIZE_UNCLOSED,
+    CON_SERIALIZE_CLOSED_TOO_MANY,
 };
 
 struct ConSerialize;
@@ -15,6 +15,7 @@ typedef int (ConWrite)(void const *context, char *data);
 struct ConSerialize {
     void const *write_context;
     ConWrite *write;
+    size_t depth;
 };
 
 enum ConSerializeError con_serialize_context_init(

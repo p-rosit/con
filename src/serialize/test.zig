@@ -97,6 +97,7 @@ test "array close" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
+    context.depth = 1;
     const close_err = con.con_serialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
 
@@ -115,6 +116,23 @@ test "array close full buffer" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
+    context.depth = 1;
     const close_err = con.con_serialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), close_err);
+}
+
+test "array close too many" {
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_context_init(
+        &context,
+        &fifo.writer(),
+        write,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const close_err = con.con_serialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_CLOSED_TOO_MANY), close_err);
 }

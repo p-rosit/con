@@ -60,6 +60,7 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_OK => return,
                 con.CON_SERIALIZE_NULL => return error.Null,
                 con.CON_SERIALIZE_WRITER => return error.Writer,
+                con.CON_SERIALIZE_CLOSED_TOO_MANY => return error.ClosedTooMany,
                 else => return error.Unknown,
             }
         }
@@ -103,6 +104,7 @@ test "array close" {
     var context = try Serialize(Fifo.Writer).init(fifo.writer());
     defer context.deinit();
 
+    context.inner.depth = 1;
     try context.arrayClose();
     try testing.expectEqualStrings("]", &buffer);
 }
@@ -113,6 +115,17 @@ test "array close full buffer" {
     var context = try Serialize(Fifo.Writer).init(fifo.writer());
     defer context.deinit();
 
+    context.inner.depth = 1;
     const err = context.arrayClose();
     try testing.expectError(error.Writer, err);
+}
+
+test "array close too many" {
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    defer context.deinit();
+
+    const err = context.arrayClose();
+    try testing.expectError(error.ClosedTooMany, err);
 }
