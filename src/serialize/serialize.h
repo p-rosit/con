@@ -5,6 +5,7 @@
 enum ConSerializeError {
     CON_SERIALIZE_OK,
     CON_SERIALIZE_NULL,
+    CON_SERIALIZE_WRITER,
     CON_SERIALIZE_UNCLOSED,
 };
 

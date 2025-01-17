@@ -17,12 +17,16 @@ enum ConSerializeError con_serialize_context_init(
 
 enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
     assert(context != NULL);
-    context->write(context->write_context, "[");
+    int result = context->write(context->write_context, "[");
+
+    if (result != 1) { return CON_SERIALIZE_WRITER; }
     return CON_SERIALIZE_OK;
 }
 
 enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
     assert(context != NULL);
-    context->write(context->write_context, "]");
+    int result = context->write(context->write_context, "]");
+
+    if (result != 1) { return CON_SERIALIZE_WRITER; }
     return CON_SERIALIZE_OK;
 }

@@ -59,6 +59,7 @@ pub fn Serialize(Writer: type) type {
             switch (err) {
                 con.CON_SERIALIZE_OK => return,
                 con.CON_SERIALIZE_NULL => return error.Null,
+                con.CON_SERIALIZE_WRITER => return error.Writer,
                 else => return error.Unknown,
             }
         }
@@ -86,6 +87,16 @@ test "open array" {
     try testing.expectEqualStrings("[", &buffer);
 }
 
+test "open array full buffer" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    defer context.deinit();
+
+    const err = context.arrayOpen();
+    try testing.expectError(error.Writer, err);
+}
+
 test "close array" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -94,4 +105,14 @@ test "close array" {
 
     try context.arrayClose();
     try testing.expectEqualStrings("]", &buffer);
+}
+
+test "close array full buffer" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    defer context.deinit();
+
+    const err = context.arrayClose();
+    try testing.expectError(error.Writer, err);
 }
