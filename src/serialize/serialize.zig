@@ -50,11 +50,13 @@ pub fn Serialize(Writer: type) type {
         }
 
         pub fn arrayOpen(self: *Self) !void {
+            self.inner.write_context = &self.writer;
             const err = con.con_serialize_array_open(&self.inner);
             return Self.enum_to_error(err);
         }
 
         pub fn arrayClose(self: *Self) !void {
+            self.inner.write_context = &self.writer;
             const err = con.con_serialize_array_close(&self.inner);
             return Self.enum_to_error(err);
         }
