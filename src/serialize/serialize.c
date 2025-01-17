@@ -15,11 +15,6 @@ enum ConSerializeError con_serialize_context_init(
     return CON_SERIALIZE_OK;
 }
 
-enum ConSerializeError con_serialize_context_deinit(struct ConSerialize *context) {
-    assert(context != NULL);
-    return CON_SERIALIZE_OK;
-}
-
 enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
     assert(context != NULL);
     context->write(context->write_context, "[");

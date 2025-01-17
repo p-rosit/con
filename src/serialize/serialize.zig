@@ -32,8 +32,7 @@ pub fn Serialize(Writer: type) type {
         }
 
         pub fn deinit(self: Self) void {
-            const err = con.con_serialize_context_deinit(@constCast(&self.inner));
-            std.debug.assert(err == con.CON_SERIALIZE_OK);
+            _ = self;
         }
 
         pub fn arrayOpen(self: *Self) !void {

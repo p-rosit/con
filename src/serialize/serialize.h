@@ -21,7 +21,6 @@ enum ConSerializeError con_serialize_context_init(
     void const *write_context,
     ConWrite *write
 );
-enum ConSerializeError con_serialize_context_deinit(struct ConSerialize *context);
 
 enum ConSerializeError con_serialize_array_open(struct ConSerialize *context);
 enum ConSerializeError con_serialize_array_close(struct ConSerialize *context);

@@ -40,9 +40,6 @@ test "init" {
         write,
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
-
-    const deinit_err = con.con_serialize_context_deinit(&context);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), deinit_err);
 }
 
 test "init_null_context" {
@@ -75,7 +72,4 @@ test "array" {
 
         try testing.expectEqualStrings("[]", &buffer);
     }
-
-    const deinit_err = con.con_serialize_context_deinit(&context);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), deinit_err);
 }
