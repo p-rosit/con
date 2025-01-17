@@ -49,44 +49,6 @@ pub fn Serialize(Writer: type) type {
             std.debug.assert(err == con.CON_SERIALIZE_OK);
         }
 
-        pub fn currentPosition(self: *Self) usize {
-            var current_position: c_int = undefined;
-            const err = con.con_serialize_current_position(&self.inner, &current_position);
-            std.debug.assert(err == con.CON_SERIALIZE_OK);
-            std.debug.assert(current_position >= 0);
-            return @intCast(current_position);
-        }
-
-        pub fn bufferSet(self: *Self, buffer: []u8) !void {
-            if (buffer.len > std.math.maxInt(c_int)) {
-                return error.Overflow;
-            }
-
-            const err = con.con_serialize_buffer_set(
-                &self.inner,
-                @ptrCast(buffer),
-                @intCast(buffer.len),
-            );
-            std.debug.assert(err == con.CON_SERIALIZE_OK);
-        }
-
-        pub fn bufferGet(self: *Self) []u8 {
-            var ptr: [*c]c_char = null;
-            var len: c_int = 0;
-
-            const err = con.con_serialize_buffer_get(&self.inner, @ptrCast(&ptr), &len);
-            std.debug.assert(err == con.CON_SERIALIZE_OK);
-            std.debug.assert(ptr != null);
-            std.debug.assert(len >= 0);
-
-            return @as(*[]u8, @ptrCast(@constCast(&.{ .ptr = ptr, .len = @as(usize, @intCast(len)) }))).*;
-        }
-
-        pub fn bufferClear(self: *Self) void {
-            const err = con.con_serialize_buffer_clear(&self.inner);
-            std.debug.assert(err == con.CON_SERIALIZE_OK);
-        }
-
         pub fn arrayOpen(self: *Self) !void {
             const err = con.con_serialize_array_open(&self.inner);
             return Self.enum_to_error(err);
@@ -162,38 +124,6 @@ test "large_buffer" {
     const buffer_size = @as(usize, std.math.maxInt(c_int)) + 1;
     const result = Serialize(Fifo.Writer).init(writer, testing.allocator, buffer_size);
     try testing.expectError(error.Overflow, result);
-}
-
-test "current_position" {
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    const buffer_size = 5;
-    var context = try Serialize(Fifo.Writer).init(fifo.writer(), testing.allocator, buffer_size);
-    defer context.deinit();
-
-    try testing.expectEqual(0, context.currentPosition());
-}
-
-test "get_buffer" {
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    const buffer_size = 5;
-    var context = try Serialize(Fifo.Writer).init(fifo.writer(), testing.allocator, buffer_size);
-    defer context.deinit();
-
-    const b = context.bufferGet();
-    try testing.expectEqual(b.len, buffer_size);
-}
-
-test "clear_buffer" {
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    const buffer_size = 5;
-    var context = try Serialize(Fifo.Writer).init(fifo.writer(), testing.allocator, buffer_size);
-    defer context.deinit();
-
-    context.bufferClear();
-    try testing.expectEqual(0, context.currentPosition());
 }
 
 test "array" {
