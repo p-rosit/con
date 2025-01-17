@@ -42,7 +42,7 @@ test "init" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 }
 
-test "init_null_context" {
+test "init null context" {
     const init_err = con.con_serialize_context_init(
         null,
         null,
