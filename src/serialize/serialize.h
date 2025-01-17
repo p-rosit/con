@@ -27,4 +27,7 @@ enum ConSerializeError con_serialize_context_init(
 enum ConSerializeError con_serialize_array_open(struct ConSerialize *context);
 enum ConSerializeError con_serialize_array_close(struct ConSerialize *context);
 
+enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context);
+enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context);
+
 #endif

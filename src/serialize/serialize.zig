@@ -47,6 +47,18 @@ pub fn Serialize(Writer: type) type {
             return Self.enum_to_error(err);
         }
 
+        pub fn dictOpen(self: *Self) !void {
+            self.inner.write_context = &self.writer;
+            const err = con.con_serialize_dict_open(&self.inner);
+            return Self.enum_to_error(err);
+        }
+
+        pub fn dictClose(self: *Self) !void {
+            self.inner.write_context = &self.writer;
+            const err = con.con_serialize_dict_close(&self.inner);
+            return Self.enum_to_error(err);
+        }
+
         fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
             std.debug.assert(null != writer);
             std.debug.assert(null != data);
@@ -127,5 +139,57 @@ test "array close too many" {
     defer context.deinit();
 
     const err = context.arrayClose();
+    try testing.expectError(error.ClosedTooMany, err);
+}
+
+test "dict open" {
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    defer context.deinit();
+
+    try context.dictOpen();
+    try testing.expectEqualStrings("{", &buffer);
+}
+
+test "dict open full buffer" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    defer context.deinit();
+
+    const err = context.dictOpen();
+    try testing.expectError(error.Writer, err);
+}
+
+test "dict close" {
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    defer context.deinit();
+
+    context.inner.depth = 1;
+    try context.dictClose();
+    try testing.expectEqualStrings("}", &buffer);
+}
+
+test "dict close full buffer" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    defer context.deinit();
+
+    context.inner.depth = 1;
+    const err = context.dictClose();
+    try testing.expectError(error.Writer, err);
+}
+
+test "dict close too many" {
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    defer context.deinit();
+
+    const err = context.dictClose();
     try testing.expectError(error.ClosedTooMany, err);
 }
