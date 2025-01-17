@@ -4,7 +4,7 @@ const con = @cImport({
     @cInclude("serialize.h");
 });
 
-test "zig_bindings" {
+test "zig bindings" {
     _ = @import("serialize.zig");
 }
 
@@ -31,7 +31,7 @@ fn write(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
     return @intCast(w.write(d) catch 0);
 }
 
-test "init" {
+test "context init" {
     var context: con.ConSerialize = undefined;
 
     const init_err = con.con_serialize_context_init(
@@ -42,7 +42,7 @@ test "init" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 }
 
-test "init null context" {
+test "context init null" {
     const init_err = con.con_serialize_context_init(
         null,
         null,
@@ -51,7 +51,7 @@ test "init null context" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
 }
 
-test "open array" {
+test "array open" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
@@ -69,7 +69,7 @@ test "open array" {
     try testing.expectEqualStrings("[", &buffer);
 }
 
-test "open array full buffer" {
+test "array open full buffer" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
@@ -85,7 +85,7 @@ test "open array full buffer" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), open_err);
 }
 
-test "close array" {
+test "array close" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
@@ -103,7 +103,7 @@ test "close array" {
     try testing.expectEqualStrings("]", &buffer);
 }
 
-test "close array full buffer" {
+test "array close full buffer" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;

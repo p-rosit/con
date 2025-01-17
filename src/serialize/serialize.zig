@@ -69,7 +69,7 @@ pub fn Serialize(Writer: type) type {
 const Fifo = std.fifo.LinearFifo(u8, .Slice);
 const testing = std.testing;
 
-test "init" {
+test "context init" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
 
@@ -77,7 +77,7 @@ test "init" {
     defer context.deinit();
 }
 
-test "open array" {
+test "array open" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer());
@@ -87,7 +87,7 @@ test "open array" {
     try testing.expectEqualStrings("[", &buffer);
 }
 
-test "open array full buffer" {
+test "array open full buffer" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer());
@@ -97,7 +97,7 @@ test "open array full buffer" {
     try testing.expectError(error.Writer, err);
 }
 
-test "close array" {
+test "array close" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer());
@@ -107,7 +107,7 @@ test "close array" {
     try testing.expectEqualStrings("]", &buffer);
 }
 
-test "close array full buffer" {
+test "array close full buffer" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer());
