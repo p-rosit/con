@@ -8,19 +8,6 @@ test "zig bindings" {
     _ = @import("serialize.zig");
 }
 
-fn alloc(allocator: *const anyopaque, size: usize) callconv(.C) [*c]u8 {
-    const a = @as(*const std.mem.Allocator, @alignCast(@ptrCast(allocator)));
-    const ptr = a.alignedAlloc(u8, 8, size) catch null;
-    return @ptrCast(ptr);
-}
-
-fn free(allocator: *const anyopaque, data: [*c]u8, size: usize) callconv(.C) void {
-    std.debug.assert(null != data);
-    const a = @as(*const std.mem.Allocator, @alignCast(@ptrCast(allocator)));
-    const p = data[0..size];
-    a.free(@as([]align(8) u8, @alignCast(p)));
-}
-
 const Fifo = std.fifo.LinearFifo(u8, .Slice);
 
 fn write(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
