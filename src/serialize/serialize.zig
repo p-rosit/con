@@ -80,6 +80,8 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_WRITER => return error.Writer,
                 con.CON_SERIALIZE_CLOSED_TOO_MANY => return error.ClosedTooMany,
                 con.CON_SERIALIZE_CLOSED_WRONG => return error.ClosedWrong,
+                con.CON_SERIALIZE_BUFFER => return error.Buffer,
+                con.CON_SERIALIZE_TOO_DEEP => return error.TooDeep,
                 else => return error.Unknown,
             }
         }
@@ -110,6 +112,17 @@ test "array open" {
 
     try context.arrayOpen();
     try testing.expectEqualStrings("[", &buffer);
+}
+
+test "array open too many" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.arrayOpen();
+    try testing.expectError(error.TooDeep, err);
 }
 
 test "array open full buffer" {
@@ -169,6 +182,17 @@ test "dict open" {
 
     try context.dictOpen();
     try testing.expectEqualStrings("{", &buffer);
+}
+
+test "dict open too many" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.dictOpen();
+    try testing.expectError(error.TooDeep, err);
 }
 
 test "dict open full buffer" {

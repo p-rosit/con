@@ -108,6 +108,25 @@ test "array open" {
     try testing.expectEqualStrings("[", &buffer);
 }
 
+test "array open too many" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_context_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_TOO_DEEP), open_err);
+}
+
 test "array open full buffer" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
@@ -209,6 +228,25 @@ test "dict open" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
     try testing.expectEqualStrings("{", &buffer);
+}
+
+test "dict open too many" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_context_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_TOO_DEEP), open_err);
 }
 
 test "dict open full buffer" {

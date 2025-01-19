@@ -9,6 +9,7 @@ enum ConSerializeError {
     CON_SERIALIZE_CLOSED_TOO_MANY   = 3,
     CON_SERIALIZE_CLOSED_WRONG      = 4,
     CON_SERIALIZE_BUFFER            = 5,
+    CON_SERIALIZE_TOO_DEEP          = 6,
 };
 
 struct ConSerialize;
