@@ -7,7 +7,7 @@ enum ConSerializeContainer {
     CONTAINER_ARRAY,
 };
 
-enum ConSerializeError con_serialize_context_init(
+enum ConSerializeError con_serialize_init(
     struct ConSerialize *context,
     void const *write_context,
     ConWrite *write,

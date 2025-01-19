@@ -23,7 +23,7 @@ pub fn Serialize(Writer: type) type {
                 return error.Overflow;
             }
 
-            const err = con.con_serialize_context_init(
+            const err = con.con_serialize_init(
                 &context.inner,
                 &context.writer,
                 Self.writeCallback,

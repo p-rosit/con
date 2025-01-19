@@ -25,7 +25,7 @@ test "context init" {
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         null,
         write,
@@ -38,7 +38,7 @@ test "context init" {
 test "context depth null, length positive" {
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         null,
         write,
@@ -51,7 +51,7 @@ test "context depth null, length positive" {
 test "context depth null, length zero" {
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         null,
         write,
@@ -64,7 +64,7 @@ test "context depth null, length zero" {
 test "context depth negative" {
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         null,
         write,
@@ -77,7 +77,7 @@ test "context depth negative" {
 test "context init null" {
     var depth: [0]u8 = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         null,
         null,
         write,
@@ -93,7 +93,7 @@ test "array open" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -114,7 +114,7 @@ test "array open too many" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -133,7 +133,7 @@ test "array open full buffer" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -152,7 +152,7 @@ test "array close" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -175,7 +175,7 @@ test "array close full buffer" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -196,7 +196,7 @@ test "array close too many" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -215,7 +215,7 @@ test "dict open" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -236,7 +236,7 @@ test "dict open too many" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -255,7 +255,7 @@ test "dict open full buffer" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -274,7 +274,7 @@ test "dict close" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -297,7 +297,7 @@ test "dict close full buffer" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -318,7 +318,7 @@ test "dict close too many" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -337,7 +337,7 @@ test "array open -> dict close" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
@@ -359,7 +359,7 @@ test "dict open -> array close" {
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
-    const init_err = con.con_serialize_context_init(
+    const init_err = con.con_serialize_init(
         &context,
         &fifo.writer(),
         write,
