@@ -13,16 +13,22 @@ pub fn Serialize(Writer: type) type {
         writer: Writer,
         inner: con.ConSerialize,
 
-        pub fn init(w: Writer) !Self {
+        pub fn init(w: Writer, depth: []u8) !Self {
             var context = Self{
                 .writer = w,
                 .inner = undefined,
             };
 
+            if (depth.len > std.math.maxInt(c_int)) {
+                return error.Overflow;
+            }
+
             const err = con.con_serialize_context_init(
                 &context.inner,
                 &context.writer,
                 Self.writeCallback,
+                depth.ptr,
+                @intCast(depth.len),
             );
 
             Self.enum_to_error(err) catch |new_err| {
@@ -73,11 +79,15 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_NULL => return error.Null,
                 con.CON_SERIALIZE_WRITER => return error.Writer,
                 con.CON_SERIALIZE_CLOSED_TOO_MANY => return error.ClosedTooMany,
+                con.CON_SERIALIZE_CLOSED_WRONG => return error.ClosedWrong,
                 else => return error.Unknown,
             }
         }
     };
 }
+
+const con_dict = 1;
+const con_array = 2;
 
 const Fifo = std.fifo.LinearFifo(u8, .Slice);
 const testing = std.testing;
@@ -86,14 +96,16 @@ test "context init" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
 
-    const context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var depth: [1]u8 = undefined;
+    const context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 }
 
 test "array open" {
+    var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -101,9 +113,10 @@ test "array open" {
 }
 
 test "array open full buffer" {
+    var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     const err = context.arrayOpen();
@@ -111,31 +124,36 @@ test "array open full buffer" {
 }
 
 test "array close" {
+    var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     context.inner.depth = 1;
+    context.inner.depth_buffer[0] = con_array;
     try context.arrayClose();
     try testing.expectEqualStrings("]", &buffer);
 }
 
 test "array close full buffer" {
+    var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     context.inner.depth = 1;
+    context.inner.depth_buffer[0] = con_array;
     const err = context.arrayClose();
     try testing.expectError(error.Writer, err);
 }
 
 test "array close too many" {
+    var depth: [0]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     const err = context.arrayClose();
@@ -143,9 +161,10 @@ test "array close too many" {
 }
 
 test "dict open" {
+    var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -153,9 +172,10 @@ test "dict open" {
 }
 
 test "dict open full buffer" {
+    var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     const err = context.dictOpen();
@@ -163,33 +183,64 @@ test "dict open full buffer" {
 }
 
 test "dict close" {
+    var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     context.inner.depth = 1;
+    context.inner.depth_buffer[0] = con_dict;
     try context.dictClose();
     try testing.expectEqualStrings("}", &buffer);
 }
 
 test "dict close full buffer" {
+    var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     context.inner.depth = 1;
+    context.inner.depth_buffer[0] = con_dict;
     const err = context.dictClose();
     try testing.expectError(error.Writer, err);
 }
 
 test "dict close too many" {
+    var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer());
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
     const err = context.dictClose();
     try testing.expectError(error.ClosedTooMany, err);
+}
+
+test "array open -> dict close" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    const err = context.dictClose();
+    try testing.expectError(error.ClosedWrong, err);
+}
+
+test "dict open -> array close" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+
+    const err = context.arrayClose();
+    try testing.expectError(error.ClosedWrong, err);
 }

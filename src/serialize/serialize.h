@@ -3,10 +3,12 @@
 #include <stddef.h>
 
 enum ConSerializeError {
-    CON_SERIALIZE_OK,
-    CON_SERIALIZE_NULL,
-    CON_SERIALIZE_WRITER,
-    CON_SERIALIZE_CLOSED_TOO_MANY,
+    CON_SERIALIZE_OK                = 0,
+    CON_SERIALIZE_NULL              = 1,
+    CON_SERIALIZE_WRITER            = 2,
+    CON_SERIALIZE_CLOSED_TOO_MANY   = 3,
+    CON_SERIALIZE_CLOSED_WRONG      = 4,
+    CON_SERIALIZE_BUFFER            = 5,
 };
 
 struct ConSerialize;
@@ -16,12 +18,16 @@ struct ConSerialize {
     void const *write_context;
     ConWrite *write;
     size_t depth;
+    char *depth_buffer;
+    int depth_buffer_size;
 };
 
 enum ConSerializeError con_serialize_context_init(
     struct ConSerialize *context,
     void const *write_context,
-    ConWrite *write
+    ConWrite *write,
+    char *depth_buffer,
+    int depth_buffer_size
 );
 
 enum ConSerializeError con_serialize_array_open(struct ConSerialize *context);
