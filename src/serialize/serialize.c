@@ -85,3 +85,13 @@ enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context) {
 
     return CON_SERIALIZE_OK;
 }
+
+enum ConSerializeError con_serialize_number(struct ConSerialize *context, char const *number) {
+    assert(context != NULL);
+    if (number == NULL) { return CON_SERIALIZE_NULL; }
+
+    int result = context->write(context->write_context, number);
+    if (result <= 0) { return CON_SERIALIZE_WRITER; }
+
+    return CON_SERIALIZE_OK;
+}

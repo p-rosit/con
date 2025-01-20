@@ -374,3 +374,98 @@ test "dict open -> array close" {
     const close_err = con.con_serialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_CLOSED_WRONG), close_err);
 }
+
+test "number int-like" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const num_err = con.con_serialize_number(&context, "2");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), num_err);
+}
+
+test "number float-like" {
+    var depth: [0]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const num_err = con.con_serialize_number(&context, ".3");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), num_err);
+}
+
+test "number scientific-like" {
+    var depth: [0]u8 = undefined;
+    var buffer: [3]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const num_err = con.con_serialize_number(&context, "2e4");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), num_err);
+}
+
+test "number write fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const num_err = con.con_serialize_number(&context, "65");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), num_err);
+}
+
+test "number null" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const num_err = con.con_serialize_number(&context, null);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), num_err);
+}

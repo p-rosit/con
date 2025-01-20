@@ -65,6 +65,12 @@ pub fn Serialize(Writer: type) type {
             return Self.enum_to_error(err);
         }
 
+        pub fn number(self: *Self, num: [:0]const u8) !void {
+            self.inner.write_context = &self.writer;
+            const err = con.con_serialize_number(&self.inner, num.ptr);
+            return Self.enum_to_error(err);
+        }
+
         fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
             std.debug.assert(null != writer);
             std.debug.assert(null != data);
@@ -267,4 +273,48 @@ test "dict open -> array close" {
 
     const err = context.arrayClose();
     try testing.expectError(error.ClosedWrong, err);
+}
+
+test "number int-like" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.number("5");
+    try testing.expectEqualStrings("5", &buffer);
+}
+
+test "number float-like" {
+    var depth: [0]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.number("5.");
+    try testing.expectEqualStrings("5.", &buffer);
+}
+
+test "number scientific-like" {
+    var depth: [0]u8 = undefined;
+    var buffer: [5]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.number("-1e-5");
+    try testing.expectEqualStrings("-1e-5", &buffer);
+}
+
+test "number write fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.number(".5");
+    try testing.expectError(error.Writer, err);
 }
