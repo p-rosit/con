@@ -13,7 +13,7 @@ enum ConSerializeError {
 };
 
 struct ConSerialize;
-typedef int (ConWrite)(void const *context, char *data);
+typedef int (ConWrite)(void const *context, char const *data);
 
 struct ConSerialize {
     void const *write_context;
