@@ -364,3 +364,63 @@ test "string second quote write fail" {
     const err = context.string("a");
     try testing.expectError(error.Writer, err);
 }
+
+// Usage -----------
+
+test "array string single" {
+    var depth: [1]u8 = undefined;
+    var buffer: [5]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    try context.string("a");
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[\"a\"]", &buffer);
+}
+
+test "array string multiple" {
+    var depth: [1]u8 = undefined;
+    var buffer: [9]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    try context.string("a");
+    try context.string("b");
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[\"a\",\"b\"]", &buffer);
+}
+
+test "array number single" {
+    var depth: [1]u8 = undefined;
+    var buffer: [3]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    try context.number("1");
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[1]", &buffer);
+}
+
+test "array number multiple" {
+    var depth: [1]u8 = undefined;
+    var buffer: [5]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    try context.number("1");
+    try context.number("3");
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[1,3]", &buffer);
+}

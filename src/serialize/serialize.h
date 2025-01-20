@@ -10,6 +10,7 @@ enum ConSerializeError {
     CON_SERIALIZE_CLOSED_WRONG      = 4,
     CON_SERIALIZE_BUFFER            = 5,
     CON_SERIALIZE_TOO_DEEP          = 6,
+    CON_SERIALIZE_COMPLETE          = 7,
 };
 
 struct ConSerialize;
@@ -21,6 +22,7 @@ struct ConSerialize {
     size_t depth;
     char *depth_buffer;
     int depth_buffer_size;
+    char state;
 };
 
 enum ConSerializeError con_serialize_init(
