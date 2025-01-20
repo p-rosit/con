@@ -4,9 +4,6 @@ const con = @cImport({
     @cInclude("serialize.h");
 });
 
-const con_dict = 1;
-const con_array = 2;
-
 test "zig bindings" {
     _ = @import("serialize.zig");
 }
@@ -148,6 +145,30 @@ test "array open writer fail" {
 
 test "array close" {
     var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    const close_err = con.con_serialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+
+    try testing.expectEqualStrings("[]", &buffer);
+}
+
+test "array close writer fail" {
+    var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
@@ -161,31 +182,9 @@ test "array close" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    context.depth = 1;
-    context.depth_buffer[0] = con_array;
-    const close_err = con.con_serialize_array_close(&context);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-    try testing.expectEqualStrings("]", &buffer);
-}
-
-test "array close writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
-
-    const init_err = con.con_serialize_init(
-        &context,
-        &fifo.writer(),
-        write,
-        &depth,
-        depth.len,
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
-
-    context.depth = 1;
-    context.depth_buffer[0] = con_array;
     const close_err = con.con_serialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), close_err);
 }
@@ -270,6 +269,30 @@ test "dict open writer fail" {
 
 test "dict close" {
     var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    const close_err = con.con_serialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+
+    try testing.expectEqualStrings("{}", &buffer);
+}
+
+test "dict close writer fail" {
+    var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
@@ -283,31 +306,9 @@ test "dict close" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    context.depth = 1;
-    context.depth_buffer[0] = con_dict;
-    const close_err = con.con_serialize_dict_close(&context);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-    try testing.expectEqualStrings("}", &buffer);
-}
-
-test "dict close writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
-
-    const init_err = con.con_serialize_init(
-        &context,
-        &fifo.writer(),
-        write,
-        &depth,
-        depth.len,
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
-
-    context.depth = 1;
-    context.depth_buffer[0] = con_dict;
     const close_err = con.con_serialize_dict_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), close_err);
 }

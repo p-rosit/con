@@ -150,26 +150,24 @@ test "array open writer fail" {
 
 test "array close" {
     var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    try context.arrayClose();
+    try testing.expectEqualStrings("[]", &buffer);
+}
+
+test "array close writer fail" {
+    var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
-    context.inner.depth = 1;
-    context.inner.depth_buffer[0] = con_array;
-    try context.arrayClose();
-    try testing.expectEqualStrings("]", &buffer);
-}
-
-test "array close writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
-    defer context.deinit();
-
-    context.inner.depth = 1;
-    context.inner.depth_buffer[0] = con_array;
+    try context.arrayOpen();
     const err = context.arrayClose();
     try testing.expectError(error.Writer, err);
 }
@@ -220,26 +218,24 @@ test "dict open writer fail" {
 
 test "dict close" {
     var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    try context.dictClose();
+    try testing.expectEqualStrings("{}", &buffer);
+}
+
+test "dict close writer fail" {
+    var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
-    context.inner.depth = 1;
-    context.inner.depth_buffer[0] = con_dict;
-    try context.dictClose();
-    try testing.expectEqualStrings("}", &buffer);
-}
-
-test "dict close writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
-    defer context.deinit();
-
-    context.inner.depth = 1;
-    context.inner.depth_buffer[0] = con_dict;
+    try context.dictOpen();
     const err = context.dictClose();
     try testing.expectError(error.Writer, err);
 }
