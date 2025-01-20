@@ -127,7 +127,7 @@ test "array open too many" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_TOO_DEEP), open_err);
 }
 
-test "array open full buffer" {
+test "array open writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -169,7 +169,7 @@ test "array close" {
     try testing.expectEqualStrings("]", &buffer);
 }
 
-test "array close full buffer" {
+test "array close writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -249,7 +249,7 @@ test "dict open too many" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_TOO_DEEP), open_err);
 }
 
-test "dict open full buffer" {
+test "dict open writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -291,7 +291,7 @@ test "dict close" {
     try testing.expectEqualStrings("}", &buffer);
 }
 
-test "dict close full buffer" {
+test "dict close writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
