@@ -38,5 +38,6 @@ enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context);
 enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context);
 
 enum ConSerializeError con_serialize_number(struct ConSerialize *context, char const *number);
+enum ConSerializeError con_serialize_string(struct ConSerialize *context, char const *string);
 
 #endif

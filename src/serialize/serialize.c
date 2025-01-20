@@ -95,3 +95,15 @@ enum ConSerializeError con_serialize_number(struct ConSerialize *context, char c
 
     return CON_SERIALIZE_OK;
 }
+
+enum ConSerializeError con_serialize_string(struct ConSerialize *context, char const *string) {
+
+    int result = context->write(context->write_context, "\"");
+    if (result != 1) { return CON_SERIALIZE_WRITER; }
+    result = context->write(context->write_context, string);
+    if (result <= 0) { return CON_SERIALIZE_WRITER; }
+    result = context->write(context->write_context, "\"");
+    if (result != 1) { return CON_SERIALIZE_WRITER; }
+
+    return CON_SERIALIZE_OK;
+}

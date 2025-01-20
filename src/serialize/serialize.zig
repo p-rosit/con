@@ -71,6 +71,12 @@ pub fn Serialize(Writer: type) type {
             return Self.enum_to_error(err);
         }
 
+        pub fn string(self: *Self, str: [:0]const u8) !void {
+            self.inner.write_context = &self.writer;
+            const err = con.con_serialize_string(&self.inner, str.ptr);
+            return Self.enum_to_error(err);
+        }
+
         fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
             std.debug.assert(null != writer);
             std.debug.assert(null != data);
@@ -317,4 +323,15 @@ test "number write fail" {
 
     const err = context.number(".5");
     try testing.expectError(error.Writer, err);
+}
+
+test "string" {
+    var depth: [0]u8 = undefined;
+    var buffer: [3]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.string("a");
+    try testing.expectEqualStrings("\"a\"", &buffer);
 }
