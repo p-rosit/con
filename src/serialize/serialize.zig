@@ -331,3 +331,36 @@ test "string" {
     try context.string("a");
     try testing.expectEqualStrings("\"a\"", &buffer);
 }
+
+test "string first quote write fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.string("a");
+    try testing.expectError(error.Writer, err);
+}
+
+test "string body write fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.string("a");
+    try testing.expectError(error.Writer, err);
+}
+
+test "string second quote write fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.string("a");
+    try testing.expectError(error.Writer, err);
+}
