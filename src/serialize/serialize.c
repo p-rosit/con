@@ -97,6 +97,8 @@ enum ConSerializeError con_serialize_number(struct ConSerialize *context, char c
 }
 
 enum ConSerializeError con_serialize_string(struct ConSerialize *context, char const *string) {
+    assert(context != NULL);
+    if (string == NULL) { return CON_SERIALIZE_NULL; }
 
     int result = context->write(context->write_context, "\"");
     if (result != 1) { return CON_SERIALIZE_WRITER; }

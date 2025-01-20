@@ -488,3 +488,22 @@ test "string" {
     const str_err = con.con_serialize_string(&context, "-");
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), str_err);
 }
+
+test "string null" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const str_err = con.con_serialize_string(&context, null);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), str_err);
+}
