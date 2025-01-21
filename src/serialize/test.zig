@@ -676,8 +676,10 @@ test "array string single" {
     const open_err = con.con_serialize_array_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-    const str_err = con.con_serialize_string(&context, "a");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), str_err);
+    {
+        const str_err = con.con_serialize_string(&context, "a");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), str_err);
+    }
 
     const close_err = con.con_serialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
@@ -703,11 +705,13 @@ test "array string multiple" {
     const open_err = con.con_serialize_array_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-    const item1_err = con.con_serialize_string(&context, "a");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
+    {
+        const item1_err = con.con_serialize_string(&context, "a");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
 
-    const item2_err = con.con_serialize_string(&context, "b");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item2_err);
+        const item2_err = con.con_serialize_string(&context, "b");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item2_err);
+    }
 
     const close_err = con.con_serialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
@@ -758,8 +762,10 @@ test "array number single" {
     const open_err = con.con_serialize_array_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-    const str_err = con.con_serialize_number(&context, "2");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), str_err);
+    {
+        const num_err = con.con_serialize_number(&context, "2");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), num_err);
+    }
 
     const close_err = con.con_serialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
@@ -785,11 +791,13 @@ test "array number multiple" {
     const open_err = con.con_serialize_array_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-    const item1_err = con.con_serialize_number(&context, "6");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
+    {
+        const item1_err = con.con_serialize_number(&context, "6");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
 
-    const item2_err = con.con_serialize_number(&context, "4");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item2_err);
+        const item2_err = con.con_serialize_number(&context, "4");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item2_err);
+    }
 
     const close_err = con.con_serialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
