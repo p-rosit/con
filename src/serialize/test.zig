@@ -332,6 +332,96 @@ test "dict close too many" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_CLOSED_TOO_MANY), close_err);
 }
 
+test "dict key" {
+    var depth: [1]u8 = undefined;
+    var buffer: [7]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    const key_err = con.con_serialize_dict_key(&context, "key");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
+
+    try testing.expectEqualStrings("{\"key\":", &buffer);
+}
+
+test "dict key outside dict" {
+    var depth: [1]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const key_err = con.con_serialize_dict_key(&context, "key");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NOT_DICT), key_err);
+}
+
+test "dict key in array" {
+    var depth: [1]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    const key_err = con.con_serialize_dict_key(&context, "key");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NOT_DICT), key_err);
+}
+
+test "dict key twice" {
+    var depth: [1]u8 = undefined;
+    var buffer: [7]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    const key1_err = con.con_serialize_dict_key(&context, "key");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key1_err);
+
+    const key2_err = con.con_serialize_dict_key(&context, "key");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_VALUE), key2_err);
+}
+
 test "array open -> dict close" {
     var depth: [1]u8 = undefined;
     var buffer: [2]u8 = undefined;

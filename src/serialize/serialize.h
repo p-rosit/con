@@ -40,6 +40,7 @@ enum ConSerializeError con_serialize_array_close(struct ConSerialize *context);
 
 enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context);
 enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context);
+enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char const *key);
 
 enum ConSerializeError con_serialize_number(struct ConSerialize *context, char const *number);
 enum ConSerializeError con_serialize_string(struct ConSerialize *context, char const *string);

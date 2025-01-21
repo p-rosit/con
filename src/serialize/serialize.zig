@@ -65,6 +65,12 @@ pub fn Serialize(Writer: type) type {
             return Self.enum_to_error(err);
         }
 
+        pub fn dictKey(self: *Self, key: [:0]const u8) !void {
+            self.inner.write_context = &self.writer;
+            const err = con.con_serialize_dict_key(&self.inner, key.ptr);
+            return Self.enum_to_error(err);
+        }
+
         pub fn number(self: *Self, num: [:0]const u8) !void {
             self.inner.write_context = &self.writer;
             const err = con.con_serialize_number(&self.inner, num.ptr);
@@ -93,6 +99,7 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_CLOSED_TOO_MANY => return error.ClosedTooMany,
                 con.CON_SERIALIZE_BUFFER => return error.Buffer,
                 con.CON_SERIALIZE_TOO_DEEP => return error.TooDeep,
+                con.CON_SERIALIZE_VALUE => return error.Value,
                 con.CON_SERIALIZE_NOT_ARRAY => return error.NotArray,
                 con.CON_SERIALIZE_NOT_DICT => return error.NotDict,
                 else => return error.Unknown,
@@ -250,6 +257,55 @@ test "dict close too many" {
 
     const err = context.dictClose();
     try testing.expectError(error.ClosedTooMany, err);
+}
+
+test "dict key" {
+    var depth: [1]u8 = undefined;
+    var buffer: [7]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    try context.dictKey("key");
+    try testing.expectEqualStrings("{\"key\":", &buffer);
+}
+
+test "dict key outside dict" {
+    var depth: [1]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.dictKey("key");
+    try testing.expectError(error.NotDict, err);
+}
+
+test "dict key in array" {
+    var depth: [1]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    const err = context.dictKey("key");
+    try testing.expectError(error.NotDict, err);
+}
+
+test "dict key twice" {
+    var depth: [1]u8 = undefined;
+    var buffer: [7]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    try context.dictKey("k1");
+
+    const err = context.dictKey("k2");
+    try testing.expectError(error.Value, err);
 }
 
 test "array open -> dict close" {

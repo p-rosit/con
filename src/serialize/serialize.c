@@ -14,6 +14,7 @@ enum ConSerializeState {
     STATE_FIRST     = 2,
     STATE_LATER     = 3,
     STATE_COMPLETE  = 4,
+    STATE_VALUE     = 5,
     STATE_MAX,
 };
 
@@ -113,6 +114,40 @@ enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context) {
     return CON_SERIALIZE_OK;
 }
 
+enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char const *key) {
+    assert(context != NULL);
+
+    if (context->depth <= 0) { return CON_SERIALIZE_NOT_DICT; }
+    if (context->depth_buffer[context->depth-1] != CONTAINER_DICT) {
+        return CON_SERIALIZE_NOT_DICT;
+    }
+    if (context->state != STATE_FIRST && context->state != STATE_LATER) {
+        return CON_SERIALIZE_VALUE;
+    }
+
+    int needs_comma = 0;
+    enum ConSerializeError item_err = con_serialize_item(context, &needs_comma);
+    if (item_err) { return item_err; }
+
+    if (needs_comma) {
+        int result = context->write(context->write_context, ",");
+        if (result != 1) { return CON_SERIALIZE_WRITER; }
+    }
+
+    int result = context->write(context->write_context, "\"");
+    if (result != 1) { return CON_SERIALIZE_WRITER; }
+    result = context->write(context->write_context, key);
+    if (result <= 0) { return CON_SERIALIZE_WRITER; }
+    result = context->write(context->write_context, "\"");
+    if (result != 1) { return CON_SERIALIZE_WRITER; }
+
+    result = context->write(context->write_context, ":");
+    if (result < 0) { return CON_SERIALIZE_WRITER; }
+
+    context->state = STATE_VALUE;
+    return CON_SERIALIZE_OK;
+}
+
 enum ConSerializeError con_serialize_number(struct ConSerialize *context, char const *number) {
     assert(context != NULL);
     if (number == NULL) { return CON_SERIALIZE_NULL; }
@@ -170,6 +205,9 @@ static inline enum ConSerializeError con_serialize_item(struct ConSerialize *con
             break;
         case (STATE_COMPLETE):
             return CON_SERIALIZE_COMPLETE;
+        case (STATE_VALUE):
+            // state change to LATER
+            break;
         default:
             assert(0);  // State is unknown
     }
