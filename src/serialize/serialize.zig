@@ -432,7 +432,9 @@ test "array string single" {
     defer context.deinit();
 
     try context.arrayOpen();
-    try context.string("a");
+    {
+        try context.string("a");
+    }
     try context.arrayClose();
 
     try testing.expectEqualStrings("[\"a\"]", &buffer);
@@ -446,8 +448,10 @@ test "array string multiple" {
     defer context.deinit();
 
     try context.arrayOpen();
-    try context.string("a");
-    try context.string("b");
+    {
+        try context.string("a");
+        try context.string("b");
+    }
     try context.arrayClose();
 
     try testing.expectEqualStrings("[\"a\",\"b\"]", &buffer);
@@ -474,7 +478,9 @@ test "array number single" {
     defer context.deinit();
 
     try context.arrayOpen();
-    try context.number("1");
+    {
+        try context.number("1");
+    }
     try context.arrayClose();
 
     try testing.expectEqualStrings("[1]", &buffer);
@@ -488,8 +494,10 @@ test "array number multiple" {
     defer context.deinit();
 
     try context.arrayOpen();
-    try context.number("1");
-    try context.number("3");
+    {
+        try context.number("1");
+        try context.number("3");
+    }
     try context.arrayClose();
 
     try testing.expectEqualStrings("[1,3]", &buffer);
