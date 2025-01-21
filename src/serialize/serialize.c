@@ -19,7 +19,7 @@ enum ConSerializeState {
 
 static_assert(STATE_MAX < CHAR_MAX, "Only small amount of states allowed");
 
-static inline enum ConSerializeError con_serialize_item(struct ConSerialize *context);
+static inline enum ConSerializeError con_serialize_item(struct ConSerialize *context, int *needs_comma);
 
 enum ConSerializeError con_serialize_init(
     struct ConSerialize *context,
@@ -117,8 +117,14 @@ enum ConSerializeError con_serialize_number(struct ConSerialize *context, char c
     assert(context != NULL);
     if (number == NULL) { return CON_SERIALIZE_NULL; }
 
-    enum ConSerializeError item_err = con_serialize_item(context);
+    int needs_comma = 0;
+    enum ConSerializeError item_err = con_serialize_item(context, &needs_comma);
     if (item_err) { return item_err; }
+
+    if (needs_comma) {
+        int result = context->write(context->write_context, ",");
+        if (result != 1) { return CON_SERIALIZE_WRITER; }
+    }
 
     int result = context->write(context->write_context, number);
     if (result <= 0) { return CON_SERIALIZE_WRITER; }
@@ -130,8 +136,14 @@ enum ConSerializeError con_serialize_string(struct ConSerialize *context, char c
     assert(context != NULL);
     if (string == NULL) { return CON_SERIALIZE_NULL; }
 
-    enum ConSerializeError item_err = con_serialize_item(context);
+    int needs_comma = 0;
+    enum ConSerializeError item_err = con_serialize_item(context, &needs_comma);
     if (item_err) { return item_err; }
+
+    if (needs_comma) {
+        int result = context->write(context->write_context, ",");
+        if (result != 1) { return CON_SERIALIZE_WRITER; }
+    }
 
     int result = context->write(context->write_context, "\"");
     if (result != 1) { return CON_SERIALIZE_WRITER; }
@@ -143,7 +155,9 @@ enum ConSerializeError con_serialize_string(struct ConSerialize *context, char c
     return CON_SERIALIZE_OK;
 }
 
-static inline enum ConSerializeError con_serialize_item(struct ConSerialize *context) {
+static inline enum ConSerializeError con_serialize_item(struct ConSerialize *context, int *needs_comma) {
+    *needs_comma = 0;
+
     switch (context->state) {
         case (STATE_EMPTY):
             context->state = STATE_COMPLETE;
@@ -152,7 +166,7 @@ static inline enum ConSerializeError con_serialize_item(struct ConSerialize *con
             context->state = STATE_LATER;
             break;
         case (STATE_LATER):
-            context->write(context->write_context, ",");
+            *needs_comma = 1;
             break;
         case (STATE_COMPLETE):
             return CON_SERIALIZE_COMPLETE;
