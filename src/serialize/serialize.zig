@@ -515,3 +515,94 @@ test "array number comma write fail" {
     const err = context.number("2");
     try testing.expectError(error.Writer, err);
 }
+
+test "dict string single" {
+    var depth: [1]u8 = undefined;
+    var buffer: [9]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("a");
+        try context.string("b");
+    }
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":\"b\"}", &buffer);
+}
+
+test "dict string multiple" {
+    var depth: [1]u8 = undefined;
+    var buffer: [17]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("a");
+        try context.string("b");
+
+        try context.dictKey("c");
+        try context.string("d");
+    }
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":\"b\",\"c\":\"d\"}", &buffer);
+}
+
+test "dict comma write fail" {
+    var depth: [1]u8 = undefined;
+    var buffer: [8]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("a");
+        try context.string("b");
+
+        const err = context.dictKey("c");
+        try testing.expectError(error.Writer, err);
+    }
+}
+
+test "dict number single" {
+    var depth: [1]u8 = undefined;
+    var buffer: [7]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("a");
+        try context.number("1");
+    }
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":1}", &buffer);
+}
+
+test "dict number multiple" {
+    var depth: [1]u8 = undefined;
+    var buffer: [13]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("a");
+        try context.number("1");
+
+        try context.dictKey("b");
+        try context.number("2");
+    }
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":1,\"b\":2}", &buffer);
+}

@@ -206,7 +206,7 @@ static inline enum ConSerializeError con_serialize_item(struct ConSerialize *con
         case (STATE_COMPLETE):
             return CON_SERIALIZE_COMPLETE;
         case (STATE_VALUE):
-            // state change to LATER
+            context->state = STATE_LATER;
             break;
         default:
             assert(0);  // State is unknown
