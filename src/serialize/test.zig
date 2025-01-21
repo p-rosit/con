@@ -625,6 +625,31 @@ test "array string multiple" {
     try testing.expectEqualStrings("[\"a\",\"b\"]", &buffer);
 }
 
+test "array string comma write fail" {
+    var depth: [1]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    const item1_err = con.con_serialize_string(&context, "a");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
+
+    const item2_err = con.con_serialize_string(&context, "b");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), item2_err);
+}
+
 test "array number single" {
     var depth: [1]u8 = undefined;
     var buffer: [3]u8 = undefined;
@@ -680,4 +705,29 @@ test "array number multiple" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
 
     try testing.expectEqualStrings("[6,4]", &buffer);
+}
+
+test "array number comma write fail" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    const item1_err = con.con_serialize_number(&context, "2");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
+
+    const item2_err = con.con_serialize_number(&context, "3");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), item2_err);
 }

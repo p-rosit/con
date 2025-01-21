@@ -397,6 +397,19 @@ test "array string multiple" {
     try testing.expectEqualStrings("[\"a\",\"b\"]", &buffer);
 }
 
+test "array string comma write fail" {
+    var depth: [1]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    try context.string("a");
+    const err = context.string("b");
+    try testing.expectError(error.Writer, err);
+}
+
 test "array number single" {
     var depth: [1]u8 = undefined;
     var buffer: [3]u8 = undefined;
@@ -424,4 +437,17 @@ test "array number multiple" {
     try context.arrayClose();
 
     try testing.expectEqualStrings("[1,3]", &buffer);
+}
+
+test "array number comma write fail" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    try context.number("1");
+    const err = context.number("2");
+    try testing.expectError(error.Writer, err);
 }
