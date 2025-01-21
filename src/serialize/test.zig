@@ -351,7 +351,7 @@ test "array open -> dict close" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
     const close_err = con.con_serialize_dict_close(&context);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_CLOSED_WRONG), close_err);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NOT_DICT), close_err);
 }
 
 test "dict open -> array close" {
@@ -373,7 +373,7 @@ test "dict open -> array close" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
     const close_err = con.con_serialize_array_close(&context);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_CLOSED_WRONG), close_err);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NOT_ARRAY), close_err);
 }
 
 test "number int-like" {

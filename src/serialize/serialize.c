@@ -62,7 +62,7 @@ enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
     if (context->depth <= 0) { return CON_SERIALIZE_CLOSED_TOO_MANY; }
 
     if (context->depth_buffer[context->depth - 1] != CONTAINER_ARRAY) {
-        return CON_SERIALIZE_CLOSED_WRONG;
+        return CON_SERIALIZE_NOT_ARRAY;
     }
 
     int result = context->write(context->write_context, "]");
@@ -97,7 +97,7 @@ enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context) {
     if (context->depth <= 0) { return CON_SERIALIZE_CLOSED_TOO_MANY; }
 
     if (context->depth_buffer[context->depth - 1] != CONTAINER_DICT) {
-        return CON_SERIALIZE_CLOSED_WRONG;
+        return CON_SERIALIZE_NOT_DICT;
     }
 
     int result = context->write(context->write_context, "}");

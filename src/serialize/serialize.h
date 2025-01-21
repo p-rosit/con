@@ -7,10 +7,12 @@ enum ConSerializeError {
     CON_SERIALIZE_NULL              = 1,
     CON_SERIALIZE_WRITER            = 2,
     CON_SERIALIZE_CLOSED_TOO_MANY   = 3,
-    CON_SERIALIZE_CLOSED_WRONG      = 4,
-    CON_SERIALIZE_BUFFER            = 5,
-    CON_SERIALIZE_TOO_DEEP          = 6,
-    CON_SERIALIZE_COMPLETE          = 7,
+    CON_SERIALIZE_BUFFER            = 4,
+    CON_SERIALIZE_TOO_DEEP          = 5,
+    CON_SERIALIZE_COMPLETE          = 6,
+    CON_SERIALIZE_VALUE             = 7,
+    CON_SERIALIZE_NOT_ARRAY         = 8,
+    CON_SERIALIZE_NOT_DICT          = 9
 };
 
 struct ConSerialize;

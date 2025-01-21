@@ -91,9 +91,10 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_NULL => return error.Null,
                 con.CON_SERIALIZE_WRITER => return error.Writer,
                 con.CON_SERIALIZE_CLOSED_TOO_MANY => return error.ClosedTooMany,
-                con.CON_SERIALIZE_CLOSED_WRONG => return error.ClosedWrong,
                 con.CON_SERIALIZE_BUFFER => return error.Buffer,
                 con.CON_SERIALIZE_TOO_DEEP => return error.TooDeep,
+                con.CON_SERIALIZE_NOT_ARRAY => return error.NotArray,
+                con.CON_SERIALIZE_NOT_DICT => return error.NotDict,
                 else => return error.Unknown,
             }
         }
@@ -261,7 +262,7 @@ test "array open -> dict close" {
     try context.arrayOpen();
 
     const err = context.dictClose();
-    try testing.expectError(error.ClosedWrong, err);
+    try testing.expectError(error.NotDict, err);
 }
 
 test "dict open -> array close" {
@@ -274,7 +275,7 @@ test "dict open -> array close" {
     try context.dictOpen();
 
     const err = context.arrayClose();
-    try testing.expectError(error.ClosedWrong, err);
+    try testing.expectError(error.NotArray, err);
 }
 
 test "number int-like" {
