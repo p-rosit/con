@@ -109,9 +109,6 @@ pub fn Serialize(Writer: type) type {
     };
 }
 
-const con_dict = 1;
-const con_array = 2;
-
 const Fifo = std.fifo.LinearFifo(u8, .Slice);
 const testing = std.testing;
 
