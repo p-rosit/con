@@ -596,11 +596,14 @@ test "array string comma writer fail" {
     defer context.deinit();
 
     try context.arrayOpen();
-    try context.string("a");
-    try testing.expectEqualStrings("[\"a\"", &buffer);
 
-    const err = context.string("b");
-    try testing.expectError(error.Writer, err);
+    {
+        try context.string("a");
+        try testing.expectEqualStrings("[\"a\"", &buffer);
+
+        const err = context.string("b");
+        try testing.expectError(error.Writer, err);
+    }
 }
 
 test "array number single" {
@@ -644,11 +647,14 @@ test "array number comma writer fail" {
     defer context.deinit();
 
     try context.arrayOpen();
-    try context.number("1");
-    try testing.expectEqualStrings("[1", &buffer);
 
-    const err = context.number("2");
-    try testing.expectError(error.Writer, err);
+    {
+        try context.number("1");
+        try testing.expectEqualStrings("[1", &buffer);
+
+        const err = context.number("2");
+        try testing.expectError(error.Writer, err);
+    }
 }
 
 test "array array single" {
