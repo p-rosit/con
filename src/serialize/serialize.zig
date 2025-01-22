@@ -99,6 +99,7 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_CLOSED_TOO_MANY => return error.ClosedTooMany,
                 con.CON_SERIALIZE_BUFFER => return error.Buffer,
                 con.CON_SERIALIZE_TOO_DEEP => return error.TooDeep,
+                con.CON_SERIALIZE_KEY => return error.Key,
                 con.CON_SERIALIZE_VALUE => return error.Value,
                 con.CON_SERIALIZE_NOT_ARRAY => return error.NotArray,
                 con.CON_SERIALIZE_NOT_DICT => return error.NotDict,
@@ -310,6 +311,58 @@ test "dict key twice" {
 
     const err = context.dictKey("k2");
     try testing.expectError(error.Value, err);
+}
+
+test "dict number key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+
+    const err = context.number("5");
+    try testing.expectError(error.Key, err);
+}
+
+test "dict string key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+
+    const err = context.string("2");
+    try testing.expectError(error.Key, err);
+}
+
+test "dict array key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+
+    const err = context.arrayOpen();
+    try testing.expectError(error.Key, err);
+}
+
+test "dict dict key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+
+    const err = context.dictOpen();
+    try testing.expectError(error.Key, err);
 }
 
 test "array open -> dict close" {

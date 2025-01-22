@@ -47,6 +47,14 @@ enum ConSerializeError con_serialize_init(
 enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
     assert(context != NULL);
 
+    if (
+        context->depth > 0
+        && context->depth_buffer[context->depth - 1] == CONTAINER_DICT
+        && (context->state == STATE_FIRST || context->state == STATE_LATER)
+    ) {
+        return CON_SERIALIZE_KEY;
+    }
+
     if (context->depth >= context->depth_buffer_size) { return CON_SERIALIZE_TOO_DEEP; }
     context->depth_buffer[context->depth] = CONTAINER_ARRAY;
     context->depth += 1;
@@ -81,6 +89,14 @@ enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
 
 enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context) {
     assert(context != NULL);
+
+    if (
+        context->depth > 0
+        && context->depth_buffer[context->depth - 1] == CONTAINER_DICT
+        && (context->state == STATE_FIRST || context->state == STATE_LATER)
+    ) {
+        return CON_SERIALIZE_KEY;
+    }
 
     if (context->depth >= context->depth_buffer_size) { return CON_SERIALIZE_TOO_DEEP; }
     context->depth_buffer[context->depth] = CONTAINER_DICT;
@@ -152,6 +168,14 @@ enum ConSerializeError con_serialize_number(struct ConSerialize *context, char c
     assert(context != NULL);
     if (number == NULL) { return CON_SERIALIZE_NULL; }
 
+    if (
+        context->depth > 0
+        && context->depth_buffer[context->depth - 1] == CONTAINER_DICT
+        && (context->state == STATE_FIRST || context->state == STATE_LATER)
+    ) {
+        return CON_SERIALIZE_KEY;
+    }
+
     int needs_comma = 0;
     enum ConSerializeError item_err = con_serialize_item(context, &needs_comma);
     if (item_err) { return item_err; }
@@ -170,6 +194,14 @@ enum ConSerializeError con_serialize_number(struct ConSerialize *context, char c
 enum ConSerializeError con_serialize_string(struct ConSerialize *context, char const *string) {
     assert(context != NULL);
     if (string == NULL) { return CON_SERIALIZE_NULL; }
+
+    if (
+        context->depth > 0
+        && context->depth_buffer[context->depth - 1] == CONTAINER_DICT
+        && (context->state == STATE_FIRST || context->state == STATE_LATER)
+    ) {
+        return CON_SERIALIZE_KEY;
+    }
 
     int needs_comma = 0;
     enum ConSerializeError item_err = con_serialize_item(context, &needs_comma);
