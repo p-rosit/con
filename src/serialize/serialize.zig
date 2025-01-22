@@ -651,6 +651,116 @@ test "array number comma writer fail" {
     try testing.expectError(error.Writer, err);
 }
 
+test "array array single" {
+    var depth: [2]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    {
+        try context.arrayOpen();
+        try context.arrayClose();
+    }
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[[]]", &buffer);
+}
+
+test "array array multiple" {
+    var depth: [2]u8 = undefined;
+    var buffer: [7]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    {
+        try context.arrayOpen();
+        try context.arrayClose();
+
+        try context.arrayOpen();
+        try context.arrayClose();
+    }
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[[],[]]", &buffer);
+}
+
+test "array array comma writer fail" {
+    var depth: [2]u8 = undefined;
+    var buffer: [3]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    {
+        try context.arrayOpen();
+        try context.arrayClose();
+        try testing.expectEqualStrings("[[]", &buffer);
+
+        const err = context.arrayOpen();
+        try testing.expectError(error.Writer, err);
+    }
+}
+
+test "array dict single" {
+    var depth: [2]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    {
+        try context.dictOpen();
+        try context.dictClose();
+    }
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[{}]", &buffer);
+}
+
+test "array dict multiple" {
+    var depth: [2]u8 = undefined;
+    var buffer: [7]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    {
+        try context.dictOpen();
+        try context.dictClose();
+
+        try context.dictOpen();
+        try context.dictClose();
+    }
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[{},{}]", &buffer);
+}
+
+test "array dict comma writer fail" {
+    var depth: [2]u8 = undefined;
+    var buffer: [3]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+    {
+        try context.dictOpen();
+        try context.dictClose();
+        try testing.expectEqualStrings("[{}", &buffer);
+
+        const err = context.dictOpen();
+        try testing.expectError(error.Writer, err);
+    }
+}
+
 test "dict string single" {
     var depth: [1]u8 = undefined;
     var buffer: [9]u8 = undefined;
@@ -741,4 +851,84 @@ test "dict number multiple" {
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":1,\"b\":2}", &buffer);
+}
+
+test "dict array single" {
+    var depth: [2]u8 = undefined;
+    var buffer: [8]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("a");
+        try context.arrayOpen();
+        try context.arrayClose();
+    }
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":[]}", &buffer);
+}
+
+test "dict array multiple" {
+    var depth: [2]u8 = undefined;
+    var buffer: [15]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("a");
+        try context.arrayOpen();
+        try context.arrayClose();
+
+        try context.dictKey("b");
+        try context.arrayOpen();
+        try context.arrayClose();
+    }
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":[],\"b\":[]}", &buffer);
+}
+
+test "dict dict single" {
+    var depth: [2]u8 = undefined;
+    var buffer: [8]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("a");
+        try context.dictOpen();
+        try context.dictClose();
+    }
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":{}}", &buffer);
+}
+
+test "dict dict multiple" {
+    var depth: [2]u8 = undefined;
+    var buffer: [15]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("a");
+        try context.dictOpen();
+        try context.dictClose();
+
+        try context.dictKey("b");
+        try context.dictOpen();
+        try context.dictClose();
+    }
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":{},\"b\":{}}", &buffer);
 }

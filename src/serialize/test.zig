@@ -1059,6 +1059,198 @@ test "array number comma writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), item2_err);
 }
 
+test "array array single" {
+    var depth: [2]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const sub_open_err = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err);
+        const sub_close_err = con.con_serialize_array_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err);
+    }
+
+    const close_err = con.con_serialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+    try testing.expectEqualStrings("[[]]", &buffer);
+}
+
+test "array array multiple" {
+    var depth: [2]u8 = undefined;
+    var buffer: [7]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const sub_open_err1 = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err1);
+        const sub_close_err1 = con.con_serialize_array_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err1);
+
+        const sub_open_err2 = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err2);
+        const sub_close_err2 = con.con_serialize_array_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err2);
+    }
+
+    const close_err = con.con_serialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+    try testing.expectEqualStrings("[[],[]]", &buffer);
+}
+
+test "array array comma writer fail" {
+    var depth: [2]u8 = undefined;
+    var buffer: [3]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const sub_open_err1 = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err1);
+        const sub_close_err1 = con.con_serialize_array_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err1);
+
+        try testing.expectEqualStrings("[[]", &buffer);
+
+        const sub_open_err2 = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), sub_open_err2);
+    }
+}
+
+test "array dict single" {
+    var depth: [2]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const sub_open_err = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err);
+        const sub_close_err = con.con_serialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err);
+    }
+
+    const close_err = con.con_serialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+    try testing.expectEqualStrings("[{}]", &buffer);
+}
+
+test "array dict multiple" {
+    var depth: [2]u8 = undefined;
+    var buffer: [7]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const sub_open_err1 = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err1);
+        const sub_close_err1 = con.con_serialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err1);
+
+        const sub_open_err2 = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err2);
+        const sub_close_err2 = con.con_serialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err2);
+    }
+
+    const close_err = con.con_serialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+    try testing.expectEqualStrings("[{},{}]", &buffer);
+}
+
+test "array dict comma writer fail" {
+    var depth: [2]u8 = undefined;
+    var buffer: [3]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const sub_open_err1 = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err1);
+        const sub_close_err1 = con.con_serialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err1);
+
+        try testing.expectEqualStrings("[{}", &buffer);
+
+        const sub_open_err2 = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), sub_open_err2);
+    }
+}
+
 test "dict string single" {
     var depth: [1]u8 = undefined;
     var buffer: [9]u8 = undefined;
@@ -1221,4 +1413,156 @@ test "dict number multiple" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
 
     try testing.expectEqualStrings("{\"a\":1,\"b\":2}", &buffer);
+}
+
+test "dict array single" {
+    var depth: [2]u8 = undefined;
+    var buffer: [8]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const key_err = con.con_serialize_dict_key(&context, "a");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
+
+        const sub_open_err = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err);
+        const sub_close_err = con.con_serialize_array_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err);
+    }
+
+    const close_err = con.con_serialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+
+    try testing.expectEqualStrings("{\"a\":[]}", &buffer);
+}
+
+test "dict array multiple" {
+    var depth: [2]u8 = undefined;
+    var buffer: [15]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const key_err1 = con.con_serialize_dict_key(&context, "a");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err1);
+
+        const sub_open_err1 = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err1);
+        const sub_close_err1 = con.con_serialize_array_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err1);
+
+        const key_err2 = con.con_serialize_dict_key(&context, "b");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err2);
+
+        const sub_open_err2 = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err2);
+        const sub_close_err2 = con.con_serialize_array_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err2);
+    }
+
+    const close_err = con.con_serialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+
+    try testing.expectEqualStrings("{\"a\":[],\"b\":[]}", &buffer);
+}
+
+test "dict dict single" {
+    var depth: [2]u8 = undefined;
+    var buffer: [8]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const key_err = con.con_serialize_dict_key(&context, "a");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
+
+        const sub_open_err = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err);
+        const sub_close_err = con.con_serialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err);
+    }
+
+    const close_err = con.con_serialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+
+    try testing.expectEqualStrings("{\"a\":{}}", &buffer);
+}
+
+test "dict dict multiple" {
+    var depth: [2]u8 = undefined;
+    var buffer: [15]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const key_err1 = con.con_serialize_dict_key(&context, "a");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err1);
+
+        const sub_open_err1 = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err1);
+        const sub_close_err1 = con.con_serialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err1);
+
+        const key_err2 = con.con_serialize_dict_key(&context, "b");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err2);
+
+        const sub_open_err2 = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_open_err2);
+        const sub_close_err2 = con.con_serialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), sub_close_err2);
+    }
+
+    const close_err = con.con_serialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+
+    try testing.expectEqualStrings("{\"a\":{},\"b\":{}}", &buffer);
 }
