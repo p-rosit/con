@@ -488,6 +488,7 @@ test "dict number second key missing" {
 
     const open_err = con.con_serialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
     {
         const key_err = con.con_serialize_dict_key(&context, "k");
         try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
@@ -540,6 +541,7 @@ test "dict string second key missing" {
 
     const open_err = con.con_serialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
     {
         const key_err = con.con_serialize_dict_key(&context, "k");
         try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
@@ -592,6 +594,7 @@ test "dict array second key missing" {
 
     const open_err = con.con_serialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
     {
         const key_err = con.con_serialize_dict_key(&context, "k");
         try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
@@ -643,6 +646,7 @@ test "dict dict second key missing" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const open_err = con.con_serialize_dict_open(&context);
+
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
     {
         const key_err = con.con_serialize_dict_key(&context, "k");

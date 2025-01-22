@@ -563,9 +563,11 @@ test "array string single" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.string("a");
     }
+
     try context.arrayClose();
 
     try testing.expectEqualStrings("[\"a\"]", &buffer);
@@ -579,10 +581,12 @@ test "array string multiple" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.string("a");
         try context.string("b");
     }
+
     try context.arrayClose();
 
     try testing.expectEqualStrings("[\"a\",\"b\"]", &buffer);
@@ -614,9 +618,11 @@ test "array number single" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.number("1");
     }
+
     try context.arrayClose();
 
     try testing.expectEqualStrings("[1]", &buffer);
@@ -630,10 +636,12 @@ test "array number multiple" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.number("1");
         try context.number("3");
     }
+
     try context.arrayClose();
 
     try testing.expectEqualStrings("[1,3]", &buffer);
@@ -665,10 +673,12 @@ test "array array single" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.arrayOpen();
         try context.arrayClose();
     }
+
     try context.arrayClose();
 
     try testing.expectEqualStrings("[[]]", &buffer);
@@ -682,6 +692,7 @@ test "array array multiple" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.arrayOpen();
         try context.arrayClose();
@@ -689,6 +700,7 @@ test "array array multiple" {
         try context.arrayOpen();
         try context.arrayClose();
     }
+
     try context.arrayClose();
 
     try testing.expectEqualStrings("[[],[]]", &buffer);
@@ -702,6 +714,7 @@ test "array array comma writer fail" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.arrayOpen();
         try context.arrayClose();
@@ -720,10 +733,12 @@ test "array dict single" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.dictOpen();
         try context.dictClose();
     }
+
     try context.arrayClose();
 
     try testing.expectEqualStrings("[{}]", &buffer);
@@ -737,6 +752,7 @@ test "array dict multiple" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.dictOpen();
         try context.dictClose();
@@ -744,6 +760,7 @@ test "array dict multiple" {
         try context.dictOpen();
         try context.dictClose();
     }
+
     try context.arrayClose();
 
     try testing.expectEqualStrings("[{},{}]", &buffer);
@@ -757,6 +774,7 @@ test "array dict comma writer fail" {
     defer context.deinit();
 
     try context.arrayOpen();
+
     {
         try context.dictOpen();
         try context.dictClose();
@@ -775,10 +793,12 @@ test "dict string single" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("a");
         try context.string("b");
     }
+
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":\"b\"}", &buffer);
@@ -792,6 +812,7 @@ test "dict string multiple" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("a");
         try context.string("b");
@@ -799,6 +820,7 @@ test "dict string multiple" {
         try context.dictKey("c");
         try context.string("d");
     }
+
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":\"b\",\"c\":\"d\"}", &buffer);
@@ -812,6 +834,7 @@ test "dict comma writer fail" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("a");
         try context.string("b");
@@ -830,10 +853,12 @@ test "dict number single" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("a");
         try context.number("1");
     }
+
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":1}", &buffer);
@@ -847,6 +872,7 @@ test "dict number multiple" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("a");
         try context.number("1");
@@ -854,6 +880,7 @@ test "dict number multiple" {
         try context.dictKey("b");
         try context.number("2");
     }
+
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":1,\"b\":2}", &buffer);
@@ -867,11 +894,13 @@ test "dict array single" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("a");
         try context.arrayOpen();
         try context.arrayClose();
     }
+
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":[]}", &buffer);
@@ -885,6 +914,7 @@ test "dict array multiple" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("a");
         try context.arrayOpen();
@@ -894,6 +924,7 @@ test "dict array multiple" {
         try context.arrayOpen();
         try context.arrayClose();
     }
+
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":[],\"b\":[]}", &buffer);
@@ -907,11 +938,13 @@ test "dict dict single" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("a");
         try context.dictOpen();
         try context.dictClose();
     }
+
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":{}}", &buffer);
@@ -925,6 +958,7 @@ test "dict dict multiple" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("a");
         try context.dictOpen();
@@ -934,6 +968,7 @@ test "dict dict multiple" {
         try context.dictOpen();
         try context.dictClose();
     }
+
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":{},\"b\":{}}", &buffer);
