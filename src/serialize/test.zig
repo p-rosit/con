@@ -184,6 +184,7 @@ test "array close writer fail" {
 
     const open_err = con.con_serialize_array_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+    try testing.expectEqualStrings("[", &buffer);
 
     const close_err = con.con_serialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), close_err);
@@ -308,6 +309,7 @@ test "dict close writer fail" {
 
     const open_err = con.con_serialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+    try testing.expectEqualStrings("{", &buffer);
 
     const close_err = con.con_serialize_dict_close(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), close_err);
@@ -523,9 +525,9 @@ test "number scientific-like" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), num_err);
 }
 
-test "number write fail" {
+test "number writer fail" {
     var depth: [0]u8 = undefined;
-    var buffer: [1]u8 = undefined;
+    var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context: con.ConSerialize = undefined;
 
@@ -538,7 +540,7 @@ test "number write fail" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const num_err = con.con_serialize_number(&context, "65");
+    const num_err = con.con_serialize_number(&context, "6");
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), num_err);
 }
 
@@ -599,7 +601,7 @@ test "string null" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), str_err);
 }
 
-test "string first quote write fail" {
+test "string first quote writer fail" {
     var depth: [0]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -618,7 +620,7 @@ test "string first quote write fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), str_err);
 }
 
-test "string body write fail" {
+test "string body writer fail" {
     var depth: [0]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -635,9 +637,10 @@ test "string body write fail" {
 
     const str_err = con.con_serialize_string(&context, "-");
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), str_err);
+    try testing.expectEqualStrings("\"", &buffer);
 }
 
-test "string second quote write fail" {
+test "string second quote writer fail" {
     var depth: [0]u8 = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -654,6 +657,7 @@ test "string second quote write fail" {
 
     const str_err = con.con_serialize_string(&context, "-");
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), str_err);
+    try testing.expectEqualStrings("\"-", &buffer);
 }
 
 // Usage
@@ -719,7 +723,7 @@ test "array string multiple" {
     try testing.expectEqualStrings("[\"a\",\"b\"]", &buffer);
 }
 
-test "array string comma write fail" {
+test "array string comma writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -739,6 +743,7 @@ test "array string comma write fail" {
 
     const item1_err = con.con_serialize_string(&context, "a");
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
+    try testing.expectEqualStrings("[\"a\"", &buffer);
 
     const item2_err = con.con_serialize_string(&context, "b");
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), item2_err);
@@ -805,7 +810,7 @@ test "array number multiple" {
     try testing.expectEqualStrings("[6,4]", &buffer);
 }
 
-test "array number comma write fail" {
+test "array number comma writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -825,6 +830,7 @@ test "array number comma write fail" {
 
     const item1_err = con.con_serialize_number(&context, "2");
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
+    try testing.expectEqualStrings("[2", &buffer);
 
     const item2_err = con.con_serialize_number(&context, "3");
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), item2_err);

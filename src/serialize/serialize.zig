@@ -176,6 +176,8 @@ test "array close writer fail" {
     defer context.deinit();
 
     try context.arrayOpen();
+    try testing.expectEqualStrings("[", &buffer);
+
     const err = context.arrayClose();
     try testing.expectError(error.Writer, err);
 }
@@ -244,6 +246,8 @@ test "dict close writer fail" {
     defer context.deinit();
 
     try context.dictOpen();
+    try testing.expectEqualStrings("{", &buffer);
+
     const err = context.dictClose();
     try testing.expectError(error.Writer, err);
 }
@@ -367,14 +371,14 @@ test "number scientific-like" {
     try testing.expectEqualStrings("-1e-5", &buffer);
 }
 
-test "number write fail" {
+test "number writer fail" {
     var depth: [0]u8 = undefined;
-    var buffer: [1]u8 = undefined;
+    var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
     defer context.deinit();
 
-    const err = context.number(".5");
+    const err = context.number("2");
     try testing.expectError(error.Writer, err);
 }
 
@@ -389,7 +393,7 @@ test "string" {
     try testing.expectEqualStrings("\"a\"", &buffer);
 }
 
-test "string first quote write fail" {
+test "string first quote writer fail" {
     var depth: [0]u8 = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -400,18 +404,7 @@ test "string first quote write fail" {
     try testing.expectError(error.Writer, err);
 }
 
-test "string body write fail" {
-    var depth: [0]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
-    defer context.deinit();
-
-    const err = context.string("a");
-    try testing.expectError(error.Writer, err);
-}
-
-test "string second quote write fail" {
+test "string body writer fail" {
     var depth: [0]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -420,6 +413,19 @@ test "string second quote write fail" {
 
     const err = context.string("a");
     try testing.expectError(error.Writer, err);
+    try testing.expectEqualStrings("\"", &buffer);
+}
+
+test "string second quote writer fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.string("a");
+    try testing.expectError(error.Writer, err);
+    try testing.expectEqualStrings("\"a", &buffer);
 }
 
 // Usage -----------
@@ -457,7 +463,7 @@ test "array string multiple" {
     try testing.expectEqualStrings("[\"a\",\"b\"]", &buffer);
 }
 
-test "array string comma write fail" {
+test "array string comma writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -466,6 +472,8 @@ test "array string comma write fail" {
 
     try context.arrayOpen();
     try context.string("a");
+    try testing.expectEqualStrings("[\"a\"", &buffer);
+
     const err = context.string("b");
     try testing.expectError(error.Writer, err);
 }
@@ -503,7 +511,7 @@ test "array number multiple" {
     try testing.expectEqualStrings("[1,3]", &buffer);
 }
 
-test "array number comma write fail" {
+test "array number comma writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -512,6 +520,8 @@ test "array number comma write fail" {
 
     try context.arrayOpen();
     try context.number("1");
+    try testing.expectEqualStrings("[1", &buffer);
+
     const err = context.number("2");
     try testing.expectError(error.Writer, err);
 }
@@ -553,7 +563,7 @@ test "dict string multiple" {
     try testing.expectEqualStrings("{\"a\":\"b\",\"c\":\"d\"}", &buffer);
 }
 
-test "dict comma write fail" {
+test "dict comma writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [8]u8 = undefined;
     var fifo = Fifo.init(&buffer);
@@ -564,6 +574,7 @@ test "dict comma write fail" {
     {
         try context.dictKey("a");
         try context.string("b");
+        try testing.expectEqualStrings("{\"a\":\"b\"", &buffer);
 
         const err = context.dictKey("c");
         try testing.expectError(error.Writer, err);
