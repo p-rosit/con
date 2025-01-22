@@ -446,6 +446,34 @@ test "dict number key missing" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_KEY), num_err);
 }
 
+test "dict number second key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+    {
+        const key_err = con.con_serialize_dict_key(&context, "k");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
+        const item_err = con.con_serialize_number(&context, "1");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item_err);
+
+        const num_err = con.con_serialize_number(&context, "2");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_KEY), num_err);
+    }
+}
+
 test "dict string key missing" {
     var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
@@ -466,6 +494,34 @@ test "dict string key missing" {
 
     const str_err = con.con_serialize_string(&context, "2");
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_KEY), str_err);
+}
+
+test "dict string second key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [8]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+    {
+        const key_err = con.con_serialize_dict_key(&context, "k");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
+        const item_err = con.con_serialize_string(&context, "a");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item_err);
+
+        const str_err = con.con_serialize_string(&context, "b");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_KEY), str_err);
+    }
 }
 
 test "dict array key missing" {
@@ -490,6 +546,34 @@ test "dict array key missing" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_KEY), array_err);
 }
 
+test "dict array second key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+    {
+        const key_err = con.con_serialize_dict_key(&context, "k");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
+        const item_err = con.con_serialize_number(&context, "1");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item_err);
+
+        const str_err = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_KEY), str_err);
+    }
+}
+
 test "dict dict key missing" {
     var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
@@ -510,6 +594,34 @@ test "dict dict key missing" {
 
     const dict_err = con.con_serialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_KEY), dict_err);
+}
+
+test "dict dict second key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+    {
+        const key_err = con.con_serialize_dict_key(&context, "k");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
+        const item_err = con.con_serialize_number(&context, "1");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item_err);
+
+        const str_err = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_KEY), str_err);
+    }
 }
 
 test "array open -> dict close" {

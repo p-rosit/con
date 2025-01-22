@@ -326,6 +326,24 @@ test "dict number key missing" {
     try testing.expectError(error.Key, err);
 }
 
+test "dict number second key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("k");
+        try context.number("1");
+        try testing.expectEqualStrings("{\"k\":1", &buffer);
+
+        const err = context.number("2");
+        try testing.expectError(error.Key, err);
+    }
+}
+
 test "dict string key missing" {
     var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
@@ -337,6 +355,24 @@ test "dict string key missing" {
 
     const err = context.string("2");
     try testing.expectError(error.Key, err);
+}
+
+test "dict string second key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [8]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("k");
+        try context.string("a");
+        try testing.expectEqualStrings("{\"k\":\"a\"", &buffer);
+
+        const err = context.string("b");
+        try testing.expectError(error.Key, err);
+    }
 }
 
 test "dict array key missing" {
@@ -352,6 +388,24 @@ test "dict array key missing" {
     try testing.expectError(error.Key, err);
 }
 
+test "dict array second key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("k");
+        try context.number("1");
+        try testing.expectEqualStrings("{\"k\":1", &buffer);
+
+        const err = context.arrayOpen();
+        try testing.expectError(error.Key, err);
+    }
+}
+
 test "dict dict key missing" {
     var depth: [1]u8 = undefined;
     var buffer: [1]u8 = undefined;
@@ -363,6 +417,24 @@ test "dict dict key missing" {
 
     const err = context.dictOpen();
     try testing.expectError(error.Key, err);
+}
+
+test "dict dict second key missing" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+    {
+        try context.dictKey("k");
+        try context.number("1");
+        try testing.expectEqualStrings("{\"k\":1", &buffer);
+
+        const err = context.dictOpen();
+        try testing.expectError(error.Key, err);
+    }
 }
 
 test "array open -> dict close" {
