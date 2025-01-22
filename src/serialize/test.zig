@@ -550,10 +550,12 @@ test "dict key" {
     const open_err = con.con_serialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-    const key_err = con.con_serialize_dict_key(&context, "key");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
+    {
+        const key_err = con.con_serialize_dict_key(&context, "key");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key_err);
 
-    try testing.expectEqualStrings("{\"key\":", &buffer);
+        try testing.expectEqualStrings("{\"key\":", &buffer);
+    }
 }
 
 test "dict key null" {
@@ -575,8 +577,10 @@ test "dict key null" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
     try testing.expectEqualStrings("{", &buffer);
 
-    const key_err = con.con_serialize_dict_key(&context, null);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), key_err);
+    {
+        const key_err = con.con_serialize_dict_key(&context, null);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), key_err);
+    }
 }
 
 test "dict key outside dict" {
@@ -616,8 +620,10 @@ test "dict key in array" {
     const open_err = con.con_serialize_array_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-    const key_err = con.con_serialize_dict_key(&context, "key");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NOT_DICT), key_err);
+    {
+        const key_err = con.con_serialize_dict_key(&context, "key");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NOT_DICT), key_err);
+    }
 }
 
 test "dict key twice" {
@@ -638,11 +644,13 @@ test "dict key twice" {
     const open_err = con.con_serialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
 
-    const key1_err = con.con_serialize_dict_key(&context, "key");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key1_err);
+    {
+        const key1_err = con.con_serialize_dict_key(&context, "key");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key1_err);
 
-    const key2_err = con.con_serialize_dict_key(&context, "key");
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_VALUE), key2_err);
+        const key2_err = con.con_serialize_dict_key(&context, "key");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_VALUE), key2_err);
+    }
 }
 
 test "dict number key missing" {

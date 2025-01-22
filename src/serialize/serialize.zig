@@ -365,8 +365,11 @@ test "dict key" {
     defer context.deinit();
 
     try context.dictOpen();
-    try context.dictKey("key");
-    try testing.expectEqualStrings("{\"key\":", &buffer);
+
+    {
+        try context.dictKey("key");
+        try testing.expectEqualStrings("{\"key\":", &buffer);
+    }
 }
 
 test "dict key outside dict" {
@@ -388,8 +391,11 @@ test "dict key in array" {
     defer context.deinit();
 
     try context.arrayOpen();
-    const err = context.dictKey("key");
-    try testing.expectError(error.NotDict, err);
+
+    {
+        const err = context.dictKey("key");
+        try testing.expectError(error.NotDict, err);
+    }
 }
 
 test "dict key twice" {
@@ -400,10 +406,13 @@ test "dict key twice" {
     defer context.deinit();
 
     try context.dictOpen();
-    try context.dictKey("k1");
 
-    const err = context.dictKey("k2");
-    try testing.expectError(error.Value, err);
+    {
+        try context.dictKey("k1");
+
+        const err = context.dictKey("k2");
+        try testing.expectError(error.Value, err);
+    }
 }
 
 test "dict number key missing" {
@@ -415,8 +424,10 @@ test "dict number key missing" {
 
     try context.dictOpen();
 
-    const err = context.number("5");
-    try testing.expectError(error.Key, err);
+    {
+        const err = context.number("5");
+        try testing.expectError(error.Key, err);
+    }
 }
 
 test "dict number second key missing" {
@@ -427,6 +438,7 @@ test "dict number second key missing" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("k");
         try context.number("1");
@@ -446,8 +458,10 @@ test "dict string key missing" {
 
     try context.dictOpen();
 
-    const err = context.string("2");
-    try testing.expectError(error.Key, err);
+    {
+        const err = context.string("2");
+        try testing.expectError(error.Key, err);
+    }
 }
 
 test "dict string second key missing" {
@@ -458,6 +472,7 @@ test "dict string second key missing" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("k");
         try context.string("a");
@@ -477,8 +492,10 @@ test "dict array key missing" {
 
     try context.dictOpen();
 
-    const err = context.arrayOpen();
-    try testing.expectError(error.Key, err);
+    {
+        const err = context.arrayOpen();
+        try testing.expectError(error.Key, err);
+    }
 }
 
 test "dict array second key missing" {
@@ -489,6 +506,7 @@ test "dict array second key missing" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("k");
         try context.number("1");
@@ -508,8 +526,10 @@ test "dict dict key missing" {
 
     try context.dictOpen();
 
-    const err = context.dictOpen();
-    try testing.expectError(error.Key, err);
+    {
+        const err = context.dictOpen();
+        try testing.expectError(error.Key, err);
+    }
 }
 
 test "dict dict second key missing" {
@@ -520,6 +540,7 @@ test "dict dict second key missing" {
     defer context.deinit();
 
     try context.dictOpen();
+
     {
         try context.dictKey("k");
         try context.number("1");
@@ -529,6 +550,7 @@ test "dict dict second key missing" {
         try testing.expectError(error.Key, err);
     }
 }
+
 // Section: Combinations of containers -----------------------------------------
 
 test "array open -> dict close" {
