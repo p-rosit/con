@@ -133,6 +133,7 @@ enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context) {
 
 enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char const *key) {
     assert(context != NULL);
+    if (key == NULL) { return CON_SERIALIZE_NULL; }
 
     if (context->depth <= 0) { return CON_SERIALIZE_NOT_DICT; }
     if (context->depth_buffer[context->depth-1] != CONTAINER_DICT) {

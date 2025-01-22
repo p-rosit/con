@@ -358,6 +358,29 @@ test "dict key" {
     try testing.expectEqualStrings("{\"key\":", &buffer);
 }
 
+test "dict key null" {
+    var depth: [1]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+    try testing.expectEqualStrings("{", &buffer);
+
+    const key_err = con.con_serialize_dict_key(&context, null);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), key_err);
+}
+
 test "dict key outside dict" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
