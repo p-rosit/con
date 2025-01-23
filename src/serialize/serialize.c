@@ -48,6 +48,10 @@ enum ConSerializeError con_serialize_init(
 enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
     assert(context != NULL);
 
+    if (context->state == STATE_COMPLETE) {
+        return CON_SERIALIZE_COMPLETE;
+    }
+
     if (
         context->depth > 0
         && context->depth_buffer[context->depth - 1] == CONTAINER_DICT
@@ -95,6 +99,10 @@ enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
 
 enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context) {
     assert(context != NULL);
+
+    if (context->state == STATE_COMPLETE) {
+        return CON_SERIALIZE_COMPLETE;
+    }
 
     if (
         context->depth > 0

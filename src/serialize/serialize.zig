@@ -111,6 +111,7 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_CLOSED_TOO_MANY => return error.ClosedTooMany,
                 con.CON_SERIALIZE_BUFFER => return error.Buffer,
                 con.CON_SERIALIZE_TOO_DEEP => return error.TooDeep,
+                con.CON_SERIALIZE_COMPLETE => return error.Complete,
                 con.CON_SERIALIZE_KEY => return error.Key,
                 con.CON_SERIALIZE_VALUE => return error.Value,
                 con.CON_SERIALIZE_NOT_ARRAY => return error.NotArray,
@@ -1148,6 +1149,94 @@ test "dict dict single" {
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":{}}", &buffer);
+}
+
+// Section: Completed ----------------------------------------------------------
+
+test "number complete" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+
+    try context.arrayOpen();
+    try context.arrayClose();
+    try testing.expectEqualStrings("[]", &buffer);
+
+    const err = context.number("1");
+    try testing.expectError(error.Complete, err);
+}
+
+test "string complete" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+
+    try context.dictOpen();
+    try context.dictClose();
+    try testing.expectEqualStrings("{}", &buffer);
+
+    const err = context.string("1");
+    try testing.expectError(error.Complete, err);
+}
+
+test "bool complete" {
+    var depth: [0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+
+    try context.number("1");
+    try testing.expectEqualStrings("1", &buffer);
+
+    const err = context.bool(true);
+    try testing.expectError(error.Complete, err);
+}
+
+test "null complete" {
+    var depth: [0]u8 = undefined;
+    var buffer: [3]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+
+    try context.string("1");
+    try testing.expectEqualStrings("\"1\"", &buffer);
+
+    const err = context.null();
+    try testing.expectError(error.Complete, err);
+}
+
+test "array complete" {
+    var depth: [1]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+
+    try context.bool(true);
+    try testing.expectEqualStrings("true", &buffer);
+
+    const err = context.arrayOpen();
+    try testing.expectError(error.Complete, err);
+}
+
+test "dict complete" {
+    var depth: [1]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+
+    try context.null();
+    try testing.expectEqualStrings("null", &buffer);
+
+    const err = context.dictOpen();
+    try testing.expectError(error.Complete, err);
 }
 
 // Section: Integration test ---------------------------------------------------
