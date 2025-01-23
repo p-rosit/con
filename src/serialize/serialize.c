@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <limits.h>
 #include "serialize.h"
 
 enum ConSerializeContainer {
@@ -17,8 +16,6 @@ enum ConSerializeState {
     STATE_VALUE     = 5,
     STATE_MAX,
 };
-
-static_assert(STATE_MAX < CHAR_MAX, "Only small amount of states allowed");
 
 static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerialize *context);
 static inline enum ConSerializeError con_serialize_state_change(struct ConSerialize *context, int *needs_comma);
