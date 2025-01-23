@@ -317,6 +317,24 @@ test "array open too many" {
     try testing.expectError(error.TooDeep, err);
 }
 
+test "array nested open too many" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.number("1");
+        try testing.expectEqualStrings("[1", &buffer);
+
+        const err = context.arrayOpen();
+        try testing.expectError(error.TooDeep, err);
+    }
+}
+
 test "array open writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
@@ -385,6 +403,24 @@ test "dict open too many" {
 
     const err = context.dictOpen();
     try testing.expectError(error.TooDeep, err);
+}
+
+test "dict nested open too many" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.number("1");
+        try testing.expectEqualStrings("[1", &buffer);
+
+        const err = context.dictOpen();
+        try testing.expectError(error.TooDeep, err);
+    }
 }
 
 test "dict open writer fail" {

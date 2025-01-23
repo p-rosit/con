@@ -52,6 +52,7 @@ enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
     enum ConSerializeError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
+    assert(context->depth_buffer != NULL);
     context->depth_buffer[context->depth] = CONTAINER_ARRAY;
     context->depth += 1;
 
@@ -65,7 +66,6 @@ enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
 
 enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
     assert(context != NULL);
-    assert(0 < context->state && context->state < STATE_MAX);
     assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
     if (context->depth <= 0) { return CON_SERIALIZE_CLOSED_TOO_MANY; }
 
@@ -98,6 +98,7 @@ enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context) {
     enum ConSerializeError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
+    assert(context->depth_buffer != NULL);
     context->depth_buffer[context->depth] = CONTAINER_DICT;
     context->depth += 1;
 

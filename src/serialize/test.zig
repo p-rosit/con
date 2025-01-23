@@ -440,6 +440,34 @@ test "array open too many" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_TOO_DEEP), open_err);
 }
 
+test "array nested open too many" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const num_err = con.con_serialize_number(&context, "1");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), num_err);
+        try testing.expectEqualStrings("[1", &buffer);
+
+        const err = con.con_serialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_TOO_DEEP), err);
+    }
+}
+
 test "array open writer fail" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
@@ -563,6 +591,34 @@ test "dict open too many" {
 
     const open_err = con.con_serialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_TOO_DEEP), open_err);
+}
+
+test "dict nested open too many" {
+    var depth: [1]u8 = undefined;
+    var buffer: [2]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const num_err = con.con_serialize_number(&context, "1");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), num_err);
+        try testing.expectEqualStrings("[1", &buffer);
+
+        const err = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_TOO_DEEP), err);
+    }
 }
 
 test "dict open writer fail" {
