@@ -46,25 +46,14 @@ enum ConSerializeError con_serialize_init(
 enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
     assert(context != NULL);
 
-    assert(0 < context->state && context->state < STATE_MAX);
-    if (context->state == STATE_COMPLETE) {
-        return CON_SERIALIZE_COMPLETE;
-    }
-
-    enum ConSerializeError key_err = con_serialize_requires_key(context);
-    if (key_err) { return key_err; }
-
-    assert(context->depth_buffer != NULL);
     assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
     if (context->depth >= context->depth_buffer_size) { return CON_SERIALIZE_TOO_DEEP; }
+
+    enum ConSerializeError err = con_serialize_value_prefix(context);
+    if (err) { return err; }
+
     context->depth_buffer[context->depth] = CONTAINER_ARRAY;
     context->depth += 1;
-
-    if (context->state == STATE_LATER) {
-        assert(context->write != NULL);
-        int result = context->write(context->write_context, ",");
-        if (result != 1) { return CON_SERIALIZE_WRITER; }
-    }
 
     assert(context->write != NULL);
     int result = context->write(context->write_context, "[");
@@ -102,25 +91,15 @@ enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
 
 enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context) {
     assert(context != NULL);
-    assert(0 < context->state && context->state < STATE_MAX);
-    if (context->state == STATE_COMPLETE) {
-        return CON_SERIALIZE_COMPLETE;
-    }
 
-    enum ConSerializeError key_err = con_serialize_requires_key(context);
-    if (key_err) { return key_err; }
-
-    assert(context->depth_buffer != NULL);
     assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
     if (context->depth >= context->depth_buffer_size) { return CON_SERIALIZE_TOO_DEEP; }
+
+    enum ConSerializeError err = con_serialize_value_prefix(context);
+    if (err) { return err; }
+
     context->depth_buffer[context->depth] = CONTAINER_DICT;
     context->depth += 1;
-
-    if (context->state == STATE_LATER) {
-        assert(context->write != NULL);
-        int result = context->write(context->write_context, ",");
-        if (result != 1) { return CON_SERIALIZE_WRITER; }
-    }
 
     assert(context->write != NULL);
     int result = context->write(context->write_context, "{");

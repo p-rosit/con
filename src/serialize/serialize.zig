@@ -601,7 +601,7 @@ test "dict string second key missing" {
 }
 
 test "dict array key missing" {
-    var depth: [1]u8 = undefined;
+    var depth: [2]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
@@ -616,7 +616,7 @@ test "dict array key missing" {
 }
 
 test "dict array second key missing" {
-    var depth: [1]u8 = undefined;
+    var depth: [2]u8 = undefined;
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
@@ -635,7 +635,7 @@ test "dict array second key missing" {
 }
 
 test "dict dict key missing" {
-    var depth: [1]u8 = undefined;
+    var depth: [2]u8 = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
@@ -650,7 +650,7 @@ test "dict dict key missing" {
 }
 
 test "dict dict second key missing" {
-    var depth: [1]u8 = undefined;
+    var depth: [2]u8 = undefined;
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
