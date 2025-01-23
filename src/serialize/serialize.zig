@@ -390,6 +390,25 @@ test "dict key multiple" {
     }
 }
 
+test "dict key comma writer fail" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+
+    {
+        try context.dictKey("a");
+        try context.number("1");
+        try testing.expectEqualStrings("{\"a\":1", &buffer);
+
+        const err = context.dictKey("2");
+        try testing.expectError(error.Writer, err);
+    }
+}
+
 test "dict key outside dict" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
@@ -844,25 +863,6 @@ test "dict number single" {
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":1}", &buffer);
-}
-
-test "dict comma writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [6]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
-    defer context.deinit();
-
-    try context.dictOpen();
-
-    {
-        try context.dictKey("a");
-        try context.number("1");
-        try testing.expectEqualStrings("{\"a\":1", &buffer);
-
-        const err = context.dictKey("2");
-        try testing.expectError(error.Writer, err);
-    }
 }
 
 test "dict string single" {

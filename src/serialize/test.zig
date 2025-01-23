@@ -615,6 +615,36 @@ test "dict key null" {
     }
 }
 
+test "dict key comma writer fail" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const key1_err = con.con_serialize_dict_key(&context, "a");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key1_err);
+        const item1_err = con.con_serialize_number(&context, "1");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
+        try testing.expectEqualStrings("{\"a\":1", &buffer);
+
+        const key2_err = con.con_serialize_dict_key(&context, "2");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), key2_err);
+    }
+}
+
 test "dict key outside dict" {
     var depth: [1]u8 = undefined;
     var buffer: [0]u8 = undefined;
@@ -1342,36 +1372,6 @@ test "dict number single" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
 
     try testing.expectEqualStrings("{\"a\":1}", &buffer);
-}
-
-test "dict comma writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [6]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
-
-    const init_err = con.con_serialize_init(
-        &context,
-        &fifo.writer(),
-        write,
-        &depth,
-        depth.len,
-    );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
-
-    const open_err = con.con_serialize_dict_open(&context);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
-
-    {
-        const key1_err = con.con_serialize_dict_key(&context, "a");
-        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key1_err);
-        const item1_err = con.con_serialize_number(&context, "1");
-        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), item1_err);
-        try testing.expectEqualStrings("{\"a\":1", &buffer);
-
-        const key2_err = con.con_serialize_dict_key(&context, "2");
-        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), key2_err);
-    }
 }
 
 test "dict string single" {
