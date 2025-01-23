@@ -156,11 +156,7 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
         return CON_SERIALIZE_VALUE;
     }
 
-    int needs_comma = 0;
-    enum ConSerializeError item_err = con_serialize_state_change(context, &needs_comma);
-    if (item_err) { return item_err; }
-
-    if (needs_comma) {
+    if (context->state == STATE_LATER) {
         assert(context->write != NULL);
         int result = context->write(context->write_context, ",");
         if (result != 1) { return CON_SERIALIZE_WRITER; }
