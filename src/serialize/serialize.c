@@ -18,7 +18,6 @@ enum ConSerializeState {
 };
 
 static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerialize *context);
-static inline enum ConSerializeError con_serialize_state_change(struct ConSerialize *context, int *needs_comma);
 static inline enum ConSerializeError con_serialize_requires_key(struct ConSerialize *context);
 
 enum ConSerializeError con_serialize_init(
@@ -244,24 +243,6 @@ static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerial
     enum ConSerializeError key_err = con_serialize_requires_key(context);
     if (key_err) { return key_err; }
 
-    int needs_comma = 0;
-    enum ConSerializeError err = con_serialize_state_change(context, &needs_comma);
-    if (err) { return err; }
-
-    if (needs_comma) {
-        assert(context->write != NULL);
-        int result = context->write(context->write_context, ",");
-        if (result != 1) { return CON_SERIALIZE_WRITER; }
-    }
-
-    return CON_SERIALIZE_OK;
-}
-
-static inline enum ConSerializeError con_serialize_state_change(struct ConSerialize *context, int *needs_comma) {
-    assert(needs_comma != NULL);
-    assert(context != NULL);
-    assert(0 < context->state && context->state < STATE_MAX);
-    *needs_comma = 0;
     switch (context->state) {
         case (STATE_EMPTY):
             context->state = STATE_COMPLETE;
@@ -269,9 +250,12 @@ static inline enum ConSerializeError con_serialize_state_change(struct ConSerial
         case (STATE_FIRST):
             context->state = STATE_LATER;
             break;
-        case (STATE_LATER):
-            *needs_comma = 1;
+        case (STATE_LATER): {
+            assert(context->write != NULL);
+            int result = context->write(context->write_context, ",");
+            if (result != 1) { return CON_SERIALIZE_WRITER; }
             break;
+        }
         case (STATE_COMPLETE):
             return CON_SERIALIZE_COMPLETE;
         case (STATE_VALUE):
@@ -281,6 +265,7 @@ static inline enum ConSerializeError con_serialize_state_change(struct ConSerial
             assert(0);  // State is unknown
             return CON_SERIALIZE_STATE_UNKNOWN;
     }
+
     return CON_SERIALIZE_OK;
 }
 
