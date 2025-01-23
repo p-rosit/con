@@ -289,28 +289,14 @@ static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerial
         }
     }
 
-    assert(0 < context->state && context->state < STATE_MAX);
-    switch (context->state) {
-        case (STATE_EMPTY):
-            context->state = STATE_COMPLETE;
-            break;
-        case (STATE_FIRST):
-            context->state = STATE_LATER;
-            break;
-        case (STATE_LATER): {
-            assert(context->write != NULL);
-            int result = context->write(context->write_context, ",");
-            if (result != 1) { return CON_SERIALIZE_WRITER; }
-            break;
-        }
-        case (STATE_COMPLETE):
-            return CON_SERIALIZE_COMPLETE;
-        case (STATE_VALUE):
-            context->state = STATE_LATER;
-            break;
-        default:
-            assert(0);  // State is unknown
-            return CON_SERIALIZE_STATE_UNKNOWN;
+    int needs_comma = 0;
+    enum ConSerializeError err = con_serialize_state_change(context, &needs_comma);
+    if (err) { return err; }
+
+    if (needs_comma) {
+        assert(context->write != NULL);
+        int result = context->write(context->write_context, ",");
+        if (result != 1) { return CON_SERIALIZE_WRITER; }
     }
 
     return CON_SERIALIZE_OK;
