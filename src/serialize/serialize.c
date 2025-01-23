@@ -19,6 +19,7 @@ enum ConSerializeState {
 
 static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerialize *context);
 static inline enum ConSerializeError con_serialize_state_change(struct ConSerialize *context, int *needs_comma);
+static inline enum ConSerializeError con_serialize_requires_key(struct ConSerialize *context);
 
 enum ConSerializeError con_serialize_init(
     struct ConSerialize *context,
@@ -50,17 +51,8 @@ enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
         return CON_SERIALIZE_COMPLETE;
     }
 
-    assert(context->depth_buffer != NULL);
-    assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
-    if (context->depth > 0) {
-        enum ConSerializeState state = context->state;
-        enum ConSerializeContainer current = context->depth_buffer[context->depth - 1];
-        assert(current == CONTAINER_DICT || current == CONTAINER_ARRAY);
-
-        if (current == CONTAINER_DICT && (state == STATE_FIRST || state == STATE_LATER)) {
-            return CON_SERIALIZE_KEY;
-        }
-    }
+    enum ConSerializeError key_err = con_serialize_requires_key(context);
+    if (key_err) { return key_err; }
 
     assert(context->depth_buffer != NULL);
     assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
@@ -115,17 +107,8 @@ enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context) {
         return CON_SERIALIZE_COMPLETE;
     }
 
-    assert(context->depth_buffer != NULL);
-    assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
-    if (context->depth > 0) {
-        enum ConSerializeState state = context->state;
-        enum ConSerializeContainer current = context->depth_buffer[context->depth - 1];
-        assert(current == CONTAINER_DICT || current == CONTAINER_ARRAY);
-
-        if (current == CONTAINER_DICT && (state == STATE_FIRST || state == STATE_LATER)) {
-            return CON_SERIALIZE_KEY;
-        }
-    }
+    enum ConSerializeError key_err = con_serialize_requires_key(context);
+    if (key_err) { return key_err; }
 
     assert(context->depth_buffer != NULL);
     assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
@@ -276,18 +259,8 @@ enum ConSerializeError con_serialize_null(struct ConSerialize *context) {
 static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerialize *context) {
     assert(context != NULL);
 
-    assert(0 < context->state && context->state < STATE_MAX);
-    assert(context->depth_buffer != NULL);
-    assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
-    if (context->depth > 0) {
-        enum ConSerializeState state = context->state;
-        enum ConSerializeContainer current = context->depth_buffer[context->depth - 1];
-        assert(current == CONTAINER_DICT || current == CONTAINER_ARRAY);
-
-        if (current == CONTAINER_DICT && (state == STATE_FIRST || state == STATE_LATER)) {
-            return CON_SERIALIZE_KEY;
-        }
-    }
+    enum ConSerializeError key_err = con_serialize_requires_key(context);
+    if (key_err) { return key_err; }
 
     int needs_comma = 0;
     enum ConSerializeError err = con_serialize_state_change(context, &needs_comma);
@@ -326,5 +299,21 @@ static inline enum ConSerializeError con_serialize_state_change(struct ConSerial
             assert(0);  // State is unknown
             return CON_SERIALIZE_STATE_UNKNOWN;
     }
+    return CON_SERIALIZE_OK;
+}
+
+static inline enum ConSerializeError con_serialize_requires_key(struct ConSerialize *context) {
+    assert(context->depth_buffer != NULL);
+    assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
+    if (context->depth > 0) {
+        enum ConSerializeState state = context->state;
+        enum ConSerializeContainer current = context->depth_buffer[context->depth - 1];
+        assert(current == CONTAINER_DICT || current == CONTAINER_ARRAY);
+
+        if (current == CONTAINER_DICT && (state == STATE_FIRST || state == STATE_LATER)) {
+            return CON_SERIALIZE_KEY;
+        }
+    }
+
     return CON_SERIALIZE_OK;
 }
