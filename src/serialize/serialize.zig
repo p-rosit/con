@@ -804,6 +804,116 @@ test "array string comma writer fail" {
     }
 }
 
+test "array bool single" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.bool(true);
+    }
+
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[true]", &buffer);
+}
+
+test "array bool multiple" {
+    var depth: [1]u8 = undefined;
+    var buffer: [12]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.bool(false);
+        try context.bool(true);
+    }
+
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[false,true]", &buffer);
+}
+
+test "array bool comma writer fail" {
+    var depth: [1]u8 = undefined;
+    var buffer: [5]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.bool(true);
+        try testing.expectEqualStrings("[true", &buffer);
+
+        const err = context.bool(false);
+        try testing.expectError(error.Writer, err);
+    }
+}
+
+test "array null single" {
+    var depth: [1]u8 = undefined;
+    var buffer: [6]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.null();
+    }
+
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[null]", &buffer);
+}
+
+test "array null multiple" {
+    var depth: [1]u8 = undefined;
+    var buffer: [11]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.null();
+        try context.null();
+    }
+
+    try context.arrayClose();
+
+    try testing.expectEqualStrings("[null,null]", &buffer);
+}
+
+test "array null comma writer fail" {
+    var depth: [1]u8 = undefined;
+    var buffer: [5]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.null();
+        try testing.expectEqualStrings("[null", &buffer);
+
+        const err = context.null();
+        try testing.expectError(error.Writer, err);
+    }
+}
+
 test "array array single" {
     var depth: [2]u8 = undefined;
     var buffer: [4]u8 = undefined;
@@ -960,6 +1070,44 @@ test "dict string single" {
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":\"b\"}", &buffer);
+}
+
+test "dict bool single" {
+    var depth: [1]u8 = undefined;
+    var buffer: [10]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+
+    {
+        try context.dictKey("a");
+        try context.bool(true);
+    }
+
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":true}", &buffer);
+}
+
+test "dict null single" {
+    var depth: [1]u8 = undefined;
+    var buffer: [10]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+
+    {
+        try context.dictKey("a");
+        try context.null();
+    }
+
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":null}", &buffer);
 }
 
 test "dict array single" {
