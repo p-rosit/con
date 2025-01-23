@@ -310,6 +310,7 @@ static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerial
             break;
         default:
             assert(0);  // State is unknown
+            return CON_SERIALIZE_STATE_UNKNOWN;
     }
 
     return CON_SERIALIZE_OK;
@@ -337,6 +338,7 @@ static inline enum ConSerializeError con_serialize_state_change(struct ConSerial
             break;
         default:
             assert(0);  // State is unknown
+            return CON_SERIALIZE_STATE_UNKNOWN;
     }
     return CON_SERIALIZE_OK;
 }

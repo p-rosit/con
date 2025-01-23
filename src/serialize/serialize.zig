@@ -116,6 +116,7 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_VALUE => return error.Value,
                 con.CON_SERIALIZE_NOT_ARRAY => return error.NotArray,
                 con.CON_SERIALIZE_NOT_DICT => return error.NotDict,
+                con.CON_SERIALIZE_STATE_UNKNOWN => return error.StateUnknown,
                 else => return error.Unknown,
             }
         }

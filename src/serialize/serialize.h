@@ -14,7 +14,8 @@ enum ConSerializeError {
     CON_SERIALIZE_KEY               = 7,
     CON_SERIALIZE_VALUE             = 8,
     CON_SERIALIZE_NOT_ARRAY         = 9,
-    CON_SERIALIZE_NOT_DICT          = 10
+    CON_SERIALIZE_NOT_DICT          = 10,
+    CON_SERIALIZE_STATE_UNKNOWN     = 11,
 };
 
 struct ConSerialize;
