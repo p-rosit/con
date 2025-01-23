@@ -278,6 +278,126 @@ test "string second quote writer fail" {
     try testing.expectEqualStrings("\"-", &buffer);
 }
 
+test "bool true" {
+    var depth: [0]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const bool_err = con.con_serialize_bool(&context, true);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), bool_err);
+
+    try testing.expectEqualStrings("true", &buffer);
+}
+
+test "bool true writer fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const bool_err = con.con_serialize_bool(&context, true);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), bool_err);
+}
+
+test "bool false" {
+    var depth: [0]u8 = undefined;
+    var buffer: [5]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const bool_err = con.con_serialize_bool(&context, false);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), bool_err);
+
+    try testing.expectEqualStrings("false", &buffer);
+}
+
+test "bool false writer fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const bool_err = con.con_serialize_bool(&context, false);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), bool_err);
+}
+
+test "null" {
+    var depth: [0]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const null_err = con.con_serialize_null(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), null_err);
+
+    try testing.expectEqualStrings("null", &buffer);
+}
+
+test "null writer fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const null_err = con.con_serialize_null(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), null_err);
+}
+
 // Section: Containers ---------------------------------------------------------
 
 test "array open" {

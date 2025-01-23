@@ -1,6 +1,7 @@
 #ifndef CON_SERIALIZE_H
 #define CON_SERIALIZE_H
 #include <stddef.h>
+#include <stdbool.h>
 
 enum ConSerializeError {
     CON_SERIALIZE_OK                = 0,
@@ -45,5 +46,7 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
 
 enum ConSerializeError con_serialize_number(struct ConSerialize *context, char const *number);
 enum ConSerializeError con_serialize_string(struct ConSerialize *context, char const *string);
+enum ConSerializeError con_serialize_bool(struct ConSerialize *context, bool value);
+enum ConSerializeError con_serialize_null(struct ConSerialize *context);
 
 #endif

@@ -83,6 +83,18 @@ pub fn Serialize(Writer: type) type {
             return Self.enum_to_error(err);
         }
 
+        pub fn @"bool"(self: *Self, value: bool) !void {
+            self.inner.write_context = &self.writer;
+            const err = con.con_serialize_bool(&self.inner, value);
+            return Self.enum_to_error(err);
+        }
+
+        pub fn @"null"(self: *Self) !void {
+            self.inner.write_context = &self.writer;
+            const err = con.con_serialize_null(&self.inner);
+            return Self.enum_to_error(err);
+        }
+
         fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
             std.debug.assert(null != writer);
             std.debug.assert(null != data);
@@ -211,6 +223,72 @@ test "string second quote writer fail" {
     const err = context.string("a");
     try testing.expectError(error.Writer, err);
     try testing.expectEqualStrings("\"a", &buffer);
+}
+
+test "bool true" {
+    var depth: [0]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.bool(true);
+    try testing.expectEqualStrings("true", &buffer);
+}
+
+test "bool true writer fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.bool(true);
+    try testing.expectError(error.Writer, err);
+}
+
+test "bool false" {
+    var depth: [0]u8 = undefined;
+    var buffer: [5]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.bool(false);
+    try testing.expectEqualStrings("false", &buffer);
+}
+
+test "bool false writer fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.bool(false);
+    try testing.expectError(error.Writer, err);
+}
+
+test "null" {
+    var depth: [0]u8 = undefined;
+    var buffer: [4]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.null();
+    try testing.expectEqualStrings("null", &buffer);
+}
+
+test "null writer fail" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.null();
+    try testing.expectError(error.Writer, err);
 }
 
 // Section: Containers ---------------------------------------------------------

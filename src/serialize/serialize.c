@@ -206,6 +206,33 @@ enum ConSerializeError con_serialize_string(struct ConSerialize *context, char c
     return CON_SERIALIZE_OK;
 }
 
+enum ConSerializeError con_serialize_bool(struct ConSerialize *context, bool value) {
+    assert(context != NULL);
+    enum ConSerializeError err = con_serialize_value_prefix(context);
+    if (err) { return err; }
+
+    int result;
+    if (value) {
+        result = context->write(context->write_context, "true");
+    } else {
+        result = context->write(context->write_context, "false");
+    }
+    if (result <= 0) { return CON_SERIALIZE_WRITER; }
+
+    return CON_SERIALIZE_OK;
+}
+
+enum ConSerializeError con_serialize_null(struct ConSerialize *context) {
+    assert(context != NULL);
+    enum ConSerializeError err = con_serialize_value_prefix(context);
+    if (err) { return err; }
+
+    int result = context->write(context->write_context, "null");
+    if (result <= 0) { return CON_SERIALIZE_WRITER; }
+
+    return CON_SERIALIZE_OK;
+}
+
 static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerialize *context) {
     if (
         context->depth > 0
