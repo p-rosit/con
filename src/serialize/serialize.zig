@@ -1149,3 +1149,45 @@ test "dict dict single" {
 
     try testing.expectEqualStrings("{\"a\":{}}", &buffer);
 }
+
+// Section: Integration test ---------------------------------------------------
+
+test "nested structures" {
+    var depth: [3]u8 = undefined;
+    var buffer: [55]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    try context.dictOpen();
+
+    {
+        try context.dictKey("a");
+        try context.arrayOpen();
+        {
+            try context.string("hello");
+            try context.dictOpen();
+            {
+                try context.dictKey("a.a");
+                try context.null();
+
+                try context.dictKey("a.b");
+                try context.bool(true);
+            }
+            try context.dictClose();
+        }
+        try context.arrayClose();
+
+        try context.dictKey("b");
+        try context.arrayOpen();
+        {
+            try context.number("234");
+            try context.bool(false);
+        }
+        try context.arrayClose();
+    }
+
+    try context.dictClose();
+
+    try testing.expectEqualStrings("{\"a\":[\"hello\",{\"a.a\":null,\"a.b\":true}],\"b\":[234,false]}", &buffer);
+}
