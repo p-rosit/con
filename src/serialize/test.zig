@@ -2144,3 +2144,79 @@ test "nested structures" {
 
     try testing.expectEqualStrings("{\"a\":[\"hello\",{\"a.a\":null,\"a.b\":true}],\"b\":[234,false]}", &buffer);
 }
+
+test "indent writer" {
+    var depth: [3]u8 = undefined;
+    var buffer: [87]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var indent = con.con_serialize_writer_indent(&fifo.writer(), write);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &indent,
+        con.con_serialize_writer_indent_write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const open_dict_err = con.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_dict_err);
+
+        {
+            const key1_err = con.con_serialize_dict_key(&context, "key1");
+            try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key1_err);
+            const empty_open_array_err = con.con_serialize_array_open(&context);
+            try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), empty_open_array_err);
+            const empty_close_array_err = con.con_serialize_array_close(&context);
+            try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), empty_close_array_err);
+
+            const key2_err = con.con_serialize_dict_key(&context, "key2");
+            try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key2_err);
+            const empty_open_dict_err = con.con_serialize_dict_open(&context);
+            try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), empty_open_dict_err);
+            const empty_close_dict_err = con.con_serialize_dict_close(&context);
+            try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), empty_close_dict_err);
+
+            const key3_err = con.con_serialize_dict_key(&context, "key3");
+            try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), key3_err);
+            const bool_err = con.con_serialize_bool(&context, true);
+            try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), bool_err);
+        }
+
+        const close_dict_err = con.con_serialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_dict_err);
+
+        const num_err = con.con_serialize_number(&context, "123");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), num_err);
+
+        const str_err = con.con_serialize_string(&context, "string");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), str_err);
+
+        const null_err = con.con_serialize_null(&context);
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), null_err);
+    }
+
+    const close_err = con.con_serialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), close_err);
+
+    try testing.expectEqualStrings(
+        \\[
+        \\  {
+        \\    "key1": [],
+        \\    "key2": {},
+        \\    "key3": true
+        \\  },
+        \\  123,
+        \\  "string",
+        \\  null
+        \\]
+    ,
+        &buffer,
+    );
+}

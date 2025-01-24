@@ -1,4 +1,6 @@
+#include <stdint.h>
 #include <assert.h>
+#include <limits.h>
 #include "serialize.h"
 
 enum ConSerializeContainer {
@@ -283,4 +285,82 @@ static inline enum ConSerializeError con_serialize_requires_key(struct ConSerial
     }
 
     return CON_SERIALIZE_OK;
+}
+
+struct ConWriterIndent con_serialize_writer_indent(void const *write_context, ConWrite *write) {
+    return (struct ConWriterIndent) {
+        .write_context = write_context,
+        .write = write,
+        .depth = 0,
+        .first_item = false,
+    };
+}
+
+static inline int con_serialize_writer_indent_whitespace(struct ConWriterIndent *writer) {
+    int result = writer->write(writer->write_context, "\n");
+    if (result != 1) { return result; }
+
+    for (size_t i = 0; i < writer->depth; i++) {
+        result = writer->write(writer->write_context, "  ");
+        if (result != 2) { return result; }
+    }
+
+    return 1;
+}
+
+int con_serialize_writer_indent_write(void const *writer_context, char const *data) {
+    struct ConWriterIndent *writer = (struct ConWriterIndent*) writer_context;
+    char c = data[0];
+    char write_char[2];
+    int length = 0;
+
+    write_char[0] = c;
+    write_char[1] = '\0';
+    while (c != '\0' && length < INT_MAX) {
+        if (writer->first_item && c != ']' && c != '}') {
+            int result = con_serialize_writer_indent_whitespace(writer);
+            if (result <= 0) { return result; }
+        }
+
+        if ((c == ']' || c == '}') && writer->depth > 0) {
+            writer->depth -= 1;
+
+            if (!writer->first_item) {
+                int result = con_serialize_writer_indent_whitespace(writer);
+                if (result <= 0) { return result; }
+            }
+        }
+
+        writer->first_item = false;
+
+        if (c == '[' || c == '{') {
+            writer->first_item = true;
+
+            if (writer->depth > SIZE_MAX - 1) {
+                return -1;
+            }
+
+            writer->depth += 1;
+        }
+
+        int result = writer->write(writer->write_context, write_char);
+        if (result != 1) { return result; }
+
+        if (c == ':') {
+            int result = writer->write(writer->write_context, " ");
+            if (result != 1) { return result; }
+        }
+
+        if (c == ',') {
+            int result = con_serialize_writer_indent_whitespace(writer);
+            if (result != 1) { return result; }
+        }
+
+        length += 1;
+        c = data[length];
+        write_char[0] = c;
+    }
+
+    if (length == INT_MAX) { return 0; }
+    return length;
 }
