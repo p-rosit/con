@@ -98,7 +98,7 @@ pub fn Serialize(Writer: type) type {
         fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
             std.debug.assert(null != writer);
             std.debug.assert(null != data);
-            const w: *const Writer = @alignCast(@ptrCast(writer));
+            const w: *Writer = @constCast(@alignCast(@ptrCast(writer)));
             const d = std.mem.span(data);
             return @intCast(w.write(d) catch 0);
         }
@@ -119,6 +119,38 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_STATE_UNKNOWN => return error.StateUnknown,
                 else => return error.Unknown,
             }
+        }
+    };
+}
+
+pub fn IndentJson(Writer: type) type {
+    // TODO: make a real writer (std.io.AnyWriter)
+    // TODO: comptime verify type passed in is writer
+
+    return struct {
+        const Self = @This();
+
+        indenter: con.ConWriterIndent,
+
+        pub fn init(writer: *const Writer) Self {
+            return .{ .indenter = con.con_serialize_writer_indent(writer, writeCallback) };
+        }
+
+        pub fn write(writer: *Self, bytes: []const u8) !usize {
+            const result = con.con_serialize_writer_indent_write(&writer.indenter, bytes.ptr);
+
+            if (result <= 0) {
+                return error.Writer;
+            }
+            return @intCast(result);
+        }
+
+        fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
+            std.debug.assert(null != writer);
+            std.debug.assert(null != data);
+            const w: *const Writer = @alignCast(@ptrCast(writer));
+            const d = std.mem.span(data);
+            return @intCast(w.write(d) catch 0);
         }
     };
 }
@@ -1316,4 +1348,53 @@ test "nested structures" {
     try context.dictClose();
 
     try testing.expectEqualStrings("{\"a\":[\"hello\",{\"a.a\":null,\"a.b\":true}],\"b\":[234,false]}", &buffer);
+}
+
+test "indent writer" {
+    var depth: [3]u8 = undefined;
+    var buffer: [87]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    const indent_writer = IndentJson(Fifo.Writer).init(&fifo.writer());
+    var context = try Serialize(IndentJson(Fifo.Writer)).init(indent_writer, &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.dictOpen();
+        {
+            try context.dictKey("key1");
+            try context.arrayOpen();
+            try context.arrayClose();
+
+            try context.dictKey("key2");
+            try context.dictOpen();
+            try context.dictClose();
+
+            try context.dictKey("key3");
+            try context.bool(true);
+        }
+        try context.dictClose();
+
+        try context.number("123");
+        try context.string("string");
+        try context.null();
+    }
+
+    try context.arrayClose();
+
+    try testing.expectEqualStrings(
+        \\[
+        \\  {
+        \\    "key1": [],
+        \\    "key2": {},
+        \\    "key3": true
+        \\  },
+        \\  123,
+        \\  "string",
+        \\  null
+        \\]
+    ,
+        &buffer,
+    );
 }
