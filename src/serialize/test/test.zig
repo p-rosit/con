@@ -5,14 +5,6 @@ const con = @cImport({
     @cInclude("serialize_writer.h");
 });
 
-// test "zig bindings" {
-//     _ = @import("../serialize.zig");
-// }
-
-test "writer test" {
-    _ = @import("test_writer.zig");
-}
-
 const Fifo = std.fifo.LinearFifo(u8, .Slice);
 
 fn write(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {

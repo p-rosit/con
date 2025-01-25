@@ -47,7 +47,7 @@ pub fn build(b: *std.Build) void {
     );
 
     const serialize_unit_tests = b.addTest(.{
-        .root_source_file = b.path("src/serialize/test/test.zig"),
+        .root_source_file = b.path("con.zig"),
         .target = target,
         .optimize = optimize,
         .link_libc = true,
