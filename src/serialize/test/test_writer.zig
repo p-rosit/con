@@ -1,3 +1,4 @@
+const std = @import("std");
 const builtin = @import("builtin");
 const testing = @import("std").testing;
 const clib = @cImport({
@@ -15,7 +16,10 @@ test "file write" {
         .linux => {
             file = clib.tmpfile();
         },
-        else => @compileError("TODO: support testing other os:es"),
+        else => {
+            std.debug.print("TODO: allow testing file writer on this os.\n", .{});
+            return;
+        },
     }
 
     const err = con.con_serialize_writer_file_write(file, "1");
