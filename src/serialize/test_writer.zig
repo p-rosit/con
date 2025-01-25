@@ -325,7 +325,22 @@ test "indent body writer fail" {
     try testing.expectEqual(con.EOF, err);
 }
 
-test "indent whitespace writer fail" {
+test "indent newline array open writer fail" {
+    var b: [1:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "[1]");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("[", &b);
+}
+
+test "indent whitespace array open writer fail" {
     var b: [2:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
@@ -338,4 +353,139 @@ test "indent whitespace writer fail" {
     const err = con.con_serialize_writer_indent_write(&writer, "[1]");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("[\n", &b);
+}
+
+test "indent newline array close writer fail" {
+    var b: [5:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "[1]");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("[\n  1", &b);
+}
+
+test "indent whitespace array close writer fail" {
+    var b: [6:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "[1]");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("[\n  1\n", &b);
+}
+
+test "indent newline dict writer fail" {
+    var b: [1:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "{\"");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("{", &b);
+}
+
+test "indent whitespace dict writer fail" {
+    var b: [2:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "{\"");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("{\n", &b);
+}
+
+test "indent newline dict close writer fail" {
+    var b: [10:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "{\"k\":1}");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("{\n  \"k\": 1", &b);
+}
+
+test "indent whitespace dict close writer fail" {
+    var b: [11:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "{\"k\":1}");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("{\n  \"k\": 1\n", &b);
+}
+
+test "indent space writer fail" {
+    var b: [8:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "{\"k\":");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("{\n  \"k\":", &b);
+}
+
+test "indent newline comma writer fail" {
+    var b: [6:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "[1,2]");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("[\n  1,", &b);
+}
+
+test "indent whitespace comma writer fail" {
+    var b: [7:0]u8 = undefined;
+    var w: con.ConWriterString = undefined;
+    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+
+    var writer: con.ConWriterIndent = undefined;
+    const init_err = con.con_serialize_writer_indent(&writer, &w, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const err = con.con_serialize_writer_indent_write(&writer, "[1,2]");
+    try testing.expectEqual(con.EOF, err);
+    try testing.expectEqualStrings("[\n  1,\n", &b);
 }
