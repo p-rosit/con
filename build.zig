@@ -20,11 +20,11 @@ pub fn build(b: *std.Build) void {
     });
     serialize.installHeader(
         b.path("src/serialize/serialize.h"),
-        "serialize.h",
+        "con_serialize.h",
     );
     serialize.installHeader(
         b.path("src/serialize/serialize_writer.h"),
-        "serialize_writer.h",
+        "con_serialize_writer.h",
     );
 
     const deserialize = b.addStaticLibrary(.{
