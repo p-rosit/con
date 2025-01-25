@@ -35,7 +35,7 @@ int con_serialize_writer_string_write(void const *context, char const *data) {
     assert(0 <= writer->current && writer->current < writer->buffer_size);
 
     char c = data[0];
-    int length = 0;
+    size_t length = 0;
     while (c != '\0') {
         if (writer->current >= writer->buffer_size - 1) {
             return EOF;
@@ -79,7 +79,7 @@ int con_serialize_writer_buffer_write(void const *context, char const *data) {
     assert(writer->buffer != NULL);
     assert(0 <= writer->current && writer->current < writer->buffer_size);
 
-    int length = 0;
+    size_t length = 0;
     char c = data[0];
     while (c != '\0') {
         if (writer->current == writer->buffer_size - 1) {
@@ -89,7 +89,6 @@ int con_serialize_writer_buffer_write(void const *context, char const *data) {
 
         writer->buffer[writer->current++] = c;
 
-        if (length > INT_MAX - 1) { return EOF; }
         length += 1;
         c = data[length];
     }
@@ -99,7 +98,7 @@ int con_serialize_writer_buffer_write(void const *context, char const *data) {
         if (result < 0) { return result; }
     }
 
-    return length;
+    return 1;
 }
 
 int con_serialize_writer_buffer_flush(struct ConWriterBuffer *writer) {
@@ -149,13 +148,13 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
     assert(writer->write != NULL);
     assert(0 < writer->state && writer->state < INDENT_MAX);
 
+    size_t length = 0;
     char c = data[0];
     char write_char[2];
-    int length = 0;
 
     write_char[0] = c;
     write_char[1] = '\0';
-    while (c != '\0' && length < INT_MAX) {
+    while (c != '\0') {
         bool in_string = writer->state == INDENT_IN_STRING || writer->state == INDENT_ESCAPE;
         bool normal = writer->state == INDENT_FIRST_ITEM || writer->state == INDENT_NORMAL;
 
@@ -217,6 +216,5 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
         write_char[0] = c;
     }
 
-    if (length == INT_MAX) { return EOF; }
-    return length;
+    return 1;
 }
