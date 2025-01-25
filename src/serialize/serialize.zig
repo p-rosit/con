@@ -99,9 +99,16 @@ pub fn Serialize(Writer: type) type {
         fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
             std.debug.assert(null != writer);
             std.debug.assert(null != data);
+
             const w: *Writer = @constCast(@alignCast(@ptrCast(writer)));
             const d = std.mem.span(data);
-            return @intCast(w.write(d) catch 0);
+            const result = w.write(d) catch 0;
+
+            if (result > 0) {
+                return 1;
+            } else {
+                return con.EOF;
+            }
         }
 
         fn enum_to_error(err: con.ConSerializeError) !void {
@@ -149,9 +156,16 @@ pub fn IndentJson(Writer: type) type {
         fn writeCallback(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
             std.debug.assert(null != writer);
             std.debug.assert(null != data);
+
             const w: *const Writer = @alignCast(@ptrCast(writer));
             const d = std.mem.span(data);
-            return @intCast(w.write(d) catch 0);
+            const result = w.write(d) catch 0;
+
+            if (result > 0) {
+                return 1;
+            } else {
+                return con.EOF;
+            }
         }
     };
 }

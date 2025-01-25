@@ -127,11 +127,11 @@ struct ConWriterIndent con_serialize_writer_indent(void const *write_context, Co
 
 static inline int con_serialize_writer_indent_whitespace(struct ConWriterIndent *writer) {
     int result = writer->write(writer->write_context, "\n");
-    if (result != 1) { return result; }
+    if (result < 0) { return result; }
 
     for (size_t i = 0; i < writer->depth; i++) {
         result = writer->write(writer->write_context, "  ");
-        if (result != 2) { return result; }
+        if (result < 0) { return result; }
     }
 
     return 1;
@@ -156,7 +156,7 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
 
         if (writer->state == INDENT_FIRST_ITEM && c != ']' && c != '}') {
             int result = con_serialize_writer_indent_whitespace(writer);
-            if (result <= 0) { return result; }
+            if (result < 0) { return result; }
 
             writer->state = INDENT_NORMAL;
         }
@@ -166,7 +166,7 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
 
             if (writer->state != INDENT_FIRST_ITEM) {
                 int result = con_serialize_writer_indent_whitespace(writer);
-                if (result <= 0) { return result; }
+                if (result < 0) { return result; }
             }
 
             writer->state = INDENT_NORMAL;
@@ -183,7 +183,7 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
         }
 
         int result = writer->write(writer->write_context, write_char);
-        if (result != 1) { return result; }
+        if (result < 0) { return result; }
 
         if (c == '"' && in_string && writer->state != INDENT_ESCAPE) {
             writer->state = INDENT_NORMAL;
@@ -199,12 +199,12 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
 
         if (c == ':' && !in_string) {
             int result = writer->write(writer->write_context, " ");
-            if (result != 1) { return result; }
+            if (result < 0) { return result; }
         }
 
         if (c == ',' && !in_string) {
             int result = con_serialize_writer_indent_whitespace(writer);
-            if (result != 1) { return result; }
+            if (result < 0) { return result; }
         }
 
         length += 1;
@@ -212,6 +212,6 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
         write_char[0] = c;
     }
 
-    if (length == INT_MAX) { return 0; }
+    if (length == INT_MAX) { return EOF; }
     return length;
 }
