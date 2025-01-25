@@ -38,7 +38,7 @@ int con_serialize_writer_string_write(void const *context, char const *data) {
     int length = 0;
     while (c != '\0') {
         if (writer->current >= writer->buffer_size - 1) {
-            return -1;
+            return EOF;
         }
 
         writer->buffer[writer->current++] = c;
@@ -89,7 +89,7 @@ int con_serialize_writer_buffer_write(void const *context, char const *data) {
 
         writer->buffer[writer->current++] = c;
 
-        if (length > INT_MAX - 1) { return -1; }
+        if (length > INT_MAX - 1) { return EOF; }
         length += 1;
         c = data[length];
     }
@@ -176,7 +176,7 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
             writer->state = INDENT_FIRST_ITEM;
 
             if (writer->depth > SIZE_MAX - 1) {
-                return -1;
+                return EOF;
             }
 
             writer->depth += 1;
