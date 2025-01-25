@@ -16,6 +16,9 @@ test "file write" {
         .linux => {
             file = clib.tmpfile();
         },
+        .windows => {
+            @compileError("TODO: allow testing file writer, something to do with `GetTempFileNameA` and `GetTempPathA`");
+        },
         else => {
             std.debug.print("TODO: allow testing file writer on this os.\n", .{});
             return;
