@@ -2,6 +2,7 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 const con = @cImport({
     @cInclude("serialize.h");
+    @cInclude("serialize_writer.h");
 });
 
 pub fn Serialize(Writer: type) type {

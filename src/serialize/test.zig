@@ -2,6 +2,7 @@ const std = @import("std");
 const testing = @import("std").testing;
 const con = @cImport({
     @cInclude("serialize.h");
+    @cInclude("serialize_writer.h");
 });
 
 test "zig bindings" {

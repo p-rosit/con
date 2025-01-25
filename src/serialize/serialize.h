@@ -50,14 +50,4 @@ enum ConSerializeError con_serialize_string(struct ConSerialize *context, char c
 enum ConSerializeError con_serialize_bool(struct ConSerialize *context, bool value);
 enum ConSerializeError con_serialize_null(struct ConSerialize *context);
 
-struct ConWriterIndent {
-    void const *write_context;
-    ConWrite *write;
-    size_t depth;
-    char state;
-};
-
-struct ConWriterIndent con_serialize_writer_indent(void const *write_context, ConWrite *write);
-int con_serialize_writer_indent_write(void const *writer, char const *data);
-
 #endif
