@@ -26,11 +26,10 @@ fn write(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
 test "context init" {
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
-
     const init_err = con.con_serialize_init(
         &context,
         null,
-        write,
+        con.con_serialize_writer_string_write,
         &depth,
         0,
     );
@@ -39,11 +38,10 @@ test "context init" {
 
 test "context depth null, length positive" {
     var context: con.ConSerialize = undefined;
-
     const init_err = con.con_serialize_init(
         &context,
         null,
-        write,
+        con.con_serialize_writer_string_write,
         null,
         1,
     );
@@ -52,11 +50,10 @@ test "context depth null, length positive" {
 
 test "context depth null, length zero" {
     var context: con.ConSerialize = undefined;
-
     const init_err = con.con_serialize_init(
         &context,
         null,
-        write,
+        con.con_serialize_writer_string_write,
         null,
         0,
     );
@@ -65,11 +62,10 @@ test "context depth null, length zero" {
 
 test "context depth negative" {
     var context: con.ConSerialize = undefined;
-
     const init_err = con.con_serialize_init(
         &context,
         null,
-        write,
+        con.con_serialize_writer_string_write,
         @ptrFromInt(1),
         -1,
     );
@@ -82,7 +78,7 @@ test "context init null" {
     const init_err = con.con_serialize_init(
         null,
         null,
-        write,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -92,15 +88,17 @@ test "context init null" {
 // Section: Values -------------------------------------------------------------
 
 test "number int-like" {
-    var depth: [0]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -111,15 +109,17 @@ test "number int-like" {
 }
 
 test "number float-like" {
-    var depth: [0]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -130,15 +130,17 @@ test "number float-like" {
 }
 
 test "number scientific-like" {
-    var depth: [0]u8 = undefined;
-    var buffer: [3]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [3:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -149,15 +151,17 @@ test "number scientific-like" {
 }
 
 test "number null" {
-    var depth: [0]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -168,15 +172,17 @@ test "number null" {
 }
 
 test "number writer fail" {
-    var depth: [0]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -187,15 +193,17 @@ test "number writer fail" {
 }
 
 test "number empty" {
-    var depth: [0]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -206,15 +214,17 @@ test "number empty" {
 }
 
 test "string" {
-    var depth: [0]u8 = undefined;
-    var buffer: [3]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [3:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -225,15 +235,17 @@ test "string" {
 }
 
 test "string null" {
-    var depth: [0]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -244,15 +256,17 @@ test "string null" {
 }
 
 test "string first quote writer fail" {
-    var depth: [0]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -263,15 +277,17 @@ test "string first quote writer fail" {
 }
 
 test "string body writer fail" {
-    var depth: [0]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -283,15 +299,17 @@ test "string body writer fail" {
 }
 
 test "string second quote writer fail" {
-    var depth: [0]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -303,15 +321,17 @@ test "string second quote writer fail" {
 }
 
 test "bool true" {
-    var depth: [0]u8 = undefined;
-    var buffer: [4]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [4:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -324,15 +344,17 @@ test "bool true" {
 }
 
 test "bool true writer fail" {
-    var depth: [0]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -343,15 +365,17 @@ test "bool true writer fail" {
 }
 
 test "bool false" {
-    var depth: [0]u8 = undefined;
-    var buffer: [5]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [5:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -364,15 +388,17 @@ test "bool false" {
 }
 
 test "bool false writer fail" {
-    var depth: [0]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -383,15 +409,17 @@ test "bool false writer fail" {
 }
 
 test "null" {
-    var depth: [0]u8 = undefined;
-    var buffer: [4]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [4:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var context: con.ConSerialize = undefined;
+    var depth: [0]u8 = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -404,15 +432,17 @@ test "null" {
 }
 
 test "null writer fail" {
-    var depth: [0]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -425,15 +455,17 @@ test "null writer fail" {
 // Section: Containers ---------------------------------------------------------
 
 test "array open" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -446,15 +478,17 @@ test "array open" {
 }
 
 test "array open too many" {
-    var depth: [0]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -465,15 +499,17 @@ test "array open too many" {
 }
 
 test "array nested open too many" {
-    var depth: [1]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -493,15 +529,17 @@ test "array nested open too many" {
 }
 
 test "array open writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -512,15 +550,17 @@ test "array open writer fail" {
 }
 
 test "array close" {
-    var depth: [1]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -536,15 +576,17 @@ test "array close" {
 }
 
 test "array close too many" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -555,15 +597,17 @@ test "array close too many" {
 }
 
 test "array close writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -578,15 +622,17 @@ test "array close writer fail" {
 }
 
 test "dict open" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -599,15 +645,17 @@ test "dict open" {
 }
 
 test "dict open too many" {
-    var depth: [0]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -618,15 +666,17 @@ test "dict open too many" {
 }
 
 test "dict nested open too many" {
-    var depth: [1]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -646,15 +696,17 @@ test "dict nested open too many" {
 }
 
 test "dict open writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -665,15 +717,17 @@ test "dict open writer fail" {
 }
 
 test "dict close" {
-    var depth: [1]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -689,15 +743,17 @@ test "dict close" {
 }
 
 test "dict close too many" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -708,15 +764,17 @@ test "dict close too many" {
 }
 
 test "dict close writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -733,15 +791,17 @@ test "dict close writer fail" {
 // Section: Dict key -----------------------------------------------------------
 
 test "dict key" {
-    var depth: [1]u8 = undefined;
-    var buffer: [7]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [7:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -759,15 +819,17 @@ test "dict key" {
 }
 
 test "dict key multiple" {
-    var depth: [1]u8 = undefined;
-    var buffer: [13]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [13:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -791,15 +853,17 @@ test "dict key multiple" {
 }
 
 test "dict key null" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -816,15 +880,17 @@ test "dict key null" {
 }
 
 test "dict key comma writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [6]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [6:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -846,15 +912,17 @@ test "dict key comma writer fail" {
 }
 
 test "dict key outside dict" {
-    var depth: [1]u8 = undefined;
-    var buffer: [0]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [0:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -865,15 +933,17 @@ test "dict key outside dict" {
 }
 
 test "dict key in array" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -889,15 +959,17 @@ test "dict key in array" {
 }
 
 test "dict key twice" {
-    var depth: [1]u8 = undefined;
-    var buffer: [7]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [7:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -916,15 +988,17 @@ test "dict key twice" {
 }
 
 test "dict number key missing" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -940,15 +1014,17 @@ test "dict number key missing" {
 }
 
 test "dict number second key missing" {
-    var depth: [1]u8 = undefined;
-    var buffer: [6]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [6:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -969,15 +1045,17 @@ test "dict number second key missing" {
 }
 
 test "dict string key missing" {
-    var depth: [1]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -993,15 +1071,17 @@ test "dict string key missing" {
 }
 
 test "dict string second key missing" {
-    var depth: [1]u8 = undefined;
-    var buffer: [8]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [8:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1022,15 +1102,17 @@ test "dict string second key missing" {
 }
 
 test "dict array key missing" {
-    var depth: [2]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1046,15 +1128,17 @@ test "dict array key missing" {
 }
 
 test "dict array second key missing" {
-    var depth: [2]u8 = undefined;
-    var buffer: [6]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [6:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1075,15 +1159,17 @@ test "dict array second key missing" {
 }
 
 test "dict dict key missing" {
-    var depth: [2]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1099,15 +1185,17 @@ test "dict dict key missing" {
 }
 
 test "dict dict second key missing" {
-    var depth: [2]u8 = undefined;
-    var buffer: [6]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [6:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1130,15 +1218,17 @@ test "dict dict second key missing" {
 // Section: Combinations of containers -----------------------------------------
 
 test "array open -> dict close" {
-    var depth: [1]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1152,15 +1242,17 @@ test "array open -> dict close" {
 }
 
 test "dict open -> array close" {
-    var depth: [1]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1174,15 +1266,17 @@ test "dict open -> array close" {
 }
 
 test "array number single" {
-    var depth: [1]u8 = undefined;
-    var buffer: [3]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [3:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1203,15 +1297,17 @@ test "array number single" {
 }
 
 test "array number multiple" {
-    var depth: [1]u8 = undefined;
-    var buffer: [5]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [5:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1235,15 +1331,17 @@ test "array number multiple" {
 }
 
 test "array number comma writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1263,15 +1361,17 @@ test "array number comma writer fail" {
 }
 
 test "array string single" {
-    var depth: [1]u8 = undefined;
-    var buffer: [5]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [5:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1292,15 +1392,17 @@ test "array string single" {
 }
 
 test "array string multiple" {
-    var depth: [1]u8 = undefined;
-    var buffer: [9]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [9:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1324,15 +1426,17 @@ test "array string multiple" {
 }
 
 test "array string comma writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [4]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [4:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1352,15 +1456,17 @@ test "array string comma writer fail" {
 }
 
 test "array bool single" {
-    var depth: [1]u8 = undefined;
-    var buffer: [6]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [6:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1381,15 +1487,17 @@ test "array bool single" {
 }
 
 test "array bool multiple" {
-    var depth: [1]u8 = undefined;
-    var buffer: [12]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [12:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1413,15 +1521,17 @@ test "array bool multiple" {
 }
 
 test "array bool comma writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [5]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [5:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1441,15 +1551,17 @@ test "array bool comma writer fail" {
 }
 
 test "array null single" {
-    var depth: [1]u8 = undefined;
-    var buffer: [6]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [6:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1470,15 +1582,17 @@ test "array null single" {
 }
 
 test "array null multiple" {
-    var depth: [1]u8 = undefined;
-    var buffer: [11]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [11:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1502,15 +1616,17 @@ test "array null multiple" {
 }
 
 test "array null comma writer fail" {
-    var depth: [1]u8 = undefined;
-    var buffer: [5]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [5:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1530,15 +1646,17 @@ test "array null comma writer fail" {
 }
 
 test "array array single" {
-    var depth: [2]u8 = undefined;
-    var buffer: [4]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [4:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1560,15 +1678,17 @@ test "array array single" {
 }
 
 test "array array multiple" {
-    var depth: [2]u8 = undefined;
-    var buffer: [7]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [7:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1595,15 +1715,17 @@ test "array array multiple" {
 }
 
 test "array array comma writer fail" {
-    var depth: [2]u8 = undefined;
-    var buffer: [3]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [3:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1626,15 +1748,17 @@ test "array array comma writer fail" {
 }
 
 test "array dict single" {
-    var depth: [2]u8 = undefined;
-    var buffer: [4]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [4:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1656,15 +1780,17 @@ test "array dict single" {
 }
 
 test "array dict multiple" {
-    var depth: [2]u8 = undefined;
-    var buffer: [7]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [7:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1691,15 +1817,17 @@ test "array dict multiple" {
 }
 
 test "array dict comma writer fail" {
-    var depth: [2]u8 = undefined;
-    var buffer: [3]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [3:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1722,15 +1850,17 @@ test "array dict comma writer fail" {
 }
 
 test "dict number single" {
-    var depth: [1]u8 = undefined;
-    var buffer: [7]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [7:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1753,15 +1883,17 @@ test "dict number single" {
 }
 
 test "dict string single" {
-    var depth: [1]u8 = undefined;
-    var buffer: [9]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [9:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1784,15 +1916,17 @@ test "dict string single" {
 }
 
 test "dict bool true single" {
-    var depth: [1]u8 = undefined;
-    var buffer: [10]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [10:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1815,15 +1949,17 @@ test "dict bool true single" {
 }
 
 test "dict bool false single" {
-    var depth: [1]u8 = undefined;
-    var buffer: [11]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [11:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1846,15 +1982,17 @@ test "dict bool false single" {
 }
 
 test "dict null single" {
-    var depth: [1]u8 = undefined;
-    var buffer: [10]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [10:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1877,15 +2015,17 @@ test "dict null single" {
 }
 
 test "dict array single" {
-    var depth: [2]u8 = undefined;
-    var buffer: [8]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [8:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1911,15 +2051,17 @@ test "dict array single" {
 }
 
 test "dict dict single" {
-    var depth: [2]u8 = undefined;
-    var buffer: [8]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [8:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [2]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1947,16 +2089,17 @@ test "dict dict single" {
 // Section: Completed ----------------------------------------------------------
 
 test "number complete" {
-    var depth: [1]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var writer = fifo.writer();
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
         &writer,
-        write,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -1974,16 +2117,17 @@ test "number complete" {
 }
 
 test "string complete" {
-    var depth: [1]u8 = undefined;
-    var buffer: [2]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var writer = fifo.writer();
-    var context: con.ConSerialize = undefined;
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
         &writer,
-        write,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -2001,16 +2145,17 @@ test "string complete" {
 }
 
 test "bool complete" {
-    var depth: [0]u8 = undefined;
-    var buffer: [1]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var writer = fifo.writer();
-    var context: con.ConSerialize = undefined;
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
         &writer,
-        write,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -2026,16 +2171,17 @@ test "bool complete" {
 }
 
 test "null complete" {
-    var depth: [0]u8 = undefined;
-    var buffer: [3]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var writer = fifo.writer();
-    var context: con.ConSerialize = undefined;
+    var buffer: [3:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [0]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
         &writer,
-        write,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -2051,16 +2197,17 @@ test "null complete" {
 }
 
 test "array complete" {
-    var depth: [1]u8 = undefined;
-    var buffer: [4]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var writer = fifo.writer();
-    var context: con.ConSerialize = undefined;
+    var buffer: [4:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
         &writer,
-        write,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -2076,16 +2223,17 @@ test "array complete" {
 }
 
 test "dict complete" {
-    var depth: [1]u8 = undefined;
-    var buffer: [4]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var writer = fifo.writer();
-    var context: con.ConSerialize = undefined;
+    var buffer: [4:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
         &writer,
-        write,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -2103,15 +2251,17 @@ test "dict complete" {
 // Section: Integration test ---------------------------------------------------
 
 test "nested structures" {
-    var depth: [3]u8 = undefined;
-    var buffer: [55]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var context: con.ConSerialize = undefined;
+    var buffer: [55:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var depth: [3]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &fifo.writer(),
-        write,
+        &writer,
+        con.con_serialize_writer_string_write,
         &depth,
         depth.len,
     );
@@ -2170,14 +2320,17 @@ test "nested structures" {
 }
 
 test "indent writer" {
-    var depth: [3]u8 = undefined;
-    var buffer: [119]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var indent: con.ConWriterIndent = undefined;
-    const indent_err = con.con_serialize_writer_indent(&indent, &fifo.writer(), write);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), indent_err);
-    var context: con.ConSerialize = undefined;
+    var buffer: [119:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
+    var indent: con.ConWriterIndent = undefined;
+    const indent_err = con.con_serialize_writer_indent(&indent, &writer, con.con_serialize_writer_string_write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), indent_err);
+
+    var depth: [3]u8 = undefined;
+    var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
         &indent,
