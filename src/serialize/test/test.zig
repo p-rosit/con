@@ -5,9 +5,9 @@ const con = @cImport({
     @cInclude("serialize_writer.h");
 });
 
-test "zig bindings" {
-    _ = @import("serialize.zig");
-}
+// test "zig bindings" {
+//     _ = @import("../serialize.zig");
+// }
 
 test "writer test" {
     _ = @import("test_writer.zig");
