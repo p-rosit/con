@@ -287,12 +287,19 @@ static inline enum ConSerializeError con_serialize_requires_key(struct ConSerial
     return CON_SERIALIZE_OK;
 }
 
+enum StateIndent {
+    INDENT_NORMAL = 0,
+    INDENT_FIRST_ITEM = 1,
+    INDENT_IN_STRING = 2,
+    INDENT_ESCAPE = 3,
+};
+
 struct ConWriterIndent con_serialize_writer_indent(void const *write_context, ConWrite *write) {
     return (struct ConWriterIndent) {
         .write_context = write_context,
         .write = write,
         .depth = 0,
-        .first_item = false,
+        .state = INDENT_NORMAL,
     };
 }
 
@@ -317,24 +324,29 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
     write_char[0] = c;
     write_char[1] = '\0';
     while (c != '\0' && length < INT_MAX) {
-        if (writer->first_item && c != ']' && c != '}') {
+        bool in_string = writer->state == INDENT_IN_STRING || writer->state == INDENT_ESCAPE;
+        bool normal = writer->state == INDENT_FIRST_ITEM || writer->state == INDENT_NORMAL;
+
+        if (writer->state == INDENT_FIRST_ITEM && c != ']' && c != '}') {
             int result = con_serialize_writer_indent_whitespace(writer);
             if (result <= 0) { return result; }
+
+            writer->state = INDENT_NORMAL;
         }
 
-        if ((c == ']' || c == '}') && writer->depth > 0) {
+        if (normal && (c == ']' || c == '}') && writer->depth > 0) {
             writer->depth -= 1;
 
-            if (!writer->first_item) {
+            if (writer->state != INDENT_FIRST_ITEM) {
                 int result = con_serialize_writer_indent_whitespace(writer);
                 if (result <= 0) { return result; }
             }
+
+            writer->state = INDENT_NORMAL;
         }
 
-        writer->first_item = false;
-
-        if (c == '[' || c == '{') {
-            writer->first_item = true;
+        if (normal && (c == '[' || c == '{')) {
+            writer->state = INDENT_FIRST_ITEM;
 
             if (writer->depth > SIZE_MAX - 1) {
                 return -1;
@@ -346,12 +358,24 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
         int result = writer->write(writer->write_context, write_char);
         if (result != 1) { return result; }
 
-        if (c == ':') {
+        if (c == '"' && in_string && writer->state != INDENT_ESCAPE) {
+            writer->state = INDENT_NORMAL;
+        } else if (c == '"' && !in_string) {
+            writer->state = INDENT_IN_STRING;
+        }
+
+        if (c == '\\' && writer->state == INDENT_IN_STRING) {
+            writer->state = INDENT_ESCAPE;
+        } else if (in_string && writer->state == INDENT_ESCAPE) {
+            writer->state = INDENT_IN_STRING;
+        }
+
+        if (c == ':' && !in_string) {
             int result = writer->write(writer->write_context, " ");
             if (result != 1) { return result; }
         }
 
-        if (c == ',') {
+        if (c == ',' && !in_string) {
             int result = con_serialize_writer_indent_whitespace(writer);
             if (result != 1) { return result; }
         }

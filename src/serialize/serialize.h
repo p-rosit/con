@@ -54,7 +54,7 @@ struct ConWriterIndent {
     void const *write_context;
     ConWrite *write;
     size_t depth;
-    bool first_item;
+    char state;
 };
 
 struct ConWriterIndent con_serialize_writer_indent(void const *write_context, ConWrite *write);

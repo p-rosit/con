@@ -1350,9 +1350,11 @@ test "nested structures" {
     try testing.expectEqualStrings("{\"a\":[\"hello\",{\"a.a\":null,\"a.b\":true}],\"b\":[234,false]}", &buffer);
 }
 
+// Section: Indent writer ------------------------------------------------------
+
 test "indent writer" {
     var depth: [3]u8 = undefined;
-    var buffer: [87]u8 = undefined;
+    var buffer: [119]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     const indent_writer = IndentJson(Fifo.Writer).init(&fifo.writer());
     var context = try Serialize(IndentJson(Fifo.Writer)).init(indent_writer, &depth);
@@ -1378,6 +1380,7 @@ test "indent writer" {
 
         try context.number("123");
         try context.string("string");
+        try context.string("\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}");
         try context.null();
     }
 
@@ -1392,6 +1395,7 @@ test "indent writer" {
         \\  },
         \\  123,
         \\  "string",
+        \\  "\"[2, 3] {\"m\":1,\"n\":2}",
         \\  null
         \\]
     ,

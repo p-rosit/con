@@ -2147,7 +2147,7 @@ test "nested structures" {
 
 test "indent writer" {
     var depth: [3]u8 = undefined;
-    var buffer: [87]u8 = undefined;
+    var buffer: [119]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var indent = con.con_serialize_writer_indent(&fifo.writer(), write);
     var context: con.ConSerialize = undefined;
@@ -2198,6 +2198,9 @@ test "indent writer" {
         const str_err = con.con_serialize_string(&context, "string");
         try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), str_err);
 
+        const no_indent_err = con.con_serialize_string(&context, "\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), no_indent_err);
+
         const null_err = con.con_serialize_null(&context);
         try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), null_err);
     }
@@ -2214,6 +2217,7 @@ test "indent writer" {
         \\  },
         \\  123,
         \\  "string",
+        \\  "\"[2, 3] {\"m\":1,\"n\":2}",
         \\  null
         \\]
     ,
