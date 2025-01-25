@@ -1351,8 +1351,6 @@ test "nested structures" {
     try testing.expectEqualStrings("{\"a\":[\"hello\",{\"a.a\":null,\"a.b\":true}],\"b\":[234,false]}", &buffer);
 }
 
-// Section: Indent writer ------------------------------------------------------
-
 test "indent writer" {
     var depth: [3]u8 = undefined;
     var buffer: [119]u8 = undefined;
