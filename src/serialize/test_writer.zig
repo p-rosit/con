@@ -61,16 +61,11 @@ test "string overflow" {
 }
 
 test "buffer init" {
-    var b: [1:0]u8 = undefined;
-    var w: con.ConWriterString = undefined;
-    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
-
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        &w,
+        null,
         con.con_serialize_writer_string_write,
         &buffer,
         buffer.len + 1,
@@ -79,15 +74,10 @@ test "buffer init" {
 }
 
 test "buffer init null" {
-    var b: [1:0]u8 = undefined;
-    var w: con.ConWriterString = undefined;
-    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
-
     var buffer: [1:0]u8 = undefined;
     const init_err = con.con_serialize_writer_buffer(
         null,
-        &w,
+        null,
         con.con_serialize_writer_string_write,
         &buffer,
         buffer.len + 1,
@@ -96,15 +86,11 @@ test "buffer init null" {
 }
 
 test "buffer init buffer null" {
-    var b: [1:0]u8 = undefined;
-    var w: con.ConWriterString = undefined;
-    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        &w,
+        null,
         con.con_serialize_writer_string_write,
         null,
         2,
@@ -113,16 +99,11 @@ test "buffer init buffer null" {
 }
 
 test "buffer init length negative" {
-    var b: [1:0]u8 = undefined;
-    var w: con.ConWriterString = undefined;
-    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
-
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        &w,
+        null,
         con.con_serialize_writer_string_write,
         &buffer,
         -1,
@@ -131,16 +112,11 @@ test "buffer init length negative" {
 }
 
 test "buffer init buffer small" {
-    var b: [1:0]u8 = undefined;
-    var w: con.ConWriterString = undefined;
-    const i_err = con.con_serialize_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
-
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        &w,
+        null,
         con.con_serialize_writer_string_write,
         &buffer,
         buffer.len + 1,
