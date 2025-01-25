@@ -33,7 +33,7 @@ test "string length negative" {
 test "string buffer small" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const init_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    const init_err = con.con_serialize_writer_string(&writer, &buffer, 0);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_BUFFER), init_err);
 }
 
@@ -50,12 +50,12 @@ test "string write" {
 }
 
 test "string overflow" {
-    var buffer: [1:0]u8 = undefined;
+    var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
 
     const init_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const write_err = con.con_serialize_writer_string_write(&writer, "12");
+    const write_err = con.con_serialize_writer_string_write(&writer, "1");
     try testing.expectEqual(con.EOF, write_err);
 }
