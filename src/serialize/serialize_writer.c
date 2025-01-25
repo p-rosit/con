@@ -128,13 +128,20 @@ enum StateIndent {
     INDENT_MAX,
 };
 
-struct ConWriterIndent con_serialize_writer_indent(void const *write_context, ConWrite *write) {
-    return (struct ConWriterIndent) {
-        .write_context = write_context,
-        .write = write,
-        .depth = 0,
-        .state = INDENT_NORMAL,
-    };
+enum ConSerializeError con_serialize_writer_indent(
+    struct ConWriterIndent *writer,
+    void const *write_context,
+    ConWrite *write
+) {
+    if (writer == NULL) { return CON_SERIALIZE_NULL; }
+    if (write == NULL) { return CON_SERIALIZE_NULL; }
+
+    writer->write_context = write_context;
+    writer->write = write;
+    writer->depth = 0;
+    writer->state = INDENT_NORMAL;
+
+    return CON_SERIALIZE_OK;
 }
 
 static inline int con_serialize_writer_indent_whitespace(struct ConWriterIndent *writer) {

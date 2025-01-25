@@ -44,7 +44,11 @@ struct ConWriterIndent {
     char state;
 };
 
-struct ConWriterIndent con_serialize_writer_indent(void const *write_context, ConWrite *write);
+enum ConSerializeError con_serialize_writer_indent(
+    struct ConWriterIndent *writer,
+    void const *write_context,
+    ConWrite *write
+);
 int con_serialize_writer_indent_write(void const *writer, char const *data);
 
 #endif

@@ -2181,7 +2181,9 @@ test "indent writer" {
     var depth: [3]u8 = undefined;
     var buffer: [119]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var indent = con.con_serialize_writer_indent(&fifo.writer(), write);
+    var indent: con.ConWriterIndent = undefined;
+    const indent_err = con.con_serialize_writer_indent(&indent, &fifo.writer(), write);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), indent_err);
     var context: con.ConSerialize = undefined;
 
     const init_err = con.con_serialize_init(
