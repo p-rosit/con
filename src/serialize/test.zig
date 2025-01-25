@@ -194,6 +194,25 @@ test "number writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), num_err);
 }
 
+test "number empty" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context: con.ConSerialize = undefined;
+
+    const init_err = con.con_serialize_init(
+        &context,
+        &fifo.writer(),
+        write,
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const num_err = con.con_serialize_number(&context, "");
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NOT_NUMBER), num_err);
+}
+
 test "string" {
     var depth: [0]u8 = undefined;
     var buffer: [3]u8 = undefined;

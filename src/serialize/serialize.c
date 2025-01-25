@@ -180,6 +180,8 @@ enum ConSerializeError con_serialize_number(struct ConSerialize *context, char c
     assert(context != NULL);
     if (number == NULL) { return CON_SERIALIZE_NULL; }
 
+    if (number[0] == '\0') { return CON_SERIALIZE_NOT_NUMBER; }
+
     enum ConSerializeError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 

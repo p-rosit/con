@@ -124,6 +124,7 @@ pub fn Serialize(Writer: type) type {
                 con.CON_SERIALIZE_VALUE => return error.Value,
                 con.CON_SERIALIZE_NOT_ARRAY => return error.NotArray,
                 con.CON_SERIALIZE_NOT_DICT => return error.NotDict,
+                con.CON_SERIALIZE_NOT_NUMBER => return error.NotNumber,
                 con.CON_SERIALIZE_STATE_UNKNOWN => return error.StateUnknown,
                 else => return error.Unknown,
             }
@@ -226,6 +227,17 @@ test "number writer fail" {
 
     const err = context.number("2");
     try testing.expectError(error.Writer, err);
+}
+
+test "number empty" {
+    var depth: [0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var context = try Serialize(Fifo.Writer).init(fifo.writer(), &depth);
+    defer context.deinit();
+
+    const err = context.number("");
+    try testing.expectError(error.NotNumber, err);
 }
 
 test "string" {
