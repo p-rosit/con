@@ -94,6 +94,11 @@ int con_serialize_writer_buffer_write(void const *context, char const *data) {
         c = data[length];
     }
 
+    if (writer->current == writer->buffer_size - 1) {
+        int result = con_serialize_writer_buffer_flush(writer);
+        if (result < 0) { return result; }
+    }
+
     return length;
 }
 
