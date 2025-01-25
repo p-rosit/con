@@ -42,6 +42,7 @@ int con_serialize_writer_string_write(void const *context, char const *data) {
         }
 
         writer->buffer[writer->current++] = c;
+        writer->buffer[writer->current] = '\0';
 
         length += 1;
         c = data[length];
