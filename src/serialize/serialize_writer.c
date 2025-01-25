@@ -62,7 +62,7 @@ enum ConSerializeError con_serialize_writer_buffer(
         int buffer_size
 ) {
     if (writer == NULL) { return CON_SERIALIZE_NULL; }
-    if (write == NULL) { return CON_SERIALIZE_WRITER; }
+    if (write == NULL) { return CON_SERIALIZE_NULL; }
     if (buffer == NULL) { return CON_SERIALIZE_NULL; }
     if (buffer_size <= 1) { return CON_SERIALIZE_BUFFER; }
 

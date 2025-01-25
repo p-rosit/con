@@ -85,8 +85,20 @@ test "buffer init null" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
 }
 
-test "buffer init buffer null" {
+test "buffer init write null" {
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterBuffer = undefined;
+    const init_err = con.con_serialize_writer_buffer(
+        &writer,
+        null,
+        null,
+        &buffer,
+        buffer.len + 1,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
+}
 
+test "buffer init buffer null" {
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
