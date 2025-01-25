@@ -1,8 +1,36 @@
+const builtin = @import("builtin");
 const testing = @import("std").testing;
+const clib = @cImport({
+    @cInclude("stdio.h");
+});
 const con = @cImport({
     @cInclude("serialize.h");
     @cInclude("serialize_writer.h");
 });
+
+test "file write" {
+    var file: [*c]clib.FILE = undefined;
+
+    switch (builtin.os.tag) {
+        .linux => {
+            file = clib.tmpfile();
+        },
+        else => @compileError("TODO: support testing other os:es"),
+    }
+
+    const err = con.con_serialize_writer_file_write(file, "1");
+    try testing.expect(0 <= err);
+
+    const seek_err = clib.fseek(file, 0, con.SEEK_SET);
+    try testing.expectEqual(seek_err, 0);
+
+    var buffer: [1:0]u8 = undefined;
+    const result = clib.fread(&buffer, 1, 2, file);
+    try testing.expectEqual(1, result);
+
+    buffer[buffer.len] = 0;
+    try testing.expectEqualStrings("1", &buffer);
+}
 
 test "string init" {
     var buffer: [1:0]u8 = undefined;
