@@ -47,7 +47,11 @@ int con_serialize_writer_string_write(void const *context, char const *data) {
         c = data[length];
     }
 
-    return 1;
+    if (length > INT_MAX) {
+        return INT_MAX;
+    } else {
+        return length;
+    }
 }
 
 enum ConSerializeError con_serialize_writer_buffer(
@@ -98,7 +102,11 @@ int con_serialize_writer_buffer_write(void const *context, char const *data) {
         if (result < 0) { return result; }
     }
 
-    return 1;
+    if (length > INT_MAX) {
+        return INT_MAX;
+    } else {
+        return length;
+    }
 }
 
 int con_serialize_writer_buffer_flush(struct ConWriterBuffer *writer) {
@@ -216,5 +224,9 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
         write_char[0] = c;
     }
 
-    return 1;
+    if (length > INT_MAX) {
+        return INT_MAX;
+    } else {
+        return length;
+    }
 }
