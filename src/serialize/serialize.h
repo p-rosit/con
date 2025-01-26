@@ -19,12 +19,18 @@ enum ConSerializeError {
     CON_SERIALIZE_STATE_UNKNOWN     = 12,
 };
 
-struct ConSerialize;
 typedef int (ConWrite)(void const *context, char const *data);
 
-struct ConSerialize {
-    void const *write_context;
+struct ConWriter {
+    void const *context;
     ConWrite *write;
+};
+
+struct ConWriter con_serialize_writer(void const *context, ConWrite *write);
+int con_serialize_writer_write(struct ConWriter writer, char const *data);
+
+struct ConSerialize {
+    struct ConWriter writer;
     size_t depth;
     char *depth_buffer;
     int depth_buffer_size;
@@ -33,8 +39,7 @@ struct ConSerialize {
 
 enum ConSerializeError con_serialize_init(
     struct ConSerialize *context,
-    void const *write_context,
-    ConWrite *write,
+    struct ConWriter writer,
     char *depth_buffer,
     int depth_buffer_size
 );

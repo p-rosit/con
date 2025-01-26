@@ -26,8 +26,7 @@ pub fn Serialize(Writer: type) type {
 
             const err = con.con_serialize_init(
                 &context.inner,
-                &context.writer,
-                Self.writeCallback,
+                con.con_serialize_writer(&context.writer, Self.writeCallback),
                 depth.ptr,
                 @intCast(depth.len),
             );
@@ -43,55 +42,55 @@ pub fn Serialize(Writer: type) type {
         }
 
         pub fn arrayOpen(self: *Self) !void {
-            self.inner.write_context = &self.writer;
+            self.inner.writer.context = &self.writer;
             const err = con.con_serialize_array_open(&self.inner);
             return Self.enum_to_error(err);
         }
 
         pub fn arrayClose(self: *Self) !void {
-            self.inner.write_context = &self.writer;
+            self.inner.writer.context = &self.writer;
             const err = con.con_serialize_array_close(&self.inner);
             return Self.enum_to_error(err);
         }
 
         pub fn dictOpen(self: *Self) !void {
-            self.inner.write_context = &self.writer;
+            self.inner.writer.context = &self.writer;
             const err = con.con_serialize_dict_open(&self.inner);
             return Self.enum_to_error(err);
         }
 
         pub fn dictClose(self: *Self) !void {
-            self.inner.write_context = &self.writer;
+            self.inner.writer.context = &self.writer;
             const err = con.con_serialize_dict_close(&self.inner);
             return Self.enum_to_error(err);
         }
 
         pub fn dictKey(self: *Self, key: [:0]const u8) !void {
-            self.inner.write_context = &self.writer;
+            self.inner.writer.context = &self.writer;
             const err = con.con_serialize_dict_key(&self.inner, key.ptr);
             return Self.enum_to_error(err);
         }
 
         pub fn number(self: *Self, num: [:0]const u8) !void {
-            self.inner.write_context = &self.writer;
+            self.inner.writer.context = &self.writer;
             const err = con.con_serialize_number(&self.inner, num.ptr);
             return Self.enum_to_error(err);
         }
 
         pub fn string(self: *Self, str: [:0]const u8) !void {
-            self.inner.write_context = &self.writer;
+            self.inner.writer.context = &self.writer;
             const err = con.con_serialize_string(&self.inner, str.ptr);
             return Self.enum_to_error(err);
         }
 
         pub fn @"bool"(self: *Self, value: bool) !void {
-            self.inner.write_context = &self.writer;
+            self.inner.writer.context = &self.writer;
             const err = con.con_serialize_bool(&self.inner, value);
             return Self.enum_to_error(err);
         }
 
         pub fn @"null"(self: *Self) !void {
-            self.inner.write_context = &self.writer;
+            self.inner.writer.context = &self.writer;
             const err = con.con_serialize_null(&self.inner);
             return Self.enum_to_error(err);
         }
