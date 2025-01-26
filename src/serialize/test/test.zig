@@ -2241,7 +2241,7 @@ test "indent writer" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
     var indent: con.ConWriterIndent = undefined;
-    const indent_err = con.con_serialize_writer_indent(&indent, &writer, con.con_serialize_writer_string_write);
+    const indent_err = con.con_serialize_writer_indent(&indent, con.con_serialize_writer(&writer, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), indent_err);
 
     var depth: [3]u8 = undefined;

@@ -143,7 +143,7 @@ pub fn IndentJson(Writer: type) type {
         pub fn init(writer: *const Writer) Self {
             var self: Self = .{ .indenter = undefined };
 
-            const err = con.con_serialize_writer_indent(&self.indenter, writer, writeCallback);
+            const err = con.con_serialize_writer_indent(&self.indenter, con.con_serialize_writer(writer, writeCallback));
             std.debug.assert(err == 0);
 
             return self;

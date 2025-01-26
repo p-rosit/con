@@ -20,8 +20,7 @@ enum ConSerializeError con_serialize_writer_string(
 int con_serialize_writer_string_write(void const *writer, char const *data);
 
 struct ConWriterBuffer {
-    void const *write_context;
-    ConWrite *write;
+    struct ConWriter writer;
     char *buffer;
     int buffer_size;
     int current;
@@ -29,8 +28,7 @@ struct ConWriterBuffer {
 
 enum ConSerializeError con_serialize_writer_buffer(
         struct ConWriterBuffer *writer,
-        void const *write_context,
-        ConWrite *write,
+        struct ConWriter inner_writer,
         char *buffer,
         int buffer_size
 );
@@ -38,16 +36,14 @@ int con_serialize_writer_buffer_write(void const *writer, char const *data);
 int con_serialize_writer_buffer_flush(struct ConWriterBuffer *writer);
 
 struct ConWriterIndent {
-    void const *write_context;
-    ConWrite *write;
+    struct ConWriter writer;
     size_t depth;
     char state;
 };
 
 enum ConSerializeError con_serialize_writer_indent(
     struct ConWriterIndent *writer,
-    void const *write_context,
-    ConWrite *write
+    struct ConWriter inner_writer
 );
 int con_serialize_writer_indent_write(void const *writer, char const *data);
 
