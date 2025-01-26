@@ -168,10 +168,7 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
     if (result < 0) { return CON_SERIALIZE_WRITER; }
     result = con_serialize_writer_write(context->writer, key);
     if (result < 0) { return CON_SERIALIZE_WRITER; }
-    result = con_serialize_writer_write(context->writer, "\"");
-    if (result < 0) { return CON_SERIALIZE_WRITER; }
-
-    result = con_serialize_writer_write(context->writer, ":");
+    result = con_serialize_writer_write(context->writer, "\":");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
     context->state = STATE_VALUE;
