@@ -1,27 +1,8 @@
-const std = @import("std");
 const testing = @import("std").testing;
 const con = @cImport({
     @cInclude("serialize.h");
     @cInclude("serialize_writer.h");
 });
-
-const Fifo = std.fifo.LinearFifo(u8, .Slice);
-
-fn write(writer: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
-    std.debug.assert(null != writer);
-    std.debug.assert(null != data);
-
-    const w: *const Fifo.Writer = @alignCast(@ptrCast(writer));
-    const d = std.mem.span(data);
-
-    const result = w.write(d) catch 0;
-
-    if (result > 0) {
-        return 1;
-    } else {
-        return con.EOF;
-    }
-}
 
 test "context init" {
     var depth: [0]u8 = undefined;
