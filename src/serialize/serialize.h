@@ -26,7 +26,7 @@ struct ConWriter {
     ConWrite *write;
 };
 
-struct ConWriter con_serialize_writer(void const *context, ConWrite *write);
+struct ConWriter con_writer(void const *context, ConWrite *write);
 int con_serialize_writer_write(struct ConWriter writer, char const *data);
 
 struct ConSerialize {

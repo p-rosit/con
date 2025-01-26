@@ -26,7 +26,7 @@ pub fn Serialize(Writer: type) type {
 
             const err = con.con_serialize_init(
                 &context.inner,
-                con.con_serialize_writer(&context.writer, Self.writeCallback),
+                con.con_writer(&context.writer, Self.writeCallback),
                 depth.ptr,
                 @intCast(depth.len),
             );
@@ -143,7 +143,7 @@ pub fn IndentJson(Writer: type) type {
         pub fn init(writer: *const Writer) Self {
             var self: Self = .{ .indenter = undefined };
 
-            const err = con.con_serialize_writer_indent(&self.indenter, con.con_serialize_writer(writer, writeCallback));
+            const err = con.con_serialize_writer_indent(&self.indenter, con.con_writer(writer, writeCallback));
             std.debug.assert(err == 0);
 
             return self;

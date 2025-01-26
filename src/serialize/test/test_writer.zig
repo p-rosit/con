@@ -100,7 +100,7 @@ test "buffer init" {
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        con.con_serialize_writer(null, con.con_serialize_writer_string_write),
+        con.con_writer(null, con.con_serialize_writer_string_write),
         &buffer,
         buffer.len + 1,
     );
@@ -111,7 +111,7 @@ test "buffer init null" {
     var buffer: [1:0]u8 = undefined;
     const init_err = con.con_serialize_writer_buffer(
         null,
-        con.con_serialize_writer(null, con.con_serialize_writer_string_write),
+        con.con_writer(null, con.con_serialize_writer_string_write),
         &buffer,
         buffer.len + 1,
     );
@@ -134,7 +134,7 @@ test "buffer init buffer null" {
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        con.con_serialize_writer(null, con.con_serialize_writer_string_write),
+        con.con_writer(null, con.con_serialize_writer_string_write),
         null,
         2,
     );
@@ -146,7 +146,7 @@ test "buffer init length negative" {
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        con.con_serialize_writer(null, con.con_serialize_writer_string_write),
+        con.con_writer(null, con.con_serialize_writer_string_write),
         &buffer,
         -1,
     );
@@ -158,7 +158,7 @@ test "buffer init buffer small" {
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        con.con_serialize_writer(null, con.con_serialize_writer_string_write),
+        con.con_writer(null, con.con_serialize_writer_string_write),
         &buffer,
         buffer.len + 1,
     );
@@ -175,7 +175,7 @@ test "buffer write" {
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        con.con_serialize_writer(&w, con.con_serialize_writer_string_write),
+        con.con_writer(&w, con.con_serialize_writer_string_write),
         &buffer,
         buffer.len + 1,
     );
@@ -196,7 +196,7 @@ test "buffer flush" {
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        con.con_serialize_writer(&w, con.con_serialize_writer_string_write),
+        con.con_writer(&w, con.con_serialize_writer_string_write),
         &buffer,
         buffer.len + 1,
     );
@@ -220,7 +220,7 @@ test "buffer internal writer fail" {
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        con.con_serialize_writer(&w, con.con_serialize_writer_string_write),
+        con.con_writer(&w, con.con_serialize_writer_string_write),
         &buffer,
         buffer.len + 1,
     );
@@ -240,7 +240,7 @@ test "buffer flush writer fail" {
     var writer: con.ConWriterBuffer = undefined;
     const init_err = con.con_serialize_writer_buffer(
         &writer,
-        con.con_serialize_writer(&w, con.con_serialize_writer_string_write),
+        con.con_writer(&w, con.con_serialize_writer_string_write),
         &buffer,
         buffer.len + 1,
     );
@@ -257,7 +257,7 @@ test "indent init" {
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_serialize_writer_indent(
         &writer,
-        con.con_serialize_writer(null, con.con_serialize_writer_string_write),
+        con.con_writer(null, con.con_serialize_writer_string_write),
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 }
@@ -275,7 +275,7 @@ test "indent write" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "1");
@@ -290,7 +290,7 @@ test "indent write minified" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]");
@@ -315,7 +315,7 @@ test "indent write one character at a time" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const str = "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]";
@@ -346,7 +346,7 @@ test "indent body writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "1");
@@ -360,7 +360,7 @@ test "indent newline array open writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "[1]");
@@ -375,7 +375,7 @@ test "indent whitespace array open writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "[1]");
@@ -390,7 +390,7 @@ test "indent newline array close writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "[1]");
@@ -405,7 +405,7 @@ test "indent whitespace array close writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "[1]");
@@ -420,7 +420,7 @@ test "indent newline dict writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "{\"");
@@ -435,7 +435,7 @@ test "indent whitespace dict writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "{\"");
@@ -450,7 +450,7 @@ test "indent newline dict close writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "{\"k\":1}");
@@ -465,7 +465,7 @@ test "indent whitespace dict close writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "{\"k\":1}");
@@ -480,7 +480,7 @@ test "indent space writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "{\"k\":");
@@ -495,7 +495,7 @@ test "indent newline comma writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "[1,2]");
@@ -510,7 +510,7 @@ test "indent whitespace comma writer fail" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
-    const init_err = con.con_serialize_writer_indent(&writer, con.con_serialize_writer(&w, con.con_serialize_writer_string_write));
+    const init_err = con.con_serialize_writer_indent(&writer, con.con_writer(&w, con.con_serialize_writer_string_write));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
     const err = con.con_serialize_writer_indent_write(&writer, "[1,2]");
