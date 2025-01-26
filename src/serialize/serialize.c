@@ -6,7 +6,7 @@ struct ConWriter con_writer(void const *context, ConWrite *write) {
     return (struct ConWriter) { .context=context, .write=write };
 }
 
-int con_serialize_writer_write(struct ConWriter writer, char const *data) {
+int con_writer_write(struct ConWriter writer, char const *data) {
     assert(writer.write != NULL);
     return writer.write(writer.context, data);
 }
@@ -63,7 +63,7 @@ enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
     context->depth_buffer[context->depth] = CONTAINER_ARRAY;
     context->depth += 1;
 
-    int result = con_serialize_writer_write(context->writer, "[");
+    int result = con_writer_write(context->writer, "[");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
     context->state = STATE_FIRST;
@@ -82,7 +82,7 @@ enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
         return CON_SERIALIZE_NOT_ARRAY;
     }
 
-    int result = con_serialize_writer_write(context->writer, "]");
+    int result = con_writer_write(context->writer, "]");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
     context->depth -= 1;
@@ -108,7 +108,7 @@ enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context) {
     context->depth_buffer[context->depth] = CONTAINER_DICT;
     context->depth += 1;
 
-    int result = con_serialize_writer_write(context->writer, "{");
+    int result = con_writer_write(context->writer, "{");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
     context->state = STATE_FIRST;
@@ -127,7 +127,7 @@ enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context) {
         return CON_SERIALIZE_NOT_DICT;
     }
 
-    int result = con_serialize_writer_write(context->writer, "}");
+    int result = con_writer_write(context->writer, "}");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
     context->depth -= 1;
@@ -160,15 +160,15 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
     }
 
     if (context->state == STATE_LATER) {
-        int result = con_serialize_writer_write(context->writer, ",");
+        int result = con_writer_write(context->writer, ",");
         if (result < 0) { return CON_SERIALIZE_WRITER; }
     }
 
-    int result = con_serialize_writer_write(context->writer, "\"");
+    int result = con_writer_write(context->writer, "\"");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
-    result = con_serialize_writer_write(context->writer, key);
+    result = con_writer_write(context->writer, key);
     if (result < 0) { return CON_SERIALIZE_WRITER; }
-    result = con_serialize_writer_write(context->writer, "\":");
+    result = con_writer_write(context->writer, "\":");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
     context->state = STATE_VALUE;
@@ -184,7 +184,7 @@ enum ConSerializeError con_serialize_number(struct ConSerialize *context, char c
     enum ConSerializeError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
-    int result = con_serialize_writer_write(context->writer, number);
+    int result = con_writer_write(context->writer, number);
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
     return CON_SERIALIZE_OK;
@@ -197,11 +197,11 @@ enum ConSerializeError con_serialize_string(struct ConSerialize *context, char c
     enum ConSerializeError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
-    int result = con_serialize_writer_write(context->writer, "\"");
+    int result = con_writer_write(context->writer, "\"");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
-    result = con_serialize_writer_write(context->writer, string);
+    result = con_writer_write(context->writer, string);
     if (result < 0) { return CON_SERIALIZE_WRITER; }
-    result = con_serialize_writer_write(context->writer, "\"");
+    result = con_writer_write(context->writer, "\"");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
     return CON_SERIALIZE_OK;
@@ -214,9 +214,9 @@ enum ConSerializeError con_serialize_bool(struct ConSerialize *context, bool val
 
     int result;
     if (value) {
-        result = con_serialize_writer_write(context->writer, "true");
+        result = con_writer_write(context->writer, "true");
     } else {
-        result = con_serialize_writer_write(context->writer, "false");
+        result = con_writer_write(context->writer, "false");
     }
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
@@ -228,7 +228,7 @@ enum ConSerializeError con_serialize_null(struct ConSerialize *context) {
     enum ConSerializeError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
-    int result = con_serialize_writer_write(context->writer, "null");
+    int result = con_writer_write(context->writer, "null");
     if (result < 0) { return CON_SERIALIZE_WRITER; }
 
     return CON_SERIALIZE_OK;
@@ -248,7 +248,7 @@ static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerial
             context->state = STATE_LATER;
             break;
         case (STATE_LATER): {
-            int result = con_serialize_writer_write(context->writer, ",");
+            int result = con_writer_write(context->writer, ",");
             if (result < 0) { return CON_SERIALIZE_WRITER; }
             break;
         }

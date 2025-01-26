@@ -115,7 +115,7 @@ int con_serialize_writer_buffer_flush(struct ConWriterBuffer *writer) {
 
     writer->buffer[writer->current] = '\0';
     writer->current = 0;
-    return con_serialize_writer_write(writer->writer, writer->buffer);
+    return con_writer_write(writer->writer, writer->buffer);
 }
 
 enum StateIndent {
@@ -142,11 +142,11 @@ enum ConSerializeError con_serialize_writer_indent(
 }
 
 static inline int con_serialize_writer_indent_whitespace(struct ConWriterIndent *writer) {
-    int result = con_serialize_writer_write(writer->writer, "\n");
+    int result = con_writer_write(writer->writer, "\n");
     if (result < 0) { return result; }
 
     for (size_t i = 0; i < writer->depth; i++) {
-        result = con_serialize_writer_write(writer->writer, "  ");
+        result = con_writer_write(writer->writer, "  ");
         if (result < 0) { return result; }
     }
 
@@ -197,7 +197,7 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
             writer->depth += 1;
         }
 
-        int result = con_serialize_writer_write(writer->writer, write_char);
+        int result = con_writer_write(writer->writer, write_char);
         if (result < 0) { return result; }
 
         if (c == '"' && in_string && writer->state != INDENT_ESCAPE) {
@@ -213,7 +213,7 @@ int con_serialize_writer_indent_write(void const *writer_context, char const *da
         }
 
         if (c == ':' && !in_string) {
-            int result = con_serialize_writer_write(writer->writer, " ");
+            int result = con_writer_write(writer->writer, " ");
             if (result < 0) { return result; }
         }
 
