@@ -840,6 +840,110 @@ test "dict key null" {
     }
 }
 
+test "dict key first quote writer fail" {
+    var buffer: [1:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
+
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
+    const init_err = con.con_serialize_init(
+        &context,
+        con.con_serialize_writer(&writer, con.con_serialize_writer_string_write),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const key_err = con.con_serialize_dict_key(&context, "k");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), key_err);
+        try testing.expectEqualStrings("{", &buffer);
+    }
+}
+
+test "dict key body writer fail" {
+    var buffer: [2:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
+
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
+    const init_err = con.con_serialize_init(
+        &context,
+        con.con_serialize_writer(&writer, con.con_serialize_writer_string_write),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const key_err = con.con_serialize_dict_key(&context, "k");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), key_err);
+        try testing.expectEqualStrings("{\"", &buffer);
+    }
+}
+
+test "dict key second quote writer fail" {
+    var buffer: [3:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
+
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
+    const init_err = con.con_serialize_init(
+        &context,
+        con.con_serialize_writer(&writer, con.con_serialize_writer_string_write),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const key_err = con.con_serialize_dict_key(&context, "k");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), key_err);
+        try testing.expectEqualStrings("{\"k", &buffer);
+    }
+}
+
+test "dict key colon writer fail" {
+    var buffer: [4:0]u8 = undefined;
+    var writer: con.ConWriterString = undefined;
+    const writer_err = con.con_serialize_writer_string(&writer, &buffer, buffer.len + 1);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
+
+    var depth: [1]u8 = undefined;
+    var context: con.ConSerialize = undefined;
+    const init_err = con.con_serialize_init(
+        &context,
+        con.con_serialize_writer(&writer, con.con_serialize_writer_string_write),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+
+    const open_err = con.con_serialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), open_err);
+
+    {
+        const key_err = con.con_serialize_dict_key(&context, "k");
+        try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_WRITER), key_err);
+        try testing.expectEqualStrings("{\"k\"", &buffer);
+    }
+}
+
 test "dict key comma writer fail" {
     var buffer: [6:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
