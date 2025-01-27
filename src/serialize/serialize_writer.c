@@ -156,6 +156,7 @@ enum ConWriterError con_writer_indent(
     if (writer == NULL) { return CON_WRITER_NULL; }
     if (inner_writer == NULL) { return CON_WRITER_NULL; }
 
+    writer->v_table.write = con_writer_indent_write;
     writer->writer = inner_writer;
     writer->depth = 0;
     writer->state = INDENT_NORMAL;
