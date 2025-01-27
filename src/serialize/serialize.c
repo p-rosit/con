@@ -1,16 +1,6 @@
 #include <assert.h>
 #include "serialize.h"
 
-struct ConWriter con_writer(void const *context, ConWrite *write) {
-    assert(write != NULL);
-    return (struct ConWriter) { .context=context, .write=write };
-}
-
-int con_writer_write(struct ConWriter writer, char const *data) {
-    assert(writer.write != NULL);
-    return writer.write(writer.context, data);
-}
-
 enum ConSerializeContainer {
     CONTAINER_NONE  = 0,
     CONTAINER_DICT  = 1,
@@ -32,12 +22,12 @@ static inline enum ConSerializeError con_serialize_requires_key(struct ConSerial
 
 enum ConSerializeError con_serialize_init(
     struct ConSerialize *context,
-    struct ConWriter writer,
+    void const *writer,
     char *depth_buffer,
     int depth_buffer_size
 ) {
     if (context == NULL) { return CON_SERIALIZE_NULL; }
-    if (writer.write == NULL) { return CON_SERIALIZE_NULL; }
+    if (writer == NULL) { return CON_SERIALIZE_NULL; }
     if (depth_buffer == NULL && depth_buffer_size > 0) { return CON_SERIALIZE_NULL; }
     if (depth_buffer_size < 0) { return CON_SERIALIZE_BUFFER; }
 

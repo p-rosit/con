@@ -21,7 +21,7 @@ enum ConSerializeError {
 };
 
 struct ConSerialize {
-    struct ConWriter writer;
+    void const *writer;
     size_t depth;
     char *depth_buffer;
     int depth_buffer_size;
@@ -30,7 +30,7 @@ struct ConSerialize {
 
 enum ConSerializeError con_serialize_init(
     struct ConSerialize *context,
-    struct ConWriter writer,
+    void const *writer,
     char *depth_buffer,
     int depth_buffer_size
 );

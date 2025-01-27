@@ -4,11 +4,28 @@
 #include <limits.h>
 #include "serialize_writer.h"
 
+int con_writer_write(void const *writer, char const *data) {
+    assert(writer != NULL);
+    struct ConWriter const *v_table = (struct ConWriter const*) writer;
+    return v_table->write(writer, data);
+}
+
+enum ConWriterError con_writer_file(struct ConWriterFile *writer, FILE *file) {
+    if (writer == NULL) { return CON_WRITER_NULL; }
+
+    writer->file = NULL;
+    if (file == NULL) { return CON_WRITER_NULL; }
+
+    writer->v_table.write = con_writer_file_write;
+    writer->file = file;
+    return CON_WRITER_OK;
+}
+
 int con_writer_file_write(void const *context, char const *data) {
     assert(context != NULL);
     assert(data != NULL);
-    ConWriterFile *writer = (ConWriterFile*) context;
-    return fputs(data, writer);
+    struct ConWriterFile *writer = (struct ConWriterFile*) context;
+    return fputs(data, writer->file);
 }
 
 enum ConWriterError con_writer_string(
@@ -17,9 +34,12 @@ enum ConWriterError con_writer_string(
     int buffer_size
 ) {
     if (writer == NULL) { return CON_WRITER_NULL; }
+
+    writer->buffer = NULL;
     if (buffer == NULL) { return CON_WRITER_NULL; }
     if (buffer_size <= 0) { return CON_WRITER_BUFFER; }
 
+    writer->v_table.write = con_writer_string_write;
     writer->buffer = buffer;
     writer->buffer_size = buffer_size;
     writer->current = 0;
@@ -58,15 +78,16 @@ int con_writer_string_write(void const *context, char const *data) {
 
 enum ConWriterError con_writer_buffer(
         struct ConWriterBuffer *writer,
-        struct ConWriter inner_writer,
+        void const *inner_writer,
         char *buffer,
         int buffer_size
 ) {
     if (writer == NULL) { return CON_WRITER_NULL; }
-    if (inner_writer.write == NULL) { return CON_WRITER_NULL; }
+    if (inner_writer == NULL) { return CON_WRITER_NULL; }
     if (buffer == NULL) { return CON_WRITER_NULL; }
     if (buffer_size <= 1) { return CON_WRITER_BUFFER; }
 
+    writer->v_table.write = con_writer_buffer_write;
     writer->writer = inner_writer;
     writer->buffer = buffer;
     writer->buffer_size = buffer_size;
@@ -130,10 +151,10 @@ enum StateIndent {
 
 enum ConWriterError con_writer_indent(
     struct ConWriterIndent *writer,
-    struct ConWriter inner_writer
+    void const *inner_writer
 ) {
     if (writer == NULL) { return CON_WRITER_NULL; }
-    if (inner_writer.write == NULL) { return CON_WRITER_NULL; }
+    if (inner_writer == NULL) { return CON_WRITER_NULL; }
 
     writer->writer = inner_writer;
     writer->depth = 0;

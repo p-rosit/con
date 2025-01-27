@@ -11,17 +11,20 @@ enum ConWriterError {
 typedef int (ConWrite)(void const *context, char const *data);
 
 struct ConWriter {
-    void const *context;
     ConWrite *write;
 };
 
-struct ConWriter con_writer(void const *context, ConWrite *write);
-int con_writer_write(struct ConWriter writer, char const *data);
+int con_writer_write(void const *writer, char const *data);
 
-typedef FILE ConWriterFile;
+struct ConWriterFile {
+    struct ConWriter v_table;
+    FILE *file;
+};
+enum ConWriterError con_writer_file(struct ConWriterFile *writer, FILE *file);
 int con_writer_file_write(void const *writer, char const *data);
 
 struct ConWriterString {
+    struct ConWriter v_table;
     char *buffer;
     int buffer_size;
     int current;
@@ -35,7 +38,8 @@ enum ConWriterError con_writer_string(
 int con_writer_string_write(void const *writer, char const *data);
 
 struct ConWriterBuffer {
-    struct ConWriter writer;
+    struct ConWriter v_table;
+    void const *writer;
     char *buffer;
     int buffer_size;
     int current;
@@ -43,7 +47,7 @@ struct ConWriterBuffer {
 
 enum ConWriterError con_writer_buffer(
         struct ConWriterBuffer *writer,
-        struct ConWriter inner_writer,
+        void const *inner_writer,
         char *buffer,
         int buffer_size
 );
@@ -51,14 +55,15 @@ int con_writer_buffer_write(void const *writer, char const *data);
 int con_writer_buffer_flush(struct ConWriterBuffer *writer);
 
 struct ConWriterIndent {
-    struct ConWriter writer;
+    struct ConWriter v_table;
+    void const *writer;
     size_t depth;
     char state;
 };
 
 enum ConWriterError con_writer_indent(
     struct ConWriterIndent *writer,
-    struct ConWriter inner_writer
+    void const *inner_writer
 );
 int con_writer_indent_write(void const *writer, char const *data);
 
