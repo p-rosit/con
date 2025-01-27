@@ -29,7 +29,7 @@ test "file write" {
     const init_err = con.con_writer_file(&writer, @as([*c]con.FILE, @ptrCast(file)));
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_file_write(&writer, "1");
+    const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
 
     const seek_err = clib.fseek(file, 0, con.SEEK_SET);
@@ -83,7 +83,7 @@ test "string write" {
     const init_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const write_err = con.con_writer_string_write(&writer, "12");
+    const write_err = con.con_writer_write(&writer, "12");
     try testing.expect(0 <= write_err);
     try testing.expectEqualStrings("12\x00", &buffer);
 }
@@ -95,7 +95,7 @@ test "string overflow" {
     const init_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const write_err = con.con_writer_string_write(&writer, "1");
+    const write_err = con.con_writer_write(&writer, "1");
     try testing.expectEqual(con.EOF, write_err);
 }
 
@@ -190,7 +190,7 @@ test "buffer write" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_buffer_write(&writer, "1");
+    const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
     try testing.expectEqualStrings("1", &b);
 }
@@ -211,7 +211,7 @@ test "buffer flush" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_buffer_write(&writer, "1");
+    const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
 
     const flush_err = con.con_writer_buffer_flush(&writer);
@@ -235,7 +235,7 @@ test "buffer internal writer fail" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_buffer_write(&writer, "1");
+    const err = con.con_writer_write(&writer, "1");
     try testing.expectEqual(con.EOF, err);
 }
 
@@ -255,7 +255,7 @@ test "buffer flush writer fail" {
     );
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_buffer_write(&writer, "1");
+    const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
 
     const flush_err = con.con_writer_buffer_flush(&writer);
@@ -285,7 +285,7 @@ test "indent write" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "1");
+    const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
     try testing.expectEqualStrings("1", &b);
 }
@@ -300,7 +300,7 @@ test "indent write minified" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]");
+    const err = con.con_writer_write(&writer, "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]");
     try testing.expect(0 <= err);
     try testing.expectEqualStrings(
         \\[
@@ -329,7 +329,7 @@ test "indent write one character at a time" {
 
     for (str) |c| {
         const single: [1:0]u8 = .{c};
-        const err = con.con_writer_indent_write(&writer, &single);
+        const err = con.con_writer_write(&writer, &single);
         try testing.expect(0 <= err);
     }
 
@@ -356,7 +356,7 @@ test "indent body writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "1");
+    const err = con.con_writer_write(&writer, "1");
     try testing.expectEqual(con.EOF, err);
 }
 
@@ -370,7 +370,7 @@ test "indent newline array open writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "[1]");
+    const err = con.con_writer_write(&writer, "[1]");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("[", &b);
 }
@@ -385,7 +385,7 @@ test "indent whitespace array open writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "[1]");
+    const err = con.con_writer_write(&writer, "[1]");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("[\n", &b);
 }
@@ -400,7 +400,7 @@ test "indent newline array close writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "[1]");
+    const err = con.con_writer_write(&writer, "[1]");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("[\n  1", &b);
 }
@@ -415,7 +415,7 @@ test "indent whitespace array close writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "[1]");
+    const err = con.con_writer_write(&writer, "[1]");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("[\n  1\n", &b);
 }
@@ -430,7 +430,7 @@ test "indent newline dict writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "{\"");
+    const err = con.con_writer_write(&writer, "{\"");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("{", &b);
 }
@@ -445,7 +445,7 @@ test "indent whitespace dict writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "{\"");
+    const err = con.con_writer_write(&writer, "{\"");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("{\n", &b);
 }
@@ -460,7 +460,7 @@ test "indent newline dict close writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "{\"k\":1}");
+    const err = con.con_writer_write(&writer, "{\"k\":1}");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("{\n  \"k\": 1", &b);
 }
@@ -475,7 +475,7 @@ test "indent whitespace dict close writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "{\"k\":1}");
+    const err = con.con_writer_write(&writer, "{\"k\":1}");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("{\n  \"k\": 1\n", &b);
 }
@@ -490,7 +490,7 @@ test "indent space writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "{\"k\":");
+    const err = con.con_writer_write(&writer, "{\"k\":");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("{\n  \"k\":", &b);
 }
@@ -505,7 +505,7 @@ test "indent newline comma writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "[1,2]");
+    const err = con.con_writer_write(&writer, "[1,2]");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("[\n  1,", &b);
 }
@@ -520,7 +520,7 @@ test "indent whitespace comma writer fail" {
     const init_err = con.con_writer_indent(&writer, &w);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
 
-    const err = con.con_writer_indent_write(&writer, "[1,2]");
+    const err = con.con_writer_write(&writer, "[1,2]");
     try testing.expectEqual(con.EOF, err);
     try testing.expectEqualStrings("[\n  1,\n", &b);
 }

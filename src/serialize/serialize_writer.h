@@ -35,7 +35,6 @@ enum ConWriterError con_writer_string(
     char *buffer,
     int buffer_size
 );
-int con_writer_string_write(void const *writer, char const *data);
 
 struct ConWriterBuffer {
     struct ConWriter v_table;
@@ -51,7 +50,6 @@ enum ConWriterError con_writer_buffer(
         char *buffer,
         int buffer_size
 );
-int con_writer_buffer_write(void const *writer, char const *data);
 int con_writer_buffer_flush(struct ConWriterBuffer *writer);
 
 struct ConWriterIndent {
@@ -65,6 +63,5 @@ enum ConWriterError con_writer_indent(
     struct ConWriterIndent *writer,
     void const *inner_writer
 );
-int con_writer_indent_write(void const *writer, char const *data);
 
 #endif
