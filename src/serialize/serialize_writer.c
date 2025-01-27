@@ -12,6 +12,7 @@ int con_writer_indent_write(void const *writer_context, char const *data);
 int con_writer_write(void const *writer, char const *data) {
     assert(writer != NULL);
     struct ConWriter const *v_table = (struct ConWriter const*) writer;
+    assert(v_table->write != NULL);
     return v_table->write(writer, data);
 }
 
