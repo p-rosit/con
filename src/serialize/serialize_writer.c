@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
@@ -8,13 +7,6 @@ int con_writer_file_write(void const *context, char const *data);
 int con_writer_string_write(void const *context, char const *data);
 int con_writer_buffer_write(void const *context, char const *data);
 int con_writer_indent_write(void const *writer_context, char const *data);
-
-int con_writer_write(void const *writer, char const *data) {
-    assert(writer != NULL);
-    struct ConWriter const *v_table = (struct ConWriter const*) writer;
-    assert(v_table->write != NULL);
-    return v_table->write(writer, data);
-}
 
 enum ConWriterError con_writer_file(struct ConWriterFile *writer, FILE *file) {
     if (writer == NULL) { return CON_WRITER_NULL; }

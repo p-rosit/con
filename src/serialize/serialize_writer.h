@@ -1,5 +1,6 @@
 #ifndef CON_SERIALIZE_WRITER_H
 #define CON_SERIALIZE_WRITER_H
+#include <assert.h>
 #include <stdio.h>
 
 enum ConWriterError {
@@ -14,7 +15,12 @@ struct ConWriter {
     ConWrite *write;
 };
 
-int con_writer_write(void const *writer, char const *data);
+static inline int con_writer_write(void const *writer, char const *data) {
+    assert(writer != NULL);
+    struct ConWriter const *v_table = (struct ConWriter const*) writer;
+    assert(v_table->write != NULL);
+    return v_table->write(writer, data);
+}
 
 struct ConWriterFile {
     struct ConWriter v_table;
