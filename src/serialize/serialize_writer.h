@@ -11,13 +11,25 @@ enum ConWriterError {
 
 typedef int (ConWrite)(void const *context, char const *data);
 
+// WARNING: to implement this writer protocol any writer must be something that
+// starts with a v-table (the below type, `struct ConWriter`). To call a writer
+// the write field (`write` below) must be filled with the associated function
+//
+// For examples of writers, see `struct ConWriterString` and others below.
 struct ConWriter {
     ConWrite *write;
 };
 
 static inline int con_writer_write(void const *writer, char const *data) {
     assert(writer != NULL);
+
+    // This cast is valid according to the standard since the first field
+    // is guaranteed to start (without padding) at the same address as
+    // its containing struct. If all custom writers have a v-table as
+    // their first field the below cast will unpack the correct associated
+    // function.
     struct ConWriter const *v_table = (struct ConWriter const*) writer;
+
     assert(v_table->write != NULL);
     return v_table->write(writer, data);
 }
