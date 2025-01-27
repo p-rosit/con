@@ -2,6 +2,7 @@
 #define CON_SERIALIZE_H
 #include <stddef.h>
 #include <stdbool.h>
+#include "serialize_writer.h"
 
 enum ConSerializeError {
     CON_SERIALIZE_OK                = 0,
@@ -18,16 +19,6 @@ enum ConSerializeError {
     CON_SERIALIZE_NOT_NUMBER        = 11,
     CON_SERIALIZE_STATE_UNKNOWN     = 12,
 };
-
-typedef int (ConWrite)(void const *context, char const *data);
-
-struct ConWriter {
-    void const *context;
-    ConWrite *write;
-};
-
-struct ConWriter con_writer(void const *context, ConWrite *write);
-int con_writer_write(struct ConWriter writer, char const *data);
 
 struct ConSerialize {
     struct ConWriter writer;

@@ -1,7 +1,22 @@
 #ifndef CON_SERIALIZE_WRITER_H
 #define CON_SERIALIZE_WRITER_H
 #include <stdio.h>
-#include "serialize.h"
+
+enum ConWriterError {
+    CON_WRITER_OK       = 0,
+    CON_WRITER_NULL     = 1,
+    CON_WRITER_BUFFER   = 4,
+};
+
+typedef int (ConWrite)(void const *context, char const *data);
+
+struct ConWriter {
+    void const *context;
+    ConWrite *write;
+};
+
+struct ConWriter con_writer(void const *context, ConWrite *write);
+int con_writer_write(struct ConWriter writer, char const *data);
 
 typedef FILE ConWriterFile;
 int con_writer_file_write(void const *writer, char const *data);
@@ -12,7 +27,7 @@ struct ConWriterString {
     int current;
 };
 
-enum ConSerializeError con_writer_string(
+enum ConWriterError con_writer_string(
     struct ConWriterString *writer,
     char *buffer,
     int buffer_size
@@ -26,7 +41,7 @@ struct ConWriterBuffer {
     int current;
 };
 
-enum ConSerializeError con_writer_buffer(
+enum ConWriterError con_writer_buffer(
         struct ConWriterBuffer *writer,
         struct ConWriter inner_writer,
         char *buffer,
@@ -41,7 +56,7 @@ struct ConWriterIndent {
     char state;
 };
 
-enum ConSerializeError con_writer_indent(
+enum ConWriterError con_writer_indent(
     struct ConWriterIndent *writer,
     struct ConWriter inner_writer
 );

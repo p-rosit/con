@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <limits.h>
 #include "serialize_writer.h"
 
@@ -10,20 +11,20 @@ int con_writer_file_write(void const *context, char const *data) {
     return fputs(data, writer);
 }
 
-enum ConSerializeError con_writer_string(
+enum ConWriterError con_writer_string(
     struct ConWriterString *writer,
     char *buffer,
     int buffer_size
 ) {
-    if (writer == NULL) { return CON_SERIALIZE_NULL; }
-    if (buffer == NULL) { return CON_SERIALIZE_NULL; }
-    if (buffer_size <= 0) { return CON_SERIALIZE_BUFFER; }
+    if (writer == NULL) { return CON_WRITER_NULL; }
+    if (buffer == NULL) { return CON_WRITER_NULL; }
+    if (buffer_size <= 0) { return CON_WRITER_BUFFER; }
 
     writer->buffer = buffer;
     writer->buffer_size = buffer_size;
     writer->current = 0;
 
-    return CON_SERIALIZE_OK;
+    return CON_WRITER_OK;
 }
 
 int con_writer_string_write(void const *context, char const *data) {
@@ -55,23 +56,23 @@ int con_writer_string_write(void const *context, char const *data) {
     }
 }
 
-enum ConSerializeError con_writer_buffer(
+enum ConWriterError con_writer_buffer(
         struct ConWriterBuffer *writer,
         struct ConWriter inner_writer,
         char *buffer,
         int buffer_size
 ) {
-    if (writer == NULL) { return CON_SERIALIZE_NULL; }
-    if (inner_writer.write == NULL) { return CON_SERIALIZE_NULL; }
-    if (buffer == NULL) { return CON_SERIALIZE_NULL; }
-    if (buffer_size <= 1) { return CON_SERIALIZE_BUFFER; }
+    if (writer == NULL) { return CON_WRITER_NULL; }
+    if (inner_writer.write == NULL) { return CON_WRITER_NULL; }
+    if (buffer == NULL) { return CON_WRITER_NULL; }
+    if (buffer_size <= 1) { return CON_WRITER_BUFFER; }
 
     writer->writer = inner_writer;
     writer->buffer = buffer;
     writer->buffer_size = buffer_size;
     writer->current = 0;
 
-    return CON_SERIALIZE_OK;
+    return CON_WRITER_OK;
 }
 
 int con_writer_buffer_write(void const *context, char const *data) {
@@ -127,18 +128,18 @@ enum StateIndent {
     INDENT_MAX,
 };
 
-enum ConSerializeError con_writer_indent(
+enum ConWriterError con_writer_indent(
     struct ConWriterIndent *writer,
     struct ConWriter inner_writer
 ) {
-    if (writer == NULL) { return CON_SERIALIZE_NULL; }
-    if (inner_writer.write == NULL) { return CON_SERIALIZE_NULL; }
+    if (writer == NULL) { return CON_WRITER_NULL; }
+    if (inner_writer.write == NULL) { return CON_WRITER_NULL; }
 
     writer->writer = inner_writer;
     writer->depth = 0;
     writer->state = INDENT_NORMAL;
 
-    return CON_SERIALIZE_OK;
+    return CON_WRITER_OK;
 }
 
 static inline int con_serialize_writer_indent_whitespace(struct ConWriterIndent *writer) {
