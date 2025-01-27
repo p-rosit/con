@@ -9,6 +9,12 @@ const con = @cImport({
     @cInclude("serialize_writer.h");
 });
 
+test "file init" {
+    var writer: con.ConWriterFile = undefined;
+    const init_err = con.con_writer_file(&writer, @ptrFromInt(256));
+    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+}
+
 test "file write" {
     var file: [*c]clib.FILE = undefined;
 
