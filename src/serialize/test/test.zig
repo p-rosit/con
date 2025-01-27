@@ -5,11 +5,12 @@ const con = @cImport({
 });
 
 test "context init" {
+    var writer: con.ConWriterString = undefined;
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(null, con.con_writer_string_write),
+        &writer,
         &depth,
         0,
     );
@@ -17,10 +18,11 @@ test "context init" {
 }
 
 test "context depth null, length positive" {
+    var writer: con.ConWriterString = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(null, con.con_writer_string_write),
+        &writer,
         null,
         1,
     );
@@ -28,10 +30,11 @@ test "context depth null, length positive" {
 }
 
 test "context depth null, length zero" {
+    var writer: con.ConWriterString = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(null, con.con_writer_string_write),
+        &writer,
         null,
         0,
     );
@@ -39,10 +42,11 @@ test "context depth null, length zero" {
 }
 
 test "context depth negative" {
+    var writer: con.ConWriterString = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(null, con.con_writer_string_write),
+        &writer,
         @ptrFromInt(1),
         -1,
     );
@@ -50,11 +54,12 @@ test "context depth negative" {
 }
 
 test "context init null" {
+    var writer: con.ConWriterString = undefined;
     var depth: [0]u8 = undefined;
 
     const init_err = con.con_serialize_init(
         null,
-        con.con_writer(null, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -73,7 +78,7 @@ test "number int-like" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -93,7 +98,7 @@ test "number float-like" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -113,7 +118,7 @@ test "number scientific-like" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -133,7 +138,7 @@ test "number null" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -153,7 +158,7 @@ test "number writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -173,7 +178,7 @@ test "number empty" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -193,7 +198,7 @@ test "string" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -213,7 +218,7 @@ test "string null" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -233,7 +238,7 @@ test "string first quote writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -253,7 +258,7 @@ test "string body writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -274,7 +279,7 @@ test "string second quote writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -295,7 +300,7 @@ test "bool true" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -317,7 +322,7 @@ test "bool true writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -337,7 +342,7 @@ test "bool false" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -359,7 +364,7 @@ test "bool false writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -379,7 +384,7 @@ test "null" {
     var depth: [0]u8 = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -401,7 +406,7 @@ test "null writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -423,7 +428,7 @@ test "array open" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -445,7 +450,7 @@ test "array open too many" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -465,7 +470,7 @@ test "array nested open too many" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -494,7 +499,7 @@ test "array open writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -514,7 +519,7 @@ test "array close" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -539,7 +544,7 @@ test "array close too many" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -559,7 +564,7 @@ test "array close writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -583,7 +588,7 @@ test "dict open" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -605,7 +610,7 @@ test "dict open too many" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -625,7 +630,7 @@ test "dict nested open too many" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -654,7 +659,7 @@ test "dict open writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -674,7 +679,7 @@ test "dict close" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -699,7 +704,7 @@ test "dict close too many" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -719,7 +724,7 @@ test "dict close writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -745,7 +750,7 @@ test "dict key" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -772,7 +777,7 @@ test "dict key multiple" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -805,7 +810,7 @@ test "dict key null" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -831,7 +836,7 @@ test "dict key first quote writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -857,7 +862,7 @@ test "dict key body writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -883,7 +888,7 @@ test "dict key second quote writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -909,7 +914,7 @@ test "dict key colon writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -935,7 +940,7 @@ test "dict key comma writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -966,7 +971,7 @@ test "dict key outside dict" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -986,7 +991,7 @@ test "dict key in array" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1011,7 +1016,7 @@ test "dict key twice" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1039,7 +1044,7 @@ test "dict number key missing" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1064,7 +1069,7 @@ test "dict number second key missing" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1094,7 +1099,7 @@ test "dict string key missing" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1119,7 +1124,7 @@ test "dict string second key missing" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1149,7 +1154,7 @@ test "dict array key missing" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1174,7 +1179,7 @@ test "dict array second key missing" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1204,7 +1209,7 @@ test "dict dict key missing" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1229,7 +1234,7 @@ test "dict dict second key missing" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1261,7 +1266,7 @@ test "array open -> dict close" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1284,7 +1289,7 @@ test "dict open -> array close" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1307,7 +1312,7 @@ test "array number single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1337,7 +1342,7 @@ test "array number multiple" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1370,7 +1375,7 @@ test "array number comma writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1399,7 +1404,7 @@ test "array string single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1429,7 +1434,7 @@ test "array string multiple" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1462,7 +1467,7 @@ test "array string comma writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1491,7 +1496,7 @@ test "array bool single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1521,7 +1526,7 @@ test "array bool multiple" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1554,7 +1559,7 @@ test "array bool comma writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1583,7 +1588,7 @@ test "array null single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1613,7 +1618,7 @@ test "array null multiple" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1646,7 +1651,7 @@ test "array null comma writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1675,7 +1680,7 @@ test "array array single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1706,7 +1711,7 @@ test "array array multiple" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1742,7 +1747,7 @@ test "array array comma writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1774,7 +1779,7 @@ test "array dict single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1805,7 +1810,7 @@ test "array dict multiple" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1841,7 +1846,7 @@ test "array dict comma writer fail" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1873,7 +1878,7 @@ test "dict number single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1905,7 +1910,7 @@ test "dict string single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1937,7 +1942,7 @@ test "dict bool true single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -1969,7 +1974,7 @@ test "dict bool false single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2001,7 +2006,7 @@ test "dict null single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2033,7 +2038,7 @@ test "dict array single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2068,7 +2073,7 @@ test "dict dict single" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2105,7 +2110,7 @@ test "number complete" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2132,7 +2137,7 @@ test "string complete" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2159,7 +2164,7 @@ test "bool complete" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2184,7 +2189,7 @@ test "null complete" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2209,7 +2214,7 @@ test "array complete" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2234,7 +2239,7 @@ test "dict complete" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2261,7 +2266,7 @@ test "nested structures" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&writer, con.con_writer_string_write),
+        &writer,
         &depth,
         depth.len,
     );
@@ -2326,14 +2331,14 @@ test "indent writer" {
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), writer_err);
 
     var indent: con.ConWriterIndent = undefined;
-    const indent_err = con.con_writer_indent(&indent, con.con_writer(&writer, con.con_writer_string_write));
+    const indent_err = con.con_writer_indent(&indent, &writer);
     try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), indent_err);
 
     var depth: [3]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        con.con_writer(&indent, con.con_writer_indent_write),
+        &indent,
         &depth,
         depth.len,
     );
