@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "writer.h"
 #include "serialize.h"
 
 enum ConSerializeContainer {
