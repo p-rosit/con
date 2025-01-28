@@ -13,7 +13,7 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(serialize);
 
-    const fls: []const []const u8 = &.{ "serialize.c", "serialize_writer.c" };
+    const fls: []const []const u8 = &.{ "serialize.c", "writer.c" };
     serialize.addCSourceFiles(.{
         .root = b.path("src/serialize"),
         .files = fls,
@@ -23,7 +23,7 @@ pub fn build(b: *std.Build) void {
         "con_serialize.h",
     );
     serialize.installHeader(
-        b.path("src/serialize/serialize_writer.h"),
+        b.path("src/serialize/writer.h"),
         "con_serialize_writer.h",
     );
 

@@ -6,7 +6,7 @@ const clib = @cImport({
 });
 const con = @cImport({
     @cInclude("serialize.h");
-    @cInclude("serialize_writer.h");
+    @cInclude("writer.h");
 });
 
 test "file init" {

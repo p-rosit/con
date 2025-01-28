@@ -1,7 +1,7 @@
 const testing = @import("std").testing;
 const con = @cImport({
     @cInclude("serialize.h");
-    @cInclude("serialize_writer.h");
+    @cInclude("writer.h");
 });
 
 test "numbers equal" {

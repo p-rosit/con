@@ -2,7 +2,7 @@
 #define CON_SERIALIZE_H
 #include <stddef.h>
 #include <stdbool.h>
-#include "serialize_writer.h"
+#include "writer.h"
 
 enum ConSerializeError {
     CON_SERIALIZE_OK                = 0,
