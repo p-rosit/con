@@ -1,5 +1,5 @@
-#ifndef CON_SERIALIZE_WRITER_H
-#define CON_SERIALIZE_WRITER_H
+#ifndef CON_WRITER_H
+#define CON_WRITER_H
 #include <assert.h>
 #include <stdio.h>
 
