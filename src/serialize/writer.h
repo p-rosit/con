@@ -2,12 +2,7 @@
 #define CON_WRITER_H
 #include <assert.h>
 #include <stdio.h>
-
-enum ConWriterError {
-    CON_WRITER_OK       = 0,
-    CON_WRITER_NULL     = 1,
-    CON_WRITER_BUFFER   = 4,
-};
+#include <con_error.h>
 
 typedef int (ConWrite)(void const *context, char const *data);
 
@@ -38,7 +33,7 @@ struct ConWriterFile {
     struct ConWriter v_table;
     FILE *file;
 };
-enum ConWriterError con_writer_file(struct ConWriterFile *writer, FILE *file);
+enum ConSerializeError con_writer_file(struct ConWriterFile *writer, FILE *file);
 int con_writer_file_write(void const *writer, char const *data);
 
 struct ConWriterString {
@@ -48,7 +43,7 @@ struct ConWriterString {
     int current;
 };
 
-enum ConWriterError con_writer_string(
+enum ConSerializeError con_writer_string(
     struct ConWriterString *writer,
     char *buffer,
     int buffer_size
@@ -62,7 +57,7 @@ struct ConWriterBuffer {
     int current;
 };
 
-enum ConWriterError con_writer_buffer(
+enum ConSerializeError con_writer_buffer(
         struct ConWriterBuffer *writer,
         void const *inner_writer,
         char *buffer,
@@ -77,7 +72,7 @@ struct ConWriterIndent {
     char state;
 };
 
-enum ConWriterError con_writer_indent(
+enum ConSerializeError con_writer_indent(
     struct ConWriterIndent *writer,
     void const *inner_writer
 );

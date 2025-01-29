@@ -10,7 +10,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
-
+    serialize.addIncludePath(b.path("src"));
     b.installArtifact(serialize);
 
     const fls: []const []const u8 = &.{ "serialize.c", "writer.c" };
@@ -18,14 +18,9 @@ pub fn build(b: *std.Build) void {
         .root = b.path("src/serialize"),
         .files = fls,
     });
-    serialize.installHeader(
-        b.path("src/serialize/serialize.h"),
-        "con_serialize.h",
-    );
-    serialize.installHeader(
-        b.path("src/serialize/writer.h"),
-        "con_serialize_writer.h",
-    );
+    serialize.installHeader(b.path("src/con_error.h"), "con_error.h");
+    serialize.installHeader(b.path("src/serialize/serialize.h"), "con_serialize.h");
+    serialize.installHeader(b.path("src/serialize/writer.h"), "con_serialize_writer.h");
 
     const serialize_unit_tests = b.addTest(.{
         .root_source_file = b.path("con.zig"),

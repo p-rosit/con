@@ -8,15 +8,15 @@ int con_writer_string_write(void const *context, char const *data);
 int con_writer_buffer_write(void const *context, char const *data);
 int con_writer_indent_write(void const *writer_context, char const *data);
 
-enum ConWriterError con_writer_file(struct ConWriterFile *writer, FILE *file) {
-    if (writer == NULL) { return CON_WRITER_NULL; }
+enum ConSerializeError con_writer_file(struct ConWriterFile *writer, FILE *file) {
+    if (writer == NULL) { return CON_SERIALIZE_NULL; }
 
     writer->file = NULL;
-    if (file == NULL) { return CON_WRITER_NULL; }
+    if (file == NULL) { return CON_SERIALIZE_NULL; }
 
     writer->v_table.write = con_writer_file_write;
     writer->file = file;
-    return CON_WRITER_OK;
+    return CON_SERIALIZE_OK;
 }
 
 int con_writer_file_write(void const *context, char const *data) {
@@ -26,23 +26,23 @@ int con_writer_file_write(void const *context, char const *data) {
     return fputs(data, writer->file);
 }
 
-enum ConWriterError con_writer_string(
+enum ConSerializeError con_writer_string(
     struct ConWriterString *writer,
     char *buffer,
     int buffer_size
 ) {
-    if (writer == NULL) { return CON_WRITER_NULL; }
+    if (writer == NULL) { return CON_SERIALIZE_NULL; }
 
     writer->buffer = NULL;
-    if (buffer == NULL) { return CON_WRITER_NULL; }
-    if (buffer_size <= 0) { return CON_WRITER_BUFFER; }
+    if (buffer == NULL) { return CON_SERIALIZE_NULL; }
+    if (buffer_size <= 0) { return CON_SERIALIZE_BUFFER; }
 
     writer->v_table.write = con_writer_string_write;
     writer->buffer = buffer;
     writer->buffer_size = buffer_size;
     writer->current = 0;
 
-    return CON_WRITER_OK;
+    return CON_SERIALIZE_OK;
 }
 
 int con_writer_string_write(void const *context, char const *data) {
@@ -74,16 +74,16 @@ int con_writer_string_write(void const *context, char const *data) {
     }
 }
 
-enum ConWriterError con_writer_buffer(
+enum ConSerializeError con_writer_buffer(
         struct ConWriterBuffer *writer,
         void const *inner_writer,
         char *buffer,
         int buffer_size
 ) {
-    if (writer == NULL) { return CON_WRITER_NULL; }
-    if (inner_writer == NULL) { return CON_WRITER_NULL; }
-    if (buffer == NULL) { return CON_WRITER_NULL; }
-    if (buffer_size <= 1) { return CON_WRITER_BUFFER; }
+    if (writer == NULL) { return CON_SERIALIZE_NULL; }
+    if (inner_writer == NULL) { return CON_SERIALIZE_NULL; }
+    if (buffer == NULL) { return CON_SERIALIZE_NULL; }
+    if (buffer_size <= 1) { return CON_SERIALIZE_BUFFER; }
 
     writer->v_table.write = con_writer_buffer_write;
     writer->writer = inner_writer;
@@ -91,7 +91,7 @@ enum ConWriterError con_writer_buffer(
     writer->buffer_size = buffer_size;
     writer->current = 0;
 
-    return CON_WRITER_OK;
+    return CON_SERIALIZE_OK;
 }
 
 int con_writer_buffer_write(void const *context, char const *data) {
@@ -147,19 +147,19 @@ enum StateIndent {
     INDENT_MAX,
 };
 
-enum ConWriterError con_writer_indent(
+enum ConSerializeError con_writer_indent(
     struct ConWriterIndent *writer,
     void const *inner_writer
 ) {
-    if (writer == NULL) { return CON_WRITER_NULL; }
-    if (inner_writer == NULL) { return CON_WRITER_NULL; }
+    if (writer == NULL) { return CON_SERIALIZE_NULL; }
+    if (inner_writer == NULL) { return CON_SERIALIZE_NULL; }
 
     writer->v_table.write = con_writer_indent_write;
     writer->writer = inner_writer;
     writer->depth = 0;
     writer->state = INDENT_NORMAL;
 
-    return CON_WRITER_OK;
+    return CON_SERIALIZE_OK;
 }
 
 static inline int con_serialize_writer_indent_whitespace(struct ConWriterIndent *writer) {
