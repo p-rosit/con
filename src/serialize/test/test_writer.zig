@@ -12,7 +12,7 @@ const con = @cImport({
 test "file init" {
     var writer: con.ConWriterFile = undefined;
     const init_err = con.con_writer_file(&writer, @ptrFromInt(256));
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 }
 
 test "file write" {
@@ -33,7 +33,7 @@ test "file write" {
 
     var writer: con.ConWriterFile = undefined;
     const init_err = con.con_writer_file(&writer, @as([*c]con.FILE, @ptrCast(file)));
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
@@ -53,33 +53,33 @@ test "string init" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
     const init_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 }
 
 test "string init null" {
     var buffer: [1:0]u8 = undefined;
     const init_err = con.con_writer_string(null, &buffer, buffer.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_NULL), init_err);
 }
 
 test "string buffer null" {
     var writer: con.ConWriterString = undefined;
     const init_err = con.con_writer_string(&writer, null, 2);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_NULL), init_err);
 }
 
 test "string length negative" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
     const init_err = con.con_writer_string(&writer, &buffer, -1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_BUFFER), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_BUFFER), init_err);
 }
 
 test "string buffer small" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
     const init_err = con.con_writer_string(&writer, &buffer, 0);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_BUFFER), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_BUFFER), init_err);
 }
 
 test "string write" {
@@ -87,7 +87,7 @@ test "string write" {
     var writer: con.ConWriterString = undefined;
 
     const init_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const write_err = con.con_writer_write(&writer, "12");
     try testing.expect(0 <= write_err);
@@ -99,7 +99,7 @@ test "string overflow" {
     var writer: con.ConWriterString = undefined;
 
     const init_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const write_err = con.con_writer_write(&writer, "1");
     try testing.expectEqual(con.EOF, write_err);
@@ -115,7 +115,7 @@ test "buffer init" {
         &buffer,
         buffer.len + 1,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 }
 
 test "buffer init null" {
@@ -127,7 +127,7 @@ test "buffer init null" {
         &buffer,
         buffer.len + 1,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_NULL), init_err);
 }
 
 test "buffer init write null" {
@@ -139,7 +139,7 @@ test "buffer init write null" {
         &buffer,
         buffer.len + 1,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_NULL), init_err);
 }
 
 test "buffer init buffer null" {
@@ -151,7 +151,7 @@ test "buffer init buffer null" {
         null,
         2,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_NULL), init_err);
 }
 
 test "buffer init length negative" {
@@ -164,7 +164,7 @@ test "buffer init length negative" {
         &buffer,
         -1,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_BUFFER), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_BUFFER), init_err);
 }
 
 test "buffer init buffer small" {
@@ -177,14 +177,14 @@ test "buffer init buffer small" {
         &buffer,
         buffer.len + 1,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_BUFFER), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_BUFFER), init_err);
 }
 
 test "buffer write" {
     var b: [1:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterBuffer = undefined;
@@ -194,7 +194,7 @@ test "buffer write" {
         &buffer,
         buffer.len + 1,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
@@ -205,7 +205,7 @@ test "buffer flush" {
     var b: [1:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterBuffer = undefined;
@@ -215,7 +215,7 @@ test "buffer flush" {
         &buffer,
         buffer.len + 1,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
@@ -229,7 +229,7 @@ test "buffer internal writer fail" {
     var b: [0:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterBuffer = undefined;
@@ -239,7 +239,7 @@ test "buffer internal writer fail" {
         &buffer,
         buffer.len + 1,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "1");
     try testing.expectEqual(con.EOF, err);
@@ -249,7 +249,7 @@ test "buffer flush writer fail" {
     var b: [0:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterBuffer = undefined;
@@ -259,7 +259,7 @@ test "buffer flush writer fail" {
         &buffer,
         buffer.len + 1,
     );
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
@@ -272,24 +272,24 @@ test "indent init" {
     var w: con.ConWriterString = undefined;
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 }
 
 test "indent init write null" {
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, null);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_NULL), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_NULL), init_err);
 }
 
 test "indent write" {
     var b: [1:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "1");
     try testing.expect(0 <= err);
@@ -300,11 +300,11 @@ test "indent write minified" {
     var b: [56:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]");
     try testing.expect(0 <= err);
@@ -325,11 +325,11 @@ test "indent write one character at a time" {
     var b: [56:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const str = "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]";
 
@@ -356,11 +356,11 @@ test "indent body writer fail" {
     var b: [0:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "1");
     try testing.expectEqual(con.EOF, err);
@@ -370,11 +370,11 @@ test "indent newline array open writer fail" {
     var b: [1:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "[1]");
     try testing.expectEqual(con.EOF, err);
@@ -385,11 +385,11 @@ test "indent whitespace array open writer fail" {
     var b: [2:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "[1]");
     try testing.expectEqual(con.EOF, err);
@@ -400,11 +400,11 @@ test "indent newline array close writer fail" {
     var b: [5:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "[1]");
     try testing.expectEqual(con.EOF, err);
@@ -415,11 +415,11 @@ test "indent whitespace array close writer fail" {
     var b: [6:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "[1]");
     try testing.expectEqual(con.EOF, err);
@@ -430,11 +430,11 @@ test "indent newline dict writer fail" {
     var b: [1:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "{\"");
     try testing.expectEqual(con.EOF, err);
@@ -445,11 +445,11 @@ test "indent whitespace dict writer fail" {
     var b: [2:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "{\"");
     try testing.expectEqual(con.EOF, err);
@@ -460,11 +460,11 @@ test "indent newline dict close writer fail" {
     var b: [10:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "{\"k\":1}");
     try testing.expectEqual(con.EOF, err);
@@ -475,11 +475,11 @@ test "indent whitespace dict close writer fail" {
     var b: [11:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "{\"k\":1}");
     try testing.expectEqual(con.EOF, err);
@@ -490,11 +490,11 @@ test "indent space writer fail" {
     var b: [8:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "{\"k\":");
     try testing.expectEqual(con.EOF, err);
@@ -505,11 +505,11 @@ test "indent newline comma writer fail" {
     var b: [6:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "[1,2]");
     try testing.expectEqual(con.EOF, err);
@@ -520,11 +520,11 @@ test "indent whitespace comma writer fail" {
     var b: [7:0]u8 = undefined;
     var w: con.ConWriterString = undefined;
     const i_err = con.con_writer_string(&w, &b, b.len + 1);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), i_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), i_err);
 
     var writer: con.ConWriterIndent = undefined;
     const init_err = con.con_writer_indent(&writer, &w);
-    try testing.expectEqual(@as(c_uint, con.CON_SERIALIZE_OK), init_err);
+    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), init_err);
 
     const err = con.con_writer_write(&writer, "[1,2]");
     try testing.expectEqual(con.EOF, err);

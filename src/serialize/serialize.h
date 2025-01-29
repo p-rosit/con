@@ -28,12 +28,12 @@ struct ConSerialize {
 //                      of passed in parameter `depth_buffer`
 //
 // Error:
-//  CON_SERIALIZE_OK:       Call succeded
-//  CON_SERIALIZE_NULL:     May be returned in of the following situations
+//  CON_ERROR_OK:       Call succeded
+//  CON_ERROR_NULL:     May be returned in of the following situations
 //      1. `context` is null
 //      2. `writer` is null
 //      3. `depth_buffer` is null
-//  CON_SERIALIZE_BUFFER:   `depth_buffer_size` is negative
+//  CON_ERROR_BUFFER:   `depth_buffer_size` is negative
 enum ConSerializeError con_serialize_init(
     struct ConSerialize *context,
     void const *writer,

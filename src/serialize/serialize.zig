@@ -114,19 +114,19 @@
 //
 //         fn enum_to_error(err: con.ConSerializeError) !void {
 //             switch (err) {
-//                 con.CON_SERIALIZE_OK => return,
-//                 con.CON_SERIALIZE_NULL => return error.Null,
-//                 con.CON_SERIALIZE_WRITER => return error.Writer,
-//                 con.CON_SERIALIZE_CLOSED_TOO_MANY => return error.ClosedTooMany,
-//                 con.CON_SERIALIZE_BUFFER => return error.Buffer,
-//                 con.CON_SERIALIZE_TOO_DEEP => return error.TooDeep,
-//                 con.CON_SERIALIZE_COMPLETE => return error.Complete,
-//                 con.CON_SERIALIZE_KEY => return error.Key,
-//                 con.CON_SERIALIZE_VALUE => return error.Value,
-//                 con.CON_SERIALIZE_NOT_ARRAY => return error.NotArray,
-//                 con.CON_SERIALIZE_NOT_DICT => return error.NotDict,
-//                 con.CON_SERIALIZE_NOT_NUMBER => return error.NotNumber,
-//                 con.CON_SERIALIZE_STATE_UNKNOWN => return error.StateUnknown,
+//                 con.CON_ERROR_OK => return,
+//                 con.CON_ERROR_NULL => return error.Null,
+//                 con.CON_ERROR_WRITER => return error.Writer,
+//                 con.CON_ERROR_CLOSED_TOO_MANY => return error.ClosedTooMany,
+//                 con.CON_ERROR_BUFFER => return error.Buffer,
+//                 con.CON_ERROR_TOO_DEEP => return error.TooDeep,
+//                 con.CON_ERROR_COMPLETE => return error.Complete,
+//                 con.CON_ERROR_KEY => return error.Key,
+//                 con.CON_ERROR_VALUE => return error.Value,
+//                 con.CON_ERROR_NOT_ARRAY => return error.NotArray,
+//                 con.CON_ERROR_NOT_DICT => return error.NotDict,
+//                 con.CON_ERROR_NOT_NUMBER => return error.NotNumber,
+//                 con.CON_ERROR_STATE_UNKNOWN => return error.StateUnknown,
 //                 else => return error.Unknown,
 //             }
 //         }
