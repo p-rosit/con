@@ -33,8 +33,8 @@ struct ConWriterFile {
     struct ConWriter v_table;
     FILE *file;
 };
+
 enum ConSerializeError con_writer_file(struct ConWriterFile *writer, FILE *file);
-int con_writer_file_write(void const *writer, char const *data);
 
 struct ConWriterString {
     struct ConWriter v_table;
