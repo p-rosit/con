@@ -16,6 +16,7 @@ inline fn writeData(writer: *const anyopaque, data: [:0]const u8) !void {
 }
 
 pub fn Writer(AnyWriter: type) type {
+    // TODO: comptime verify AnyWriter is writer
     return extern struct {
         const Self = @This();
 
