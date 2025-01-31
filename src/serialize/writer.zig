@@ -139,6 +139,19 @@ pub const Indent = struct {
 
 const testing = std.testing;
 
+test "zig writer" {
+    const Fifo = std.fifo.LinearFifo(u8, .Slice);
+    const FifoWriter = Writer(Fifo.Writer);
+
+    var buffer: [1]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+
+    var writer = FifoWriter.init(&fifo.writer());
+
+    try writer.write("1");
+    try testing.expectEqualStrings("1", &buffer);
+}
+
 test "file init" {
     _ = try File.init(@ptrFromInt(256));
 }
