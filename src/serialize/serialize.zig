@@ -1,35 +1,11 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const con_error = @import("error.zig");
+const con_writer = @import("writer.zig");
 const con = @cImport({
     @cInclude("serialize.h");
     @cInclude("writer.h");
 });
-
-pub fn Writer(AnyWriter: type) type {
-    return extern struct {
-        const Self = @This();
-
-        callback: *const con.ConWrite = writeCallback,
-        writer: *const AnyWriter,
-
-        fn writeCallback(context: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
-            std.debug.assert(null != context);
-            std.debug.assert(null != data);
-
-            const self: *Self = @constCast(@alignCast(@ptrCast(context)));
-            const w: *const AnyWriter = self.writer;
-            const d = std.mem.span(data);
-            const result = w.write(d) catch 0;
-
-            if (result > 0) {
-                return 1;
-            } else {
-                return con.EOF;
-            }
-        }
-    };
-}
 
 const Serialize = struct {
     inner: con.ConSerialize,
@@ -105,7 +81,7 @@ const Serialize = struct {
 };
 
 const Fifo = std.fifo.LinearFifo(u8, .Slice);
-const ConFifo = Writer(Fifo.Writer);
+const ConFifo = con_writer.Writer(Fifo.Writer);
 const testing = std.testing;
 
 test "context init" {

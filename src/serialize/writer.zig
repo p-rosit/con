@@ -15,6 +15,35 @@ inline fn writeData(writer: *const anyopaque, data: [:0]const u8) !void {
     }
 }
 
+pub fn Writer(AnyWriter: type) type {
+    return extern struct {
+        const Self = @This();
+
+        callback: *const con.ConWrite = writeCallback,
+        writer: *const AnyWriter,
+
+        pub fn write(writer: *Self, data: [:0]const u8) !void {
+            return writeData(writer, data);
+        }
+
+        fn writeCallback(context: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
+            std.debug.assert(null != context);
+            std.debug.assert(null != data);
+
+            const self: *Self = @constCast(@alignCast(@ptrCast(context)));
+            const w: *const AnyWriter = self.writer;
+            const d = std.mem.span(data);
+            const result = w.write(d) catch 0;
+
+            if (result > 0) {
+                return 1;
+            } else {
+                return con.EOF;
+            }
+        }
+    };
+}
+
 pub const File = struct {
     inner: con.ConWriterFile,
 
