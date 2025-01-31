@@ -5,6 +5,7 @@ pub const IndentJson = serialize.IndentJson;
 
 test {
     _ = @import("src/serialize/serialize.zig");
+    _ = @import("src/serialize/writer.zig");
     _ = @import("src/serialize/test/test.zig");
     _ = @import("src/serialize/test/test_writer.zig");
 }
