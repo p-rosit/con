@@ -22,6 +22,10 @@ pub fn Writer(AnyWriter: type) type {
         callback: con.ConWriter = .{ .write = writeCallback },
         writer: *const AnyWriter,
 
+        pub fn init(writer: *const AnyWriter) Self {
+            return Self{ .writer = writer };
+        }
+
         pub fn write(writer: *Self, data: [:0]const u8) !void {
             return writeData(writer, data);
         }
