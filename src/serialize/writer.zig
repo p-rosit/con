@@ -19,7 +19,7 @@ pub fn Writer(AnyWriter: type) type {
     return extern struct {
         const Self = @This();
 
-        callback: *const con.ConWrite = writeCallback,
+        callback: con.ConWriter = .{ .write = writeCallback },
         writer: *const AnyWriter,
 
         pub fn write(writer: *Self, data: [:0]const u8) !void {
