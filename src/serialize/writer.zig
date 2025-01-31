@@ -3,6 +3,7 @@ const clib = @cImport({
     @cInclude("stdio.h");
 });
 const builtin = @import("builtin");
+const con_error = @import("error.zig");
 const con = @cImport({
     @cInclude("writer.h");
 });
@@ -20,7 +21,7 @@ pub const File = struct {
     pub fn init(file: *con.FILE) !File {
         var self: File = undefined;
         const err = con.con_writer_file(&self.inner, file);
-        enum_to_error(err) catch |new_err| {
+        con_error.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
@@ -45,7 +46,7 @@ pub const String = struct {
             buffer.ptr,
             @intCast(buffer.len + 1),
         );
-        enum_to_error(err) catch |new_err| {
+        con_error.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
@@ -71,7 +72,7 @@ pub const Buffer = struct {
             buffer.ptr,
             @intCast(buffer.len + 1),
         );
-        enum_to_error(err) catch |new_err| {
+        con_error.enumToError(err) catch |new_err| {
             return new_err;
         };
 
@@ -96,7 +97,7 @@ pub const Indent = struct {
     pub fn init(writer: *const anyopaque) !Indent {
         var self: Indent = undefined;
         const err = con.con_writer_indent(&self.inner, writer);
-        enum_to_error(err) catch |new_err| {
+        con_error.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
@@ -106,25 +107,6 @@ pub const Indent = struct {
         return writeData(&self.inner, data);
     }
 };
-
-fn enum_to_error(err: con.ConSerializeError) !void {
-    switch (err) {
-        con.CON_ERROR_OK => return,
-        con.CON_ERROR_NULL => return error.Null,
-        con.CON_ERROR_WRITER => return error.Writer,
-        con.CON_ERROR_CLOSED_TOO_MANY => return error.ClosedTooMany,
-        con.CON_ERROR_BUFFER => return error.Buffer,
-        con.CON_ERROR_TOO_DEEP => return error.TooDeep,
-        con.CON_ERROR_COMPLETE => return error.Complete,
-        con.CON_ERROR_KEY => return error.Key,
-        con.CON_ERROR_VALUE => return error.Value,
-        con.CON_ERROR_NOT_ARRAY => return error.NotArray,
-        con.CON_ERROR_NOT_DICT => return error.NotDict,
-        con.CON_ERROR_NOT_NUMBER => return error.NotNumber,
-        con.CON_ERROR_STATE_UNKNOWN => return error.StateUnknown,
-        else => return error.Unknown,
-    }
-}
 
 const testing = std.testing;
 

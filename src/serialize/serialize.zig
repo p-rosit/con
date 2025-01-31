@@ -1,5 +1,6 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
+const con_error = @import("error.zig");
 const con = @cImport({
     @cInclude("serialize.h");
     @cInclude("writer.h");
@@ -47,7 +48,7 @@ const Serialize = struct {
             @intCast(depth.len),
         );
 
-        Serialize.enum_to_error(err) catch |new_err| {
+        con_error.enumToError(err) catch |new_err| {
             return new_err;
         };
         return context;
@@ -59,66 +60,47 @@ const Serialize = struct {
 
     pub fn arrayOpen(self: *Serialize) !void {
         const err = con.con_serialize_array_open(&self.inner);
-        return Serialize.enum_to_error(err);
+        return con_error.enumToError(err);
     }
 
     pub fn arrayClose(self: *Serialize) !void {
         const err = con.con_serialize_array_close(&self.inner);
-        return Serialize.enum_to_error(err);
+        return con_error.enumToError(err);
     }
 
     pub fn dictOpen(self: *Serialize) !void {
         const err = con.con_serialize_dict_open(&self.inner);
-        return Serialize.enum_to_error(err);
+        return con_error.enumToError(err);
     }
 
     pub fn dictClose(self: *Serialize) !void {
         const err = con.con_serialize_dict_close(&self.inner);
-        return Serialize.enum_to_error(err);
+        return con_error.enumToError(err);
     }
 
     pub fn dictKey(self: *Serialize, key: [:0]const u8) !void {
         const err = con.con_serialize_dict_key(&self.inner, key.ptr);
-        return Serialize.enum_to_error(err);
+        return con_error.enumToError(err);
     }
 
     pub fn number(self: *Serialize, num: [:0]const u8) !void {
         const err = con.con_serialize_number(&self.inner, num.ptr);
-        return Serialize.enum_to_error(err);
+        return con_error.enumToError(err);
     }
 
     pub fn string(self: *Serialize, str: [:0]const u8) !void {
         const err = con.con_serialize_string(&self.inner, str.ptr);
-        return Serialize.enum_to_error(err);
+        return con_error.enumToError(err);
     }
 
     pub fn @"bool"(self: *Serialize, value: bool) !void {
         const err = con.con_serialize_bool(&self.inner, value);
-        return Serialize.enum_to_error(err);
+        return con_error.enumToError(err);
     }
 
     pub fn @"null"(self: *Serialize) !void {
         const err = con.con_serialize_null(&self.inner);
-        return Serialize.enum_to_error(err);
-    }
-
-    fn enum_to_error(err: con.ConSerializeError) !void {
-        switch (err) {
-            con.CON_ERROR_OK => return,
-            con.CON_ERROR_NULL => return error.Null,
-            con.CON_ERROR_WRITER => return error.Writer,
-            con.CON_ERROR_CLOSED_TOO_MANY => return error.ClosedTooMany,
-            con.CON_ERROR_BUFFER => return error.Buffer,
-            con.CON_ERROR_TOO_DEEP => return error.TooDeep,
-            con.CON_ERROR_COMPLETE => return error.Complete,
-            con.CON_ERROR_KEY => return error.Key,
-            con.CON_ERROR_VALUE => return error.Value,
-            con.CON_ERROR_NOT_ARRAY => return error.NotArray,
-            con.CON_ERROR_NOT_DICT => return error.NotDict,
-            con.CON_ERROR_NOT_NUMBER => return error.NotNumber,
-            con.CON_ERROR_STATE_UNKNOWN => return error.StateUnknown,
-            else => return error.Unknown,
-        }
+        return con_error.enumToError(err);
     }
 };
 
