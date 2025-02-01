@@ -17,23 +17,23 @@ struct ConSerialize {
 //
 // Params:
 //  context:            Valid pointer to single item.
-//  writer:             Valid pointer to single item that satisfies writer
+//  writer:             Valid pointer to single item that satisfies writer.
 //                      protocol specified in `writer.h`. If call succeeds
 //                      this pointer is owned by `context`.
 //  depth_buffer:       May be null if `depth_buffer_size` is 0, must otherwise
-//                      be valid pointer to as many items (or more) as specified
+//                      be valid pointer to as many items (or more) as specified.
 //                      by `depth_buffer_size`. If call succeeds this pointer
 //                      is owned by `context`.
 //  depth_buffer_size:  must be equal to or smaller than actual length
-//                      of passed in parameter `depth_buffer`
+//                      of passed in parameter `depth_buffer`.
 //
 // Error:
-//  CON_ERROR_OK:       Call succeded
-//  CON_ERROR_NULL:     May be returned in of the following situations
-//      1. `context` is null
-//      2. `writer` is null
-//      3. `depth_buffer` is null
-//  CON_ERROR_BUFFER:   `depth_buffer_size` is negative
+//  CON_ERROR_OK:       Call succeded.
+//  CON_ERROR_NULL:     May be returned in of the following situations:
+//      1. `context` is null.
+//      2. `writer` is null.
+//      3. `depth_buffer` is null.
+//  CON_ERROR_BUFFER:   `depth_buffer_size` is negative.
 enum ConSerializeError con_serialize_init(
     struct ConSerialize *context,
     void const *writer,
