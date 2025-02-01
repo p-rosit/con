@@ -3,7 +3,7 @@ const clib = @cImport({
     @cInclude("stdio.h");
 });
 const builtin = @import("builtin");
-const con_error = @import("error.zig");
+const con_error = @import("../error.zig");
 const con = @cImport({
     @cInclude("writer.h");
 });

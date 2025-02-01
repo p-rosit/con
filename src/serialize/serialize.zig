@@ -1,6 +1,6 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const con_error = @import("error.zig");
+const con_error = @import("../error.zig");
 const con_writer = @import("writer.zig");
 const con = @cImport({
     @cInclude("serialize.h");
