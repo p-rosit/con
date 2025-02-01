@@ -1,6 +1,6 @@
 const std = @import("std");
+const zcon = @import("../con.zig");
 const con_error = @import("../error.zig");
-const con_writer = @import("writer.zig");
 const con = @cImport({
     @cInclude("serialize.h");
     @cInclude("writer.h");
@@ -80,7 +80,7 @@ pub const Serialize = struct {
 };
 
 const Fifo = std.fifo.LinearFifo(u8, .Slice);
-const ConFifo = con_writer.Writer(Fifo.Writer);
+const ConFifo = zcon.Writer(Fifo.Writer);
 const testing = std.testing;
 
 test "context init" {
