@@ -7,7 +7,7 @@ const con = @cImport({
     @cInclude("writer.h");
 });
 
-const Serialize = struct {
+pub const Serialize = struct {
     inner: con.ConSerialize,
 
     pub fn init(writer: *const anyopaque, depth: []u8) !Serialize {
