@@ -70,7 +70,7 @@ int con_writer_string_write(void const *context, char const *data) {
     if (length > INT_MAX) {
         return INT_MAX;
     } else {
-        return length;
+        return (int) length;
     }
 }
 
@@ -124,7 +124,7 @@ int con_writer_buffer_write(void const *context, char const *data) {
     if (length > INT_MAX) {
         return INT_MAX;
     } else {
-        return length;
+        return (int) length;
     }
 }
 
@@ -251,6 +251,6 @@ int con_writer_indent_write(void const *writer_context, char const *data) {
     if (length > INT_MAX) {
         return INT_MAX;
     } else {
-        return length;
+        return (int) length;
     }
 }
