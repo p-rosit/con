@@ -1,0 +1,9 @@
+-x
+c
+-I
+/home/pontus/clang/con/src
+-Wall
+-Wextra
+-Wconversion
+-Wdouble-promotion
+-Wpedantic
