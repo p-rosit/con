@@ -135,10 +135,10 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
     assert(context != NULL);
     if (key == NULL) { return CON_ERROR_NULL; }
 
-    assert(context->depth_buffer != NULL);
     assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
     if (context->depth <= 0) { return CON_ERROR_NOT_DICT; }
 
+    assert(context->depth_buffer != NULL);
     enum ConSerializeContainer current = context->depth_buffer[context->depth - 1];
     assert(current == CONTAINER_ARRAY || current == CONTAINER_DICT);
     if (current != CONTAINER_DICT) {
@@ -257,9 +257,9 @@ static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerial
 }
 
 static inline enum ConSerializeError con_serialize_requires_key(struct ConSerialize *context) {
-    assert(context->depth_buffer != NULL);
     assert(0 <= context->depth && context->depth <= context->depth_buffer_size);
     if (context->depth > 0) {
+        assert(context->depth_buffer != NULL);
         enum ConSerializeState state = context->state;
         enum ConSerializeContainer current = context->depth_buffer[context->depth - 1];
         assert(current == CONTAINER_DICT || current == CONTAINER_ARRAY);
