@@ -140,10 +140,6 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
     assert(context != NULL);
     if (key == NULL) { return CON_ERROR_NULL; }
 
-    assert(context->depth_buffer_size >= 0);
-    assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
-    if (context->depth <= 0) { return CON_ERROR_NOT_DICT; }
-
     enum ConSerializeContainer current = con_serialize_current_container(context);
     if (current != CONTAINER_DICT) {
         return CON_ERROR_NOT_DICT;
