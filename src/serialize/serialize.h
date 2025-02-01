@@ -58,7 +58,7 @@ struct ConSerialize {
 //
 // Error:
 //  CON_ERROR_OK:       Call succeeded.
-//  CON_ERROR_NULL:     May be returned in of the following situations:
+//  CON_ERROR_NULL:     Returned in the following situations:
 //      1. `context` is null.
 //      2. `writer` is null.
 //      3. `depth_buffer` is null.
