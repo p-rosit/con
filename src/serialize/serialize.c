@@ -71,13 +71,7 @@ enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth <= 0) { return CON_ERROR_CLOSED_TOO_MANY; }
 
-    assert(context->depth_buffer != NULL);
-    enum ConSerializeContainer current;
-    {
-        char current_value = context->depth_buffer[context->depth - 1];
-        assert(current_value == CONTAINER_ARRAY || current_value == CONTAINER_DICT);
-        current = (enum ConSerializeContainer) current_value;
-    }
+    enum ConSerializeContainer current = con_serialize_current_container(context);
     if (current != CONTAINER_ARRAY) {
         return CON_ERROR_NOT_ARRAY;
     }
@@ -124,12 +118,7 @@ enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context) {
     if (context->depth <= 0) { return CON_ERROR_CLOSED_TOO_MANY; }
 
     assert(context->depth_buffer != NULL);
-    enum ConSerializeContainer current;
-    {
-        char current_value = context->depth_buffer[context->depth - 1];
-        assert(current_value == CONTAINER_ARRAY || current_value == CONTAINER_DICT);
-        current = (enum ConSerializeContainer) current_value;
-    }
+    enum ConSerializeContainer current = con_serialize_current_container(context);
     if (current != CONTAINER_DICT) {
         return CON_ERROR_NOT_DICT;
     }
@@ -155,23 +144,17 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth <= 0) { return CON_ERROR_NOT_DICT; }
 
-    assert(context->depth_buffer != NULL);
-    enum ConSerializeContainer current;
-    {
-        char current_value = context->depth_buffer[context->depth - 1];
-        assert(current_value == CONTAINER_ARRAY || current_value == CONTAINER_DICT);
-        current = (enum ConSerializeContainer) current_value;
-    }
+    enum ConSerializeContainer current = con_serialize_current_container(context);
     if (current != CONTAINER_DICT) {
         return CON_ERROR_NOT_DICT;
     }
 
-    assert(0 < context->state && context->state < STATE_MAX);
-    if (context->state != STATE_FIRST && context->state != STATE_LATER) {
+    enum ConSerializeState state = con_serialize_state(context);
+    if (state != STATE_FIRST && state != STATE_LATER) {
         return CON_ERROR_VALUE;
     }
 
-    if (context->state == STATE_LATER) {
+    if (state == STATE_LATER) {
         int result = con_writer_write(context->writer, ",");
         if (result < 0) { return CON_ERROR_WRITER; }
     }
@@ -190,7 +173,6 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
 enum ConSerializeError con_serialize_number(struct ConSerialize *context, char const *number) {
     assert(context != NULL);
     if (number == NULL) { return CON_ERROR_NULL; }
-
     if (number[0] == '\0') { return CON_ERROR_NOT_NUMBER; }
 
     enum ConSerializeError err = con_serialize_value_prefix(context);
@@ -252,7 +234,8 @@ static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerial
     enum ConSerializeError key_err = con_serialize_requires_key(context);
     if (key_err) { return key_err; }
 
-    switch (context->state) {
+    enum ConSerializeState state = con_serialize_state(context);
+    switch (state) {
         case (STATE_EMPTY):
             context->state = STATE_COMPLETE;
             break;
@@ -278,23 +261,12 @@ static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerial
 }
 
 static inline enum ConSerializeError con_serialize_requires_key(struct ConSerialize *context) {
+    assert(context != NULL);
     assert(context->depth_buffer_size >= 0);
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth > 0) {
-        enum ConSerializeState state;
-        {
-            char state_char = context->state;
-            assert(0 < state_char && state_char < STATE_MAX);
-            state = (enum ConSerializeState) state_char;
-        }
-
-        assert(context->depth_buffer != NULL);
-        enum ConSerializeContainer current;
-        {
-            char current_value = context->depth_buffer[context->depth - 1];
-            assert(current_value == CONTAINER_ARRAY || current_value == CONTAINER_DICT);
-            current = (enum ConSerializeContainer) current_value;
-        }
+        enum ConSerializeState state = con_serialize_state(context);
+        enum ConSerializeContainer current = con_serialize_current_container(context);
 
         if (current == CONTAINER_DICT && (state == STATE_FIRST || state == STATE_LATER)) {
             return CON_ERROR_KEY;
