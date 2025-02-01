@@ -9,8 +9,7 @@ pub const Buffer = writer.Buffer;
 pub const Indent = writer.Indent;
 
 test {
-    _ = @import("serialize/serialize.zig");
-    _ = @import("serialize/writer.zig");
+    @import("std").testing.refAllDecls(@This());
     _ = @import("serialize/test/test.zig");
     _ = @import("serialize/test/test_writer.zig");
 }
