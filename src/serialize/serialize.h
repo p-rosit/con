@@ -70,16 +70,73 @@ enum ConSerializeError con_serialize_init(
     int depth_buffer_size
 );
 
+// Error:
+//  CON_ERROR_OK:       Call succeeded.
+//  CON_ERROR_WRITER:   Failed to write data.
+//  CON_ERROR_TOO_DEEP: Opened too many containers.
+//  CON_ERROR_COMPLETE: JSON already complete.
+//  CON_ERROR_KEY:      Missing dictionary key before this element.
 enum ConSerializeError con_serialize_array_open(struct ConSerialize *context);
+
+// Error:
+//  CON_ERROR_OK:               Call succeeded.
+//  CON_ERROR_WRITER:           Failed to write data.
+//  CON_ERROR_CLOSED_TOO_MANY:  Closed too many containers.
+//  CON_ERROR_NOT_ARRAY:        Current container is not an array.
 enum ConSerializeError con_serialize_array_close(struct ConSerialize *context);
 
+// Error:
+//  CON_ERROR_OK:       Call succeeded.
+//  CON_ERROR_WRITER:   Failed to write data.
+//  CON_ERROR_TOO_DEEP: Opened too many containers.
+//  CON_ERROR_COMPLETE: JSON already complete.
+//  CON_ERROR_KEY:      Missing dictionary key before this element.
 enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context);
+
+// Error:
+//  CON_ERROR_OK:               Call succeeded.
+//  CON_ERROR_WRITER:           Failed to write data.
+//  CON_ERROR_CLOSED_TOO_MANY:  Closed too many containers.
+//  CON_ERROR_NOT_DICT:         Current container is not a dict.
 enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context);
+
+// Error:
+//  CON_ERROR_OK:       Call succeeded.
+//  CON_ERROR_NULL:     `key` is null.
+//  CON_ERROR_WRITER:   Failed to write data.
+//  CON_ERROR_VALUE:    Key has already been written, expected a value.
+//  CON_ERROR_NOT_DICT: Current container is not a dict.
 enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char const *key);
 
+// Error:
+//  CON_ERROR_OK:           Call succeeded.
+//  CON_ERROR_NULL:         `number` is null.
+//  CON_ERROR_WRITER:       Failed to write data.
+//  CON_ERROR_COMPLETE:     JSON already complete.
+//  CON_ERROR_KEY:          Missing dictionary key before this element.
+//  CON_ERROR_NOT_NUMBER:   `number` is an empty string.
 enum ConSerializeError con_serialize_number(struct ConSerialize *context, char const *number);
+
+// Error:
+//  CON_ERROR_OK:       Call succeeded.
+//  CON_ERROR_NULL:     `string` is null.
+//  CON_ERROR_WRITER:   Failed to write data.
+//  CON_ERROR_COMPLETE: JSON already complete.
+//  CON_ERROR_KEY:      Missing dictionary key before this element.
 enum ConSerializeError con_serialize_string(struct ConSerialize *context, char const *string);
+
+// Error:
+//  CON_ERROR_OK:       Call succeeded.
+//  CON_ERROR_WRITER:   Failed to write data.
+//  CON_ERROR_COMPLETE: JSON already complete.
+//  CON_ERROR_KEY:      Missing dictionary key before this element.
 enum ConSerializeError con_serialize_bool(struct ConSerialize *context, bool value);
+
+// Error:
+//  CON_ERROR_OK:       Call succeeded.
+//  CON_ERROR_WRITER:   Failed to write data.
+//  CON_ERROR_COMPLETE: JSON already complete.
+//  CON_ERROR_KEY:      Missing dictionary key before this element.
 enum ConSerializeError con_serialize_null(struct ConSerialize *context);
 
 #endif
