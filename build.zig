@@ -23,7 +23,7 @@ pub fn build(b: *std.Build) void {
     serialize.installHeader(b.path("src/serialize/writer.h"), "con_serialize_writer.h");
 
     const con = b.addModule("con", .{
-        .root_source_file = b.path("con.zig"),
+        .root_source_file = b.path("src/con.zig"),
         .target = target,
         .optimize = optimize,
         .link_libc = true,
@@ -32,7 +32,7 @@ pub fn build(b: *std.Build) void {
     con.linkLibrary(serialize);
 
     const serialize_unit_tests = b.addTest(.{
-        .root_source_file = b.path("con.zig"),
+        .root_source_file = b.path("src/con.zig"),
         .target = target,
         .optimize = optimize,
         .link_libc = true,
