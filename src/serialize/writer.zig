@@ -1,8 +1,4 @@
 const std = @import("std");
-const clib = @cImport({
-    @cInclude("stdio.h");
-});
-const builtin = @import("builtin");
 const con_error = @import("../error.zig");
 const con = @cImport({
     @cInclude("writer.h");
@@ -143,6 +139,10 @@ pub const Indent = struct {
 };
 
 const testing = std.testing;
+const builtin = @import("builtin");
+const clib = @cImport({
+    @cInclude("stdio.h");
+});
 
 test "zig writer" {
     const Fifo = std.fifo.LinearFifo(u8, .Slice);
