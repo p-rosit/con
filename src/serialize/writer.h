@@ -54,7 +54,7 @@ struct ConWriterFile {
 //  CON_ERROR_NULL: Returned in the following situations:
 //      1. `writer` is null.
 //      2. `file` is null.
-enum ConSerializeError con_writer_file(struct ConWriterFile *writer, FILE *file);
+enum ConError con_writer_file(struct ConWriterFile *writer, FILE *file);
 
 // A writer that writes to a null-terminated char buffer.
 struct ConWriterString {
@@ -78,7 +78,7 @@ struct ConWriterString {
 //      1. `writer` is null.
 //      2. `buffer` is null.
 //  CON_ERROR_BUFFER:   `buffer_size` <= 0.
-enum ConSerializeError con_writer_string(
+enum ConError con_writer_string(
     struct ConWriterString *writer,
     char *buffer,
     int buffer_size
@@ -110,7 +110,7 @@ struct ConWriterBuffer {
 //      2. `inner_writer` is null.
 //      3. `buffer` is null.
 //  CON_ERROR_BUFFER:   `buffer_size` <= 1.
-enum ConSerializeError con_writer_buffer(
+enum ConError con_writer_buffer(
         struct ConWriterBuffer *writer,
         void const *inner_writer,
         char *buffer,
@@ -143,7 +143,7 @@ struct ConWriterIndent {
 //  CON_ERROR_NULL: Returned in the following situations:
 //      1. `writer` is null.
 //      2. `inner_writer` is null.
-enum ConSerializeError con_writer_indent(
+enum ConError con_writer_indent(
     struct ConWriterIndent *writer,
     void const *inner_writer
 );

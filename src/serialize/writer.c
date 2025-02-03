@@ -8,7 +8,7 @@ int con_writer_string_write(void const *context, char const *data);
 int con_writer_buffer_write(void const *context, char const *data);
 int con_writer_indent_write(void const *writer_context, char const *data);
 
-enum ConSerializeError con_writer_file(struct ConWriterFile *writer, FILE *file) {
+enum ConError con_writer_file(struct ConWriterFile *writer, FILE *file) {
     if (writer == NULL) { return CON_ERROR_NULL; }
 
     writer->file = NULL;
@@ -26,7 +26,7 @@ int con_writer_file_write(void const *context, char const *data) {
     return fputs(data, writer->file);
 }
 
-enum ConSerializeError con_writer_string(
+enum ConError con_writer_string(
     struct ConWriterString *writer,
     char *buffer,
     int buffer_size
@@ -74,7 +74,7 @@ int con_writer_string_write(void const *context, char const *data) {
     }
 }
 
-enum ConSerializeError con_writer_buffer(
+enum ConError con_writer_buffer(
         struct ConWriterBuffer *writer,
         void const *inner_writer,
         char *buffer,
@@ -147,7 +147,7 @@ enum StateIndent {
     INDENT_MAX,
 };
 
-enum ConSerializeError con_writer_indent(
+enum ConError con_writer_indent(
     struct ConWriterIndent *writer,
     void const *inner_writer
 ) {

@@ -2,7 +2,7 @@ const con_error = @cImport({
     @cInclude("con_error.h");
 });
 
-pub fn enumToError(err: con_error.ConSerializeError) !void {
+pub fn enumToError(err: con_error.ConError) !void {
     switch (err) {
         con_error.CON_ERROR_OK => return,
         con_error.CON_ERROR_NULL => return error.Null,

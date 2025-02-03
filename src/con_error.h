@@ -1,7 +1,7 @@
 #ifndef CON_ERROR_H
 #define CON_ERROR_H
 
-enum ConSerializeError {
+enum ConError {
     CON_ERROR_OK                = 0,
     CON_ERROR_NULL              = 1,
     CON_ERROR_WRITER            = 2,

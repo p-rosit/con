@@ -20,10 +20,10 @@ enum ConSerializeState {
 
 static inline enum ConSerializeState con_serialize_state(struct ConSerialize *context);
 static inline enum ConSerializeContainer con_serialize_current_container(struct ConSerialize *context);
-static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerialize *context);
-static inline enum ConSerializeError con_serialize_requires_key(struct ConSerialize *context);
+static inline enum ConError con_serialize_value_prefix(struct ConSerialize *context);
+static inline enum ConError con_serialize_requires_key(struct ConSerialize *context);
 
-enum ConSerializeError con_serialize_init(
+enum ConError con_serialize_init(
     struct ConSerialize *context,
     void const *writer,
     char *depth_buffer,
@@ -43,14 +43,14 @@ enum ConSerializeError con_serialize_init(
     return CON_ERROR_OK;
 }
 
-enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
+enum ConError con_serialize_array_open(struct ConSerialize *context) {
     assert(context != NULL);
 
     assert(context->depth_buffer_size >= 0);
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth >= (size_t) context->depth_buffer_size) { return CON_ERROR_TOO_DEEP; }
 
-    enum ConSerializeError err = con_serialize_value_prefix(context);
+    enum ConError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
     assert(context->depth_buffer != NULL);
@@ -64,7 +64,7 @@ enum ConSerializeError con_serialize_array_open(struct ConSerialize *context) {
     return CON_ERROR_OK;
 }
 
-enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
+enum ConError con_serialize_array_close(struct ConSerialize *context) {
     assert(context != NULL);
 
     assert(context->depth_buffer_size >= 0);
@@ -89,14 +89,14 @@ enum ConSerializeError con_serialize_array_close(struct ConSerialize *context) {
     return CON_ERROR_OK;
 }
 
-enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context) {
+enum ConError con_serialize_dict_open(struct ConSerialize *context) {
     assert(context != NULL);
 
     assert(context->depth_buffer_size >= 0);
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth >= (size_t) context->depth_buffer_size) { return CON_ERROR_TOO_DEEP; }
 
-    enum ConSerializeError err = con_serialize_value_prefix(context);
+    enum ConError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
     assert(context->depth_buffer != NULL);
@@ -110,7 +110,7 @@ enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context) {
     return CON_ERROR_OK;
 }
 
-enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context) {
+enum ConError con_serialize_dict_close(struct ConSerialize *context) {
     assert(context != NULL);
 
     assert(context->depth_buffer_size >= 0);
@@ -136,7 +136,7 @@ enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context) {
     return CON_ERROR_OK;
 }
 
-enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char const *key) {
+enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *key) {
     assert(context != NULL);
     if (key == NULL) { return CON_ERROR_NULL; }
 
@@ -166,12 +166,12 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
     return CON_ERROR_OK;
 }
 
-enum ConSerializeError con_serialize_number(struct ConSerialize *context, char const *number) {
+enum ConError con_serialize_number(struct ConSerialize *context, char const *number) {
     assert(context != NULL);
     if (number == NULL) { return CON_ERROR_NULL; }
     if (number[0] == '\0') { return CON_ERROR_NOT_NUMBER; }
 
-    enum ConSerializeError err = con_serialize_value_prefix(context);
+    enum ConError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
     int result = con_writer_write(context->writer, number);
@@ -180,11 +180,11 @@ enum ConSerializeError con_serialize_number(struct ConSerialize *context, char c
     return CON_ERROR_OK;
 }
 
-enum ConSerializeError con_serialize_string(struct ConSerialize *context, char const *string) {
+enum ConError con_serialize_string(struct ConSerialize *context, char const *string) {
     assert(context != NULL);
     if (string == NULL) { return CON_ERROR_NULL; }
 
-    enum ConSerializeError err = con_serialize_value_prefix(context);
+    enum ConError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
     int result = con_writer_write(context->writer, "\"");
@@ -197,9 +197,9 @@ enum ConSerializeError con_serialize_string(struct ConSerialize *context, char c
     return CON_ERROR_OK;
 }
 
-enum ConSerializeError con_serialize_bool(struct ConSerialize *context, bool value) {
+enum ConError con_serialize_bool(struct ConSerialize *context, bool value) {
     assert(context != NULL);
-    enum ConSerializeError err = con_serialize_value_prefix(context);
+    enum ConError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
     int result;
@@ -213,9 +213,9 @@ enum ConSerializeError con_serialize_bool(struct ConSerialize *context, bool val
     return CON_ERROR_OK;
 }
 
-enum ConSerializeError con_serialize_null(struct ConSerialize *context) {
+enum ConError con_serialize_null(struct ConSerialize *context) {
     assert(context != NULL);
-    enum ConSerializeError err = con_serialize_value_prefix(context);
+    enum ConError err = con_serialize_value_prefix(context);
     if (err) { return err; }
 
     int result = con_writer_write(context->writer, "null");
@@ -224,10 +224,10 @@ enum ConSerializeError con_serialize_null(struct ConSerialize *context) {
     return CON_ERROR_OK;
 }
 
-static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerialize *context) {
+static inline enum ConError con_serialize_value_prefix(struct ConSerialize *context) {
     assert(context != NULL);
 
-    enum ConSerializeError key_err = con_serialize_requires_key(context);
+    enum ConError key_err = con_serialize_requires_key(context);
     if (key_err) { return key_err; }
 
     enum ConSerializeState state = con_serialize_state(context);
@@ -256,7 +256,7 @@ static inline enum ConSerializeError con_serialize_value_prefix(struct ConSerial
     return CON_ERROR_OK;
 }
 
-static inline enum ConSerializeError con_serialize_requires_key(struct ConSerialize *context) {
+static inline enum ConError con_serialize_requires_key(struct ConSerialize *context) {
     assert(context != NULL);
     assert(context->depth_buffer_size >= 0);
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
