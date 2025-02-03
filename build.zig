@@ -13,7 +13,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
-    con.addIncludePath(b.path("src/serialize"));
+    con.addIncludePath(b.path("src"));
     con.linkLibrary(serialize);
 
     const serialize_unit_tests = b.addTest(.{
