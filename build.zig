@@ -22,6 +22,22 @@ pub fn build(b: *std.Build) void {
     serialize.installHeader(b.path("src/serialize/serialize.h"), "con_serialize.h");
     serialize.installHeader(b.path("src/serialize/writer.h"), "con_serialize_writer.h");
 
+    const deserialize = b.addStaticLibrary(.{
+        .name = "con-deserialize",
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    deserialize.addIncludePath(b.path("src"));
+    b.installArtifact(deserialize);
+
+    const dfls: []const []const u8 = &.{"reader.c"};
+    deserialize.addCSourceFiles(.{
+        .root = b.path("src/deserialize"),
+        .files = dfls,
+    });
+    deserialize.installHeader(b.path("src/deserialize/reader.h"), "con_reader.h");
+
     const con = b.addModule("con", .{
         .root_source_file = b.path("src/con.zig"),
         .target = target,
@@ -38,7 +54,9 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
     serialize_unit_tests.addIncludePath(b.path("src/serialize"));
+    serialize_unit_tests.addIncludePath(b.path("src/deserialize"));
     serialize_unit_tests.linkLibrary(serialize);
+    serialize_unit_tests.linkLibrary(deserialize);
 
     const run_serialize_unit_tests = b.addRunArtifact(serialize_unit_tests);
 
