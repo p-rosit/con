@@ -49,7 +49,7 @@ struct ConWriterFile {
 //  writer: Single item pointer to `struct ConWriterFile`.
 //  file:   Single item pointer to file, if call succeeds owned by `writer`.
 //
-// Error:
+// Return:
 //  CON_ERROR_OK: Call succeeded
 //  CON_ERROR_NULL: Returned in the following situations:
 //      1. `writer` is null.
@@ -72,7 +72,7 @@ struct ConWriterString {
 //                  `buffer_size`, owned by `writer` if call succeeds.
 //  buffer_size:    Specifies at most how many items `buffer` points to.
 //
-// Error:
+// Return:
 //  CON_ERROR_OK:       Call succeeded.
 //  CON_ERROR_NULL:     Returned in the following situations:
 //      1. `writer` is null.
@@ -103,7 +103,7 @@ struct ConWriterBuffer {
 //                  `buffer_size`, owned by `writer` if call succeeds.
 //  buffer_size:    Specifies at most how many items `buffer` points to.
 //
-// Error:
+// Return:
 //  CON_ERROR_OK:       Call succeeded.
 //  CON_ERROR_NULL:     Returned in the following situations:
 //      1. `writer` is null.
@@ -138,7 +138,7 @@ struct ConWriterIndent {
 //  inner_writer:   Single item pointer to a writer, owned by `writer` if call
 //                  succeeds.
 //
-// Error:
+// Return:
 //  CON_ERROR_OK:   Call succeeded.
 //  CON_ERROR_NULL: Returned in the following situations:
 //      1. `writer` is null.
