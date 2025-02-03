@@ -4,39 +4,8 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const serialize = b.addStaticLibrary(.{
-        .name = "con-serialize",
-        .target = target,
-        .optimize = optimize,
-        .link_libc = true,
-    });
-    serialize.addIncludePath(b.path("src"));
-    b.installArtifact(serialize);
-
-    const fls: []const []const u8 = &.{ "serialize.c", "writer.c" };
-    serialize.addCSourceFiles(.{
-        .root = b.path("src/serialize"),
-        .files = fls,
-    });
-    serialize.installHeader(b.path("src/con_error.h"), "con_error.h");
-    serialize.installHeader(b.path("src/serialize/serialize.h"), "con_serialize.h");
-    serialize.installHeader(b.path("src/serialize/writer.h"), "con_serialize_writer.h");
-
-    const deserialize = b.addStaticLibrary(.{
-        .name = "con-deserialize",
-        .target = target,
-        .optimize = optimize,
-        .link_libc = true,
-    });
-    deserialize.addIncludePath(b.path("src"));
-    b.installArtifact(deserialize);
-
-    const dfls: []const []const u8 = &.{"reader.c"};
-    deserialize.addCSourceFiles(.{
-        .root = b.path("src/deserialize"),
-        .files = dfls,
-    });
-    deserialize.installHeader(b.path("src/deserialize/reader.h"), "con_reader.h");
+    const serialize = buildSerialize(b, target, optimize);
+    const deserialize = buildDeserialize(b, target, optimize);
 
     const con = b.addModule("con", .{
         .root_source_file = b.path("src/con.zig"),
@@ -62,4 +31,46 @@ pub fn build(b: *std.Build) void {
 
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_serialize_unit_tests.step);
+}
+
+fn buildSerialize(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
+    const serialize = b.addStaticLibrary(.{
+        .name = "con-serialize",
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    serialize.addIncludePath(b.path("src"));
+    b.installArtifact(serialize);
+
+    const fls: []const []const u8 = &.{ "serialize.c", "writer.c" };
+    serialize.addCSourceFiles(.{
+        .root = b.path("src/serialize"),
+        .files = fls,
+    });
+    serialize.installHeader(b.path("src/con_error.h"), "con_error.h");
+    serialize.installHeader(b.path("src/serialize/serialize.h"), "con_serialize.h");
+    serialize.installHeader(b.path("src/serialize/writer.h"), "con_serialize_writer.h");
+
+    return serialize;
+}
+
+fn buildDeserialize(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
+    const deserialize = b.addStaticLibrary(.{
+        .name = "con-deserialize",
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    deserialize.addIncludePath(b.path("src"));
+    b.installArtifact(deserialize);
+
+    const dfls: []const []const u8 = &.{"reader.c"};
+    deserialize.addCSourceFiles(.{
+        .root = b.path("src/deserialize"),
+        .files = dfls,
+    });
+    deserialize.installHeader(b.path("src/deserialize/reader.h"), "con_reader.h");
+
+    return deserialize;
 }
