@@ -100,6 +100,9 @@ enum ConSerializeError con_serialize_dict_open(struct ConSerialize *context);
 //  CON_ERROR_NOT_DICT:         Current container is not a dict.
 enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context);
 
+// Note the string to be written is not changed in any way, i.e. new lines will
+// not be converted to their corrsponding escape sequence.
+//
 // Return:
 //  CON_ERROR_OK:       Call succeeded.
 //  CON_ERROR_NULL:     `key` is null.
@@ -108,6 +111,8 @@ enum ConSerializeError con_serialize_dict_close(struct ConSerialize *context);
 //  CON_ERROR_NOT_DICT: Current container is not a dict.
 enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char const *key);
 
+// Note: the number to be written is not verified to be valid JSON
+//
 // Return:
 //  CON_ERROR_OK:           Call succeeded.
 //  CON_ERROR_NULL:         `number` is null.
@@ -117,6 +122,9 @@ enum ConSerializeError con_serialize_dict_key(struct ConSerialize *context, char
 //  CON_ERROR_NOT_NUMBER:   `number` is an empty string.
 enum ConSerializeError con_serialize_number(struct ConSerialize *context, char const *number);
 
+// Note the string to be written is not changed in any way, i.e. new lines will
+// not be converted to their corrsponding escape sequence.
+//
 // Return:
 //  CON_ERROR_OK:       Call succeeded.
 //  CON_ERROR_NULL:     `string` is null.
