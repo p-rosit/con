@@ -8,37 +8,23 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const serialize = blk: {
-        const source_fls: []const []const u8 = &.{ "serialize.c", "writer.c" };
-        const header_fls: []const []const u8 = &.{ "serialize.h", "writer.h" };
+    const serialize = buildWrite(b, allocator, .{
+        .target = target,
+        .optimize = optimize,
+        .name = "con-serialize",
+        .root = "src/serialize",
+        .sources = &.{ "serialize.c", "writer.c" },
+        .headers = &.{ "serialize.h", "writer.h" },
+    });
 
-        const serialize = buildWrite(b, allocator, .{
-            .target = target,
-            .optimize = optimize,
-            .name = "con-serialize",
-            .root = "src/serialize",
-            .sources = source_fls,
-            .headers = header_fls,
-        });
-
-        break :blk serialize;
-    };
-
-    const deserialize = blk: {
-        const source_fls: []const []const u8 = &.{"reader.c"};
-        const header_fls: []const []const u8 = &.{"reader.h"};
-
-        const writer = buildWrite(b, allocator, .{
-            .target = target,
-            .optimize = optimize,
-            .name = "con-deserialize",
-            .root = "src/deserialize",
-            .sources = source_fls,
-            .headers = header_fls,
-        });
-
-        break :blk writer;
-    };
+    const deserialize = buildWrite(b, allocator, .{
+        .target = target,
+        .optimize = optimize,
+        .name = "con-deserialize",
+        .root = "src/deserialize",
+        .sources = &.{"reader.c"},
+        .headers = &.{"reader.h"},
+    });
 
     const con = b.addModule("con", .{
         .root_source_file = b.path("src/con.zig"),
