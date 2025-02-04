@@ -85,7 +85,7 @@ fn buildCLib(b: *std.Build, allocator: std.mem.Allocator, config: CLibConfig) *s
         const prefix = "con_";
         for (headers) |header| {
             const path = std.fs.path.join(allocator, &.{ config.root, header }) catch @panic("oom");
-            const name = std.fs.path.join(allocator, &.{ prefix, header }) catch @panic("oom");
+            const name = std.mem.join(allocator, &.{}, &.{ prefix, header }) catch @panic("oom");
             defer allocator.free(path);
             defer allocator.free(name);
 
