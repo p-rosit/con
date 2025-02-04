@@ -176,6 +176,7 @@ test "file write" {
             return;
         },
     }
+    defer _ = clib.fclose(file);
 
     var writer = try File.init(@as([*c]con.FILE, @ptrCast(file)));
 
