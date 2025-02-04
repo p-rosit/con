@@ -1,6 +1,10 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
@@ -8,7 +12,7 @@ pub fn build(b: *std.Build) void {
         const source_fls: []const []const u8 = &.{ "serialize.c", "writer.c" };
         const header_fls: []const []const u8 = &.{ "serialize.h", "writer.h" };
 
-        const serialize = buildWrite(b, .{
+        const serialize = buildWrite(b, allocator, .{
             .target = target,
             .optimize = optimize,
             .name = "con-serialize",
@@ -24,7 +28,7 @@ pub fn build(b: *std.Build) void {
         const source_fls: []const []const u8 = &.{"reader.c"};
         const header_fls: []const []const u8 = &.{"reader.h"};
 
-        const writer = buildWrite(b, .{
+        const writer = buildWrite(b, allocator, .{
             .target = target,
             .optimize = optimize,
             .name = "con-deserialize",
@@ -73,7 +77,7 @@ const CLibConfig = struct {
     headers: ?[]const []const u8 = null,
 };
 
-fn buildWrite(b: *std.Build, config: CLibConfig) *std.Build.Step.Compile {
+fn buildWrite(b: *std.Build, allocator: std.mem.Allocator, config: CLibConfig) *std.Build.Step.Compile {
     const target = config.target orelse b.standardTargetOptions(.{});
     const optimize = config.optimize orelse b.standardOptimizeOption(.{});
 
@@ -90,6 +94,26 @@ fn buildWrite(b: *std.Build, config: CLibConfig) *std.Build.Step.Compile {
         .root = b.path(config.root),
         .files = config.sources,
     });
+
+    if (config.headers) |headers| {
+        const prefix = "con_";
+        for (headers) |header| {
+            const path = allocator.alloc(u8, config.root.len + 1 + header.len) catch @panic("oom");
+            defer allocator.free(path);
+
+            @memcpy(path[0..config.root.len], config.root);
+            path[config.root.len] = '/';
+            @memcpy(path[config.root.len + 1 ..], header);
+
+            const name = allocator.alloc(u8, prefix.len + header.len) catch @panic("oom");
+            defer allocator.free(name);
+
+            @memcpy(name[0..prefix.len], prefix);
+            @memcpy(name[prefix.len..], header);
+
+            lib.installHeader(b.path(path), name);
+        }
+    }
 
     return lib;
 }
