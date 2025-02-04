@@ -8,7 +8,7 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const serialize = buildWrite(b, allocator, .{
+    const serialize = buildCLib(b, allocator, .{
         .target = target,
         .optimize = optimize,
         .name = "con-serialize",
@@ -17,7 +17,7 @@ pub fn build(b: *std.Build) void {
         .headers = &.{ "serialize.h", "writer.h" },
     });
 
-    const deserialize = buildWrite(b, allocator, .{
+    const deserialize = buildCLib(b, allocator, .{
         .target = target,
         .optimize = optimize,
         .name = "con-deserialize",
@@ -63,7 +63,7 @@ const CLibConfig = struct {
     headers: ?[]const []const u8 = null,
 };
 
-fn buildWrite(b: *std.Build, allocator: std.mem.Allocator, config: CLibConfig) *std.Build.Step.Compile {
+fn buildCLib(b: *std.Build, allocator: std.mem.Allocator, config: CLibConfig) *std.Build.Step.Compile {
     const target = config.target orelse b.standardTargetOptions(.{});
     const optimize = config.optimize orelse b.standardOptimizeOption(.{});
 
