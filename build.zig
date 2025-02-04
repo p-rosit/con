@@ -98,18 +98,10 @@ fn buildWrite(b: *std.Build, allocator: std.mem.Allocator, config: CLibConfig) *
     if (config.headers) |headers| {
         const prefix = "con_";
         for (headers) |header| {
-            const path = allocator.alloc(u8, config.root.len + 1 + header.len) catch @panic("oom");
+            const path = std.fs.path.join(allocator, &.{ config.root, header }) catch @panic("oom");
+            const name = std.fs.path.join(allocator, &.{ prefix, header }) catch @panic("oom");
             defer allocator.free(path);
-
-            @memcpy(path[0..config.root.len], config.root);
-            path[config.root.len] = '/';
-            @memcpy(path[config.root.len + 1 ..], header);
-
-            const name = allocator.alloc(u8, prefix.len + header.len) catch @panic("oom");
             defer allocator.free(name);
-
-            @memcpy(name[0..prefix.len], prefix);
-            @memcpy(name[prefix.len..], header);
 
             lib.installHeader(b.path(path), name);
         }
