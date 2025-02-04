@@ -4,8 +4,37 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const serialize = buildSerialize(b, target, optimize);
-    const deserialize = buildDeserialize(b, target, optimize);
+    const serialize = blk: {
+        const source_fls: []const []const u8 = &.{ "serialize.c", "writer.c" };
+        const header_fls: []const []const u8 = &.{ "serialize.h", "writer.h" };
+
+        const serialize = buildWrite(b, .{
+            .target = target,
+            .optimize = optimize,
+            .name = "con-serialize",
+            .root = "src/serialize",
+            .sources = source_fls,
+            .headers = header_fls,
+        });
+
+        break :blk serialize;
+    };
+
+    const deserialize = blk: {
+        const source_fls: []const []const u8 = &.{"reader.c"};
+        const header_fls: []const []const u8 = &.{"reader.h"};
+
+        const writer = buildWrite(b, .{
+            .target = target,
+            .optimize = optimize,
+            .name = "con-deserialize",
+            .root = "src/deserialize",
+            .sources = source_fls,
+            .headers = header_fls,
+        });
+
+        break :blk writer;
+    };
 
     const con = b.addModule("con", .{
         .root_source_file = b.path("src/con.zig"),
@@ -15,6 +44,7 @@ pub fn build(b: *std.Build) void {
     });
     con.addIncludePath(b.path("src"));
     con.linkLibrary(serialize);
+    con.linkLibrary(deserialize);
 
     const serialize_unit_tests = b.addTest(.{
         .root_source_file = b.path("src/con.zig"),
@@ -22,6 +52,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
+    serialize_unit_tests.addIncludePath(b.path("src"));
     serialize_unit_tests.addIncludePath(b.path("src/serialize"));
     serialize_unit_tests.addIncludePath(b.path("src/deserialize"));
     serialize_unit_tests.linkLibrary(serialize);
@@ -31,6 +62,36 @@ pub fn build(b: *std.Build) void {
 
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_serialize_unit_tests.step);
+}
+
+const CLibConfig = struct {
+    target: ?std.Build.ResolvedTarget = null,
+    optimize: ?std.builtin.OptimizeMode = null,
+    name: []const u8,
+    root: []const u8,
+    sources: []const []const u8,
+    headers: ?[]const []const u8 = null,
+};
+
+fn buildWrite(b: *std.Build, config: CLibConfig) *std.Build.Step.Compile {
+    const target = config.target orelse b.standardTargetOptions(.{});
+    const optimize = config.optimize orelse b.standardOptimizeOption(.{});
+
+    const lib = b.addStaticLibrary(.{
+        .name = config.name,
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    lib.addIncludePath(b.path("src"));
+    b.installArtifact(lib);
+
+    lib.addCSourceFiles(.{
+        .root = b.path(config.root),
+        .files = config.sources,
+    });
+
+    return lib;
 }
 
 fn buildSerialize(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
