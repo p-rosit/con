@@ -96,7 +96,7 @@ enum ConError con_writer_buffer(
 
 int con_writer_buffer_write(void const *context, char const *data) {
     assert(context != NULL);
-    assert(data);
+    assert(data != NULL);
 
     struct ConWriterBuffer *writer = (struct ConWriterBuffer*) context;
     assert(writer->buffer != NULL);
