@@ -28,14 +28,14 @@ enum ConError con_reader_file(struct ConReaderFile *reader, FILE *file);
 
 struct ConReaderString {
     struct ConReader v_table;
-    char *buffer;
+    const char *buffer;
     int buffer_size;
     int current;
 };
 
 enum ConError con_reader_string(
     struct ConReaderString *reader,
-    char *buffer,
+    const char *buffer,
     int buffer_size
 );
 
