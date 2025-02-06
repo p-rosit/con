@@ -29,7 +29,7 @@ int con_reader_file_read(void const *context, char *buffer, int buffer_size) {
     return (int) amount_read;
 }
 
-enum ConError con_reader_string(struct ConReaderString *reader, const char *buffer, int buffer_size) {
+enum ConError con_reader_string(struct ConReaderString *reader, char const *buffer, int buffer_size) {
     if (reader == NULL) { return CON_ERROR_NULL; }
 
     reader->buffer = NULL;
