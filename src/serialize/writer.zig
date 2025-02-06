@@ -244,6 +244,22 @@ test "buffer init buffer small" {
     try testing.expectError(error.Buffer, err);
 }
 
+test "buffer init overflow" {
+    const buffer = try testing.allocator.alloc(u8, 2);
+    defer testing.allocator.free(buffer);
+
+    const fake_large_buffer: [:0]u8 = @as(*[:0]u8, @alignCast(@ptrCast(@constCast(&.{
+        .ptr = &buffer,
+        .len = @as(usize, @intCast(std.math.maxInt(c_int))) + 1,
+    })))).*;
+
+    var b: [3:0]u8 = undefined;
+    var w = try String.init(&b);
+
+    const err = Buffer.init(&w, fake_large_buffer);
+    try testing.expectError(error.Overflow, err);
+}
+
 test "buffer write" {
     var b: [1:0]u8 = undefined;
     var w = try String.init(&b);
