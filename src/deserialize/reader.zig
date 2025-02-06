@@ -105,7 +105,7 @@ test "file read" {
             @compileError("TODO: allow testing file reader, something to do with `GetTempFileNameA` and `GetTempPathA`");
         },
         else => {
-            std.debug.print("TODO: allow testing file writer on this os.\n", .{});
+            std.debug.print("TODO: allow testing file reader on this os.\n", .{});
             return;
         },
     }
