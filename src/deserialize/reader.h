@@ -50,7 +50,7 @@ struct ConReaderBuffer {
 
 enum ConError con_reader_buffer(
     struct ConReaderBuffer *reader,
-    void const *inner_writer,
+    void const *inner_reader,
     char *buffer,
     int buffer_size
 );
