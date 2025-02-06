@@ -45,6 +45,7 @@ struct ConReaderBuffer {
     char *buffer;
     int buffer_size;
     int current;
+    int length_read;
 };
 
 enum ConError con_reader_buffer(
