@@ -32,7 +32,7 @@ enum ConError con_reader_string(struct ConReaderString *reader, const char *buff
 
     reader->buffer = NULL;
     if (buffer == NULL) { return CON_ERROR_NULL; }
-    if (buffer_size <= 0) { return CON_ERROR_BUFFER; }
+    if (buffer_size < 0) { return CON_ERROR_BUFFER; }
 
     reader->v_table.read = con_reader_string_read;
     reader->buffer = buffer;
