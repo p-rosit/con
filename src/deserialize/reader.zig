@@ -130,7 +130,7 @@ test "string read" {
     try testing.expectEqualStrings("zig", &buffer);
 }
 
-test "string overflow" {
+test "string read overflow" {
     const data: *const [1]u8 = "z";
     var reader = try String.init(data);
 
