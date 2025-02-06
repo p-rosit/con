@@ -199,15 +199,14 @@ test "string init" {
 }
 
 test "string init overflow" {
-    const buffer = try testing.allocator.alloc(u8, 2);
-    defer testing.allocator.free(buffer);
+    var fake_large_buffer = try testing.allocator.alloc(u8, 2);
+    fake_large_buffer.len = @as(usize, std.math.maxInt(c_int)) + 1;
+    defer {
+        fake_large_buffer.len = 2;
+        testing.allocator.free(fake_large_buffer);
+    }
 
-    const fake_large_buffer: [:0]u8 = @as(*[:0]u8, @alignCast(@ptrCast(@constCast(&.{
-        .ptr = &buffer,
-        .len = @as(usize, std.math.maxInt(c_int)) + 1,
-    })))).*;
-
-    const err = String.init(fake_large_buffer);
+    const err = String.init(@ptrCast(fake_large_buffer));
     try testing.expectError(error.Overflow, err);
 }
 
@@ -245,18 +244,17 @@ test "buffer init buffer small" {
 }
 
 test "buffer init overflow" {
-    const buffer = try testing.allocator.alloc(u8, 2);
-    defer testing.allocator.free(buffer);
-
-    const fake_large_buffer: [:0]u8 = @as(*[:0]u8, @alignCast(@ptrCast(@constCast(&.{
-        .ptr = &buffer,
-        .len = @as(usize, @intCast(std.math.maxInt(c_int))) + 1,
-    })))).*;
+    var fake_large_buffer = try testing.allocator.alloc(u8, 2);
+    fake_large_buffer.len = @as(usize, std.math.maxInt(c_int)) + 1;
+    defer {
+        fake_large_buffer.len = 2;
+        testing.allocator.free(fake_large_buffer);
+    }
 
     var b: [3:0]u8 = undefined;
     var w = try String.init(&b);
 
-    const err = Buffer.init(&w, fake_large_buffer);
+    const err = Buffer.init(&w, @ptrCast(fake_large_buffer));
     try testing.expectError(error.Overflow, err);
 }
 
