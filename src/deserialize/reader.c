@@ -59,11 +59,10 @@ int con_reader_string_read(void const *context, char *buffer, int buffer_size) {
 
     int current = reader->current;
     int length = 0;
-    while (length < buffer_size - 1 && current < reader->buffer_size) {
+    while (length < buffer_size && current < reader->buffer_size) {
         buffer[length++] = reader->buffer[current++];
     }
 
-    buffer[length] = '\0';
     reader->current = current;
     return length;
 }
@@ -100,7 +99,7 @@ int con_reader_buffer_read(void const *context, char *buffer, int buffer_size) {
 
     bool any_read = false;
     int length = 0;
-    while (length < buffer_size - 1) {
+    while (length < buffer_size) {
         if (reader->current >= reader->length_read) {
             reader->length_read = 0;
             int length_read = con_reader_read(reader->reader, reader->buffer, reader->buffer_size);
@@ -115,6 +114,5 @@ int con_reader_buffer_read(void const *context, char *buffer, int buffer_size) {
         buffer[length++] = reader->buffer[reader->current++];
     }
 
-    buffer[length] = '\0';
     return length;
 }

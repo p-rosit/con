@@ -4,12 +4,12 @@ const con = @cImport({
     @cInclude("reader.h");
 });
 
-inline fn readData(reader: *const anyopaque, buffer: [:0]u8) !usize {
-    if (buffer.len > std.math.maxInt(c_int) - 1) {
+inline fn readData(reader: *const anyopaque, buffer: []u8) !usize {
+    if (buffer.len > std.math.maxInt(c_int)) {
         return error.Overflow;
     }
 
-    const result = con.con_reader_read(reader, buffer.ptr, @as(c_int, @intCast(buffer.len)) + 1);
+    const result = con.con_reader_read(reader, buffer.ptr, @as(c_int, @intCast(buffer.len)));
     if (result <= 0) {
         return error.Reader;
     }
@@ -28,7 +28,7 @@ pub const File = struct {
         return self;
     }
 
-    pub fn read(self: *File, buffer: [:0]u8) !usize {
+    pub fn read(self: *File, buffer: []u8) !usize {
         return readData(&self.inner, buffer);
     }
 };
@@ -53,7 +53,7 @@ pub const String = struct {
         return self;
     }
 
-    pub fn read(self: *String, buffer: [:0]u8) !usize {
+    pub fn read(self: *String, buffer: []u8) !usize {
         return readData(&self.inner, buffer);
     }
 };
@@ -79,7 +79,7 @@ pub const Buffer = struct {
         return self;
     }
 
-    pub fn read(self: *Buffer, buffer: [:0]u8) !usize {
+    pub fn read(self: *Buffer, buffer: []u8) !usize {
         return readData(&self.inner, buffer);
     }
 };
@@ -119,7 +119,7 @@ test "file read" {
 
     var reader = try File.init(@as([*c]con.FILE, @ptrCast(file)));
 
-    var buffer: [1:0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
     const result = try reader.read(&buffer);
     try testing.expectEqual(1, result);
     try testing.expectEqualStrings("1", &buffer);
@@ -150,7 +150,7 @@ test "string read" {
     const data: *const [3]u8 = "zig";
     var reader = try String.init(data);
 
-    var buffer: [3:0]u8 = undefined;
+    var buffer: [3]u8 = undefined;
     const amount_read = try reader.read(&buffer);
     try testing.expectEqual(3, amount_read);
     try testing.expectEqualStrings("zig", &buffer);
@@ -160,17 +160,17 @@ test "string read overflow" {
     const data: *const [1]u8 = "z";
     var reader = try String.init(data);
 
-    var buffer: [2:0]u8 = undefined;
+    var buffer: [2]u8 = undefined;
     const amount_read = try reader.read(&buffer);
     try testing.expectEqual(1, amount_read);
-    try testing.expectEqualStrings("z\x00", &buffer);
+    try testing.expectEqualStrings("z", buffer[0..1]);
 
     const err = reader.read(&buffer);
     try testing.expectError(error.Reader, err);
 }
 
 test "buffer init" {
-    const d: *const [4:0]u8 = "data";
+    const d: *const [4]u8 = "data";
     var r = try String.init(d);
 
     var buffer: [2]u8 = undefined;
@@ -178,7 +178,7 @@ test "buffer init" {
 }
 
 test "buffer init buffer small" {
-    const d: *const [4:0]u8 = "data";
+    const d: *const [4]u8 = "data";
     var r = try String.init(d);
 
     var buffer: [1]u8 = undefined;
@@ -195,7 +195,7 @@ test "buffer init overflow" {
         .len = @as(usize, @intCast(std.math.maxInt(c_int))) + 1,
     })))).*;
 
-    const d: *const [4:0]u8 = "data";
+    const d: *const [4]u8 = "data";
     var r = try String.init(d);
 
     const err = Buffer.init(&r, fake_large_buffer);
@@ -203,39 +203,39 @@ test "buffer init overflow" {
 }
 
 test "buffer read" {
-    const d: *const [4:0]u8 = "data";
+    const d: *const [4]u8 = "data";
     var r = try String.init(d);
 
     var buffer: [3]u8 = undefined;
     var reader = try Buffer.init(&r, &buffer);
 
-    var result: [2:0]u8 = undefined;
+    var result: [2]u8 = undefined;
     const amount_read = try reader.read(&result);
     try testing.expectEqual(2, amount_read);
     try testing.expectEqualStrings("da", &result);
 }
 
 test "buffer read buffer twice" {
-    const d: *const [4:0]u8 = "data";
+    const d: *const [4]u8 = "data";
     var r = try String.init(d);
 
     var buffer: [3]u8 = undefined;
     var reader = try Buffer.init(&r, &buffer);
 
-    var result: [5:0]u8 = undefined;
+    var result: [5]u8 = undefined;
     const amount_read = try reader.read(&result);
     try testing.expectEqual(4, amount_read);
-    try testing.expectEqualStrings("data\x00", &result);
+    try testing.expectEqualStrings("data", result[0..4]);
 }
 
 test "buffer internal reader fail" {
-    const d: *const [0:0]u8 = "";
+    const d: *const [0]u8 = "";
     var r = try String.init(d);
 
     var buffer: [3]u8 = undefined;
     var reader = try Buffer.init(&r, &buffer);
 
-    var result: [4:0]u8 = undefined;
+    var result: [4]u8 = undefined;
     const err = reader.read(&result);
     try testing.expectError(error.Reader, err);
 }
