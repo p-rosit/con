@@ -21,7 +21,6 @@ struct ConInterfaceWriter {
 //  data:   Null-terminated string to write.
 static inline int con_writer_write(struct ConInterfaceWriter writer, char const *data) {
     assert(writer.write != NULL);
-    assert(data != NULL);
     return writer.write(writer.context, data);
 }
 
