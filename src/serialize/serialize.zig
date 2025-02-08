@@ -9,7 +9,7 @@ const con = @cImport({
 pub const Serialize = struct {
     inner: con.ConSerialize,
 
-    pub fn init(writer: *const anyopaque, depth: []u8) !Serialize {
+    pub fn init(writer: zcon.InterfaceWriter, depth: []u8) !Serialize {
         var context = Serialize{ .inner = undefined };
 
         if (depth.len > std.math.maxInt(c_int)) {
@@ -18,7 +18,7 @@ pub const Serialize = struct {
 
         const err = con.con_serialize_init(
             &context.inner,
-            writer,
+            @as(*con.ConInterfaceWriter, @constCast(@ptrCast(&writer.writer))).*,
             depth.ptr,
             @intCast(depth.len),
         );
@@ -89,7 +89,7 @@ test "context init" {
     var writer = ConFifo.init(&fifo.writer());
 
     var depth: [1]u8 = undefined;
-    const context = try Serialize.init(&writer, &depth);
+    const context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 }
 
@@ -100,7 +100,7 @@ test "number int-like" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.number("5");
@@ -112,7 +112,7 @@ test "number float-like" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.number("5.");
@@ -124,7 +124,7 @@ test "number scientific-like" {
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.number("-1e-5");
@@ -136,7 +136,7 @@ test "number writer fail" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.number("2");
@@ -148,7 +148,7 @@ test "number empty" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.number("");
@@ -160,7 +160,7 @@ test "string" {
     var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.string("a");
@@ -172,7 +172,7 @@ test "string first quote writer fail" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.string("a");
@@ -184,7 +184,7 @@ test "string body writer fail" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.string("a");
@@ -197,7 +197,7 @@ test "string second quote writer fail" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.string("a");
@@ -210,7 +210,7 @@ test "bool true" {
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.bool(true);
@@ -222,7 +222,7 @@ test "bool true writer fail" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.bool(true);
@@ -234,7 +234,7 @@ test "bool false" {
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.bool(false);
@@ -246,7 +246,7 @@ test "bool false writer fail" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.bool(false);
@@ -258,7 +258,7 @@ test "null" {
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.null();
@@ -270,7 +270,7 @@ test "null writer fail" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.null();
@@ -284,7 +284,7 @@ test "array open" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -296,7 +296,7 @@ test "array open too many" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.arrayOpen();
@@ -308,7 +308,7 @@ test "array nested open too many" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -327,7 +327,7 @@ test "array open writer fail" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.arrayOpen();
@@ -339,7 +339,7 @@ test "array close" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -352,7 +352,7 @@ test "array close too many" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.arrayClose();
@@ -364,7 +364,7 @@ test "array close writer fail" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -379,7 +379,7 @@ test "dict open" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -391,7 +391,7 @@ test "dict open too many" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.dictOpen();
@@ -403,7 +403,7 @@ test "dict nested open too many" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -422,7 +422,7 @@ test "dict open writer fail" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.dictOpen();
@@ -434,7 +434,7 @@ test "dict close" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -447,7 +447,7 @@ test "dict close too many" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.dictClose();
@@ -459,7 +459,7 @@ test "dict close writer fail" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -476,7 +476,7 @@ test "dict key" {
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -492,7 +492,7 @@ test "dict key multiple" {
     var buffer: [13]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -511,7 +511,7 @@ test "dict key comma writer fail" {
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -531,7 +531,7 @@ test "dict key outside dict" {
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     const err = context.dictKey("key");
@@ -543,7 +543,7 @@ test "dict key in array" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -559,7 +559,7 @@ test "dict key twice" {
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -577,7 +577,7 @@ test "dict number key missing" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -593,7 +593,7 @@ test "dict number second key missing" {
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -613,7 +613,7 @@ test "dict string key missing" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -629,7 +629,7 @@ test "dict string second key missing" {
     var buffer: [8]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -649,7 +649,7 @@ test "dict array key missing" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -665,7 +665,7 @@ test "dict array second key missing" {
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -685,7 +685,7 @@ test "dict dict key missing" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -701,7 +701,7 @@ test "dict dict second key missing" {
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -723,7 +723,7 @@ test "array open -> dict close" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -737,7 +737,7 @@ test "dict open -> array close" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -751,7 +751,7 @@ test "array number single" {
     var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -770,7 +770,7 @@ test "array number multiple" {
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -790,7 +790,7 @@ test "array number comma writer fail" {
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -809,7 +809,7 @@ test "array string single" {
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -828,7 +828,7 @@ test "array string multiple" {
     var buffer: [9]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -848,7 +848,7 @@ test "array string comma writer fail" {
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -867,7 +867,7 @@ test "array bool single" {
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -886,7 +886,7 @@ test "array bool multiple" {
     var buffer: [12]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -906,7 +906,7 @@ test "array bool comma writer fail" {
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -925,7 +925,7 @@ test "array null single" {
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -944,7 +944,7 @@ test "array null multiple" {
     var buffer: [11]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -964,7 +964,7 @@ test "array null comma writer fail" {
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -983,7 +983,7 @@ test "array array single" {
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -1003,7 +1003,7 @@ test "array array multiple" {
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -1026,7 +1026,7 @@ test "array array comma writer fail" {
     var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -1046,7 +1046,7 @@ test "array dict single" {
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -1066,7 +1066,7 @@ test "array dict multiple" {
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -1089,7 +1089,7 @@ test "array dict comma writer fail" {
     var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();
@@ -1109,7 +1109,7 @@ test "dict number single" {
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -1129,7 +1129,7 @@ test "dict string single" {
     var buffer: [9]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -1149,7 +1149,7 @@ test "dict bool single" {
     var buffer: [10]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -1169,7 +1169,7 @@ test "dict null single" {
     var buffer: [10]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -1189,7 +1189,7 @@ test "dict array single" {
     var buffer: [8]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -1210,7 +1210,7 @@ test "dict dict single" {
     var buffer: [8]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -1234,7 +1234,7 @@ test "number complete" {
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
 
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
 
     try context.arrayOpen();
     try context.arrayClose();
@@ -1250,7 +1250,7 @@ test "string complete" {
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
 
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
 
     try context.dictOpen();
     try context.dictClose();
@@ -1266,7 +1266,7 @@ test "bool complete" {
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
 
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
 
     try context.number("1");
     try testing.expectEqualStrings("1", &buffer);
@@ -1281,7 +1281,7 @@ test "null complete" {
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
 
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
 
     try context.string("1");
     try testing.expectEqualStrings("\"1\"", &buffer);
@@ -1296,7 +1296,7 @@ test "array complete" {
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
 
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
 
     try context.bool(true);
     try testing.expectEqualStrings("true", &buffer);
@@ -1311,7 +1311,7 @@ test "dict complete" {
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
 
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
 
     try context.null();
     try testing.expectEqualStrings("null", &buffer);
@@ -1327,7 +1327,7 @@ test "nested structures" {
     var buffer: [55]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(&writer, &depth);
+    var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
     try context.dictOpen();
@@ -1367,13 +1367,11 @@ test "indent writer" {
     var depth: [3]u8 = undefined;
     var buffer: [119]u8 = undefined;
     var fifo = Fifo.init(&buffer);
-    var writer = ConFifo.init(&fifo.writer());
+    var c = ConFifo.init(&fifo.writer());
 
-    var indent_writer: con.ConWriterIndent = undefined;
-    const err = con.con_writer_indent(&indent_writer, &writer);
-    try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), err);
+    var indent = try zcon.Indent.init(c.interface());
 
-    var context = try Serialize.init(&indent_writer, &depth);
+    var context = try Serialize.init(indent.interface(), &depth);
     defer context.deinit();
 
     try context.arrayOpen();

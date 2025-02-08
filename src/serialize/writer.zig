@@ -4,6 +4,17 @@ const con = @cImport({
     @cInclude("writer.h");
 });
 
+pub const InterfaceWriter = struct {
+    writer: con.ConInterfaceWriter,
+
+    pub fn write(writer: InterfaceWriter, data: [:0]const u8) !void {
+        const result = con.con_writer_write(writer.writer, data);
+        if (result <= 0) {
+            return error.Writer;
+        }
+    }
+};
+
 inline fn writeData(writer: *const anyopaque, data: [:0]const u8) !void {
     const result = con.con_writer_write(writer, data);
     if (result <= 0) {
@@ -16,15 +27,15 @@ pub fn Writer(AnyWriter: type) type {
     return extern struct {
         const Self = @This();
 
-        callback: con.ConWriter = .{ .write = writeCallback },
         writer: *const AnyWriter,
 
         pub fn init(writer: *const AnyWriter) Self {
             return Self{ .writer = writer };
         }
 
-        pub fn write(writer: *Self, data: [:0]const u8) !void {
-            return writeData(writer, data);
+        pub fn interface(self: *Self) InterfaceWriter {
+            const writer = con.ConInterfaceWriter{ .context = self, .write = writeCallback };
+            return .{ .writer = writer };
         }
 
         fn writeCallback(context: ?*const anyopaque, data: [*c]const u8) callconv(.C) c_int {
@@ -50,15 +61,15 @@ pub const File = struct {
 
     pub fn init(file: *con.FILE) !File {
         var self: File = undefined;
-        const err = con.con_writer_file(&self.inner, file);
+        const err = con.con_writer_file_context(&self.inner, file);
         con_error.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
     }
 
-    pub fn write(self: *File, data: [:0]const u8) !void {
-        return writeData(&self.inner, data);
+    pub fn interface(self: *File) InterfaceWriter {
+        return .{ .writer = con.con_writer_file_interface(&self.inner) };
     }
 };
 
@@ -71,7 +82,7 @@ pub const String = struct {
         }
 
         var self: String = undefined;
-        const err = con.con_writer_string(
+        const err = con.con_writer_string_context(
             &self.inner,
             buffer.ptr,
             @intCast(buffer.len + 1),
@@ -82,23 +93,23 @@ pub const String = struct {
         return self;
     }
 
-    pub fn write(self: *String, data: [:0]const u8) !void {
-        return writeData(&self.inner, data);
+    pub fn interface(self: *String) InterfaceWriter {
+        return .{ .writer = con.con_writer_string_interface(&self.inner) };
     }
 };
 
 pub const Buffer = struct {
     inner: con.ConWriterBuffer,
 
-    pub fn init(writer: *const anyopaque, buffer: [:0]u8) !Buffer {
+    pub fn init(writer: InterfaceWriter, buffer: [:0]u8) !Buffer {
         if (buffer.len >= std.math.maxInt(c_int)) {
             return error.Overflow;
         }
 
         var self: Buffer = undefined;
-        const err = con.con_writer_buffer(
+        const err = con.con_writer_buffer_context(
             &self.inner,
-            writer,
+            writer.writer,
             buffer.ptr,
             @intCast(buffer.len + 1),
         );
@@ -109,8 +120,8 @@ pub const Buffer = struct {
         return self;
     }
 
-    pub fn write(self: *Buffer, data: [:0]const u8) !void {
-        return writeData(&self.inner, data);
+    pub fn interface(self: *Buffer) InterfaceWriter {
+        return .{ .writer = con.con_writer_buffer_interface(&self.inner) };
     }
 
     pub fn flush(self: *Buffer) !void {
@@ -124,17 +135,17 @@ pub const Buffer = struct {
 pub const Indent = struct {
     inner: con.ConWriterIndent,
 
-    pub fn init(writer: *const anyopaque) !Indent {
+    pub fn init(writer: InterfaceWriter) !Indent {
         var self: Indent = undefined;
-        const err = con.con_writer_indent(&self.inner, writer);
+        const err = con.con_writer_indent_context(&self.inner, writer.writer);
         con_error.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
     }
 
-    pub fn write(self: *Indent, data: [:0]const u8) !void {
-        return writeData(&self.inner, data);
+    pub fn interface(self: *Indent) InterfaceWriter {
+        return .{ .writer = con.con_writer_indent_interface(&self.inner) };
     }
 };
 
@@ -151,14 +162,16 @@ test "zig writer" {
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
 
-    var writer = FifoWriter.init(&fifo.writer());
+    var context = FifoWriter.init(&fifo.writer());
+    const writer = context.interface();
 
     try writer.write("1");
     try testing.expectEqualStrings("1", &buffer);
 }
 
 test "file init" {
-    _ = try File.init(@ptrFromInt(256));
+    var context = try File.init(@ptrFromInt(256));
+    _ = context.interface();
 }
 
 test "file write" {
@@ -178,7 +191,8 @@ test "file write" {
     }
     defer _ = clib.fclose(file);
 
-    var writer = try File.init(@as([*c]con.FILE, @ptrCast(file)));
+    var context = try File.init(@as([*c]con.FILE, @ptrCast(file)));
+    const writer = context.interface();
 
     try writer.write("1");
 
@@ -195,7 +209,8 @@ test "file write" {
 
 test "string init" {
     var buffer: [0:0]u8 = undefined;
-    _ = try String.init(&buffer);
+    var context = try String.init(&buffer);
+    _ = context.interface();
 }
 
 test "string init overflow" {
@@ -212,7 +227,8 @@ test "string init overflow" {
 
 test "string write" {
     var buffer: [3:0]u8 = undefined;
-    var writer = try String.init(&buffer);
+    var context = try String.init(&buffer);
+    const writer = context.interface();
 
     try writer.write("12");
     try testing.expectEqualStrings("12\x00", &buffer);
@@ -220,7 +236,8 @@ test "string write" {
 
 test "string overflow" {
     var buffer: [0:0]u8 = undefined;
-    var writer = try String.init(&buffer);
+    var context = try String.init(&buffer);
+    const writer = context.interface();
 
     const err = writer.write("1");
     try testing.expectError(error.Writer, err);
@@ -228,18 +245,19 @@ test "string overflow" {
 
 test "buffer init" {
     var b: [3:0]u8 = undefined;
-    var w = try String.init(&b);
+    var c = try String.init(&b);
 
     var buffer: [1:0]u8 = undefined;
-    _ = try Buffer.init(&w, &buffer);
+    var context = try Buffer.init(c.interface(), &buffer);
+    _ = context.interface();
 }
 
 test "buffer init buffer small" {
     var b: [3:0]u8 = undefined;
-    var w = try String.init(&b);
+    var c = try String.init(&b);
 
     var buffer: [0:0]u8 = undefined;
-    const err = Buffer.init(&w, &buffer);
+    const err = Buffer.init(c.interface(), &buffer);
     try testing.expectError(error.Buffer, err);
 }
 
@@ -252,18 +270,19 @@ test "buffer init overflow" {
     }
 
     var b: [3:0]u8 = undefined;
-    var w = try String.init(&b);
+    var c = try String.init(&b);
 
-    const err = Buffer.init(&w, @ptrCast(fake_large_buffer));
+    const err = Buffer.init(c.interface(), @ptrCast(fake_large_buffer));
     try testing.expectError(error.Overflow, err);
 }
 
 test "buffer write" {
     var b: [1:0]u8 = undefined;
-    var w = try String.init(&b);
+    var c = try String.init(&b);
 
     var buffer: [1:0]u8 = undefined;
-    var writer = try Buffer.init(&w, &buffer);
+    var context = try Buffer.init(c.interface(), &buffer);
+    const writer = context.interface();
 
     try writer.write("1");
     try testing.expectEqualStrings("1", &b);
@@ -271,23 +290,25 @@ test "buffer write" {
 
 test "buffer flush" {
     var b: [1:0]u8 = undefined;
-    var w = try String.init(&b);
+    var c = try String.init(&b);
 
     var buffer: [2:0]u8 = undefined;
-    var writer = try Buffer.init(&w, &buffer);
+    var context = try Buffer.init(c.interface(), &buffer);
+    const writer = context.interface();
 
     try writer.write("1");
 
-    try writer.flush();
+    try context.flush();
     try testing.expectEqualStrings("1", &b);
 }
 
 test "buffer internal writer fail" {
     var b: [0:0]u8 = undefined;
-    var w = try String.init(&b);
+    var c = try String.init(&b);
 
     var buffer: [1:0]u8 = undefined;
-    var writer = try Buffer.init(&w, &buffer);
+    var context = try Buffer.init(c.interface(), &buffer);
+    const writer = context.interface();
 
     const err = writer.write("1");
     try testing.expectError(error.Writer, err);
@@ -295,27 +316,30 @@ test "buffer internal writer fail" {
 
 test "buffer flush writer fail" {
     var b: [0:0]u8 = undefined;
-    var w = try String.init(&b);
+    var c = try String.init(&b);
 
     var buffer: [2:0]u8 = undefined;
-    var writer = try Buffer.init(&w, &buffer);
+    var context = try Buffer.init(c.interface(), &buffer);
+    const writer = context.interface();
 
     try writer.write("1");
 
-    const err = writer.flush();
+    const err = context.flush();
     try testing.expectError(error.Writer, err);
 }
 
 test "indent init" {
     var b: [0:0]u8 = undefined;
-    var w = try String.init(&b);
-    _ = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    _ = context.interface();
 }
 
 test "indent write" {
     var b: [1:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     try writer.write("1");
     try testing.expectEqualStrings("1", &b);
@@ -323,8 +347,9 @@ test "indent write" {
 
 test "indent write minified" {
     var b: [56:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     try writer.write("[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]");
     try testing.expectEqualStrings(
@@ -342,13 +367,14 @@ test "indent write minified" {
 
 test "indent write one character at a time" {
     var b: [56:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const str = "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]";
 
-    for (str) |c| {
-        const single: [1:0]u8 = .{c};
+    for (str) |ch| {
+        const single: [1:0]u8 = .{ch};
         try writer.write(&single);
     }
 
@@ -367,8 +393,9 @@ test "indent write one character at a time" {
 
 test "indent body writer fail" {
     var b: [0:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("1");
     try testing.expectError(error.Writer, err);
@@ -376,8 +403,9 @@ test "indent body writer fail" {
 
 test "indent newline array open writer fail" {
     var b: [1:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("[1]");
     try testing.expectError(error.Writer, err);
@@ -386,8 +414,9 @@ test "indent newline array open writer fail" {
 
 test "indent whitespace array open writer fail" {
     var b: [2:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("[1]");
     try testing.expectError(error.Writer, err);
@@ -396,8 +425,9 @@ test "indent whitespace array open writer fail" {
 
 test "indent newline array close writer fail" {
     var b: [5:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("[1]");
     try testing.expectError(error.Writer, err);
@@ -406,8 +436,9 @@ test "indent newline array close writer fail" {
 
 test "indent whitespace array close writer fail" {
     var b: [6:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("[1]");
     try testing.expectError(error.Writer, err);
@@ -416,8 +447,9 @@ test "indent whitespace array close writer fail" {
 
 test "indent newline dict writer fail" {
     var b: [1:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("{\"");
     try testing.expectError(error.Writer, err);
@@ -426,8 +458,9 @@ test "indent newline dict writer fail" {
 
 test "indent whitespace dict writer fail" {
     var b: [2:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("{\"");
     try testing.expectError(error.Writer, err);
@@ -436,8 +469,9 @@ test "indent whitespace dict writer fail" {
 
 test "indent newline dict close writer fail" {
     var b: [10:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("{\"k\":1}");
     try testing.expectError(error.Writer, err);
@@ -446,8 +480,9 @@ test "indent newline dict close writer fail" {
 
 test "indent whitespace dict close writer fail" {
     var b: [11:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("{\"k\":1}");
     try testing.expectError(error.Writer, err);
@@ -456,8 +491,9 @@ test "indent whitespace dict close writer fail" {
 
 test "indent space writer fail" {
     var b: [8:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("{\"k\":1}");
     try testing.expectError(error.Writer, err);
@@ -466,8 +502,9 @@ test "indent space writer fail" {
 
 test "indent newline comma writer fail" {
     var b: [6:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("[1,2]");
     try testing.expectError(error.Writer, err);
@@ -476,8 +513,9 @@ test "indent newline comma writer fail" {
 
 test "indent whitespace comma writer fail" {
     var b: [7:0]u8 = undefined;
-    var w = try String.init(&b);
-    var writer = try Indent.init(&w);
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
 
     const err = writer.write("[1,2]");
     try testing.expectError(error.Writer, err);

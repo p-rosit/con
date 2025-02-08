@@ -2,6 +2,7 @@ const serialize = @import("serialize/serialize.zig");
 const writer = @import("serialize/writer.zig");
 const reader = @import("deserialize/reader.zig");
 
+pub const InterfaceWriter = writer.InterfaceWriter;
 pub const Serialize = serialize.Serialize;
 pub const Writer = writer.Writer;
 pub const File = writer.File;

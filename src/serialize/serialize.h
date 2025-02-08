@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <con_error.h>
+#include "writer.h"
 
 // Context struct representing a single JSON element. Any items are written
 // immediately to the `writer` (which is assumed to satisfy the writer
@@ -34,7 +35,7 @@
 //  depth_buffer_size:  0 <= `depth_buffer_size`.
 //  state:              Managed internally, do not modify.
 struct ConSerialize {
-    void const *writer;
+    struct ConInterfaceWriter writer;
     size_t depth;
     char *depth_buffer;
     int depth_buffer_size;
@@ -65,7 +66,7 @@ struct ConSerialize {
 //  CON_ERROR_BUFFER:   `depth_buffer_size` is negative.
 enum ConError con_serialize_init(
     struct ConSerialize *context,
-    void const *writer,
+    struct ConInterfaceWriter writer,
     char *depth_buffer,
     int depth_buffer_size
 );

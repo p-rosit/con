@@ -25,12 +25,11 @@ static inline enum ConError con_serialize_requires_key(struct ConSerialize *cont
 
 enum ConError con_serialize_init(
     struct ConSerialize *context,
-    void const *writer,
+    struct ConInterfaceWriter writer,
     char *depth_buffer,
     int depth_buffer_size
 ) {
     if (context == NULL) { return CON_ERROR_NULL; }
-    if (writer == NULL) { return CON_ERROR_NULL; }
     if (depth_buffer == NULL && depth_buffer_size > 0) { return CON_ERROR_NULL; }
     if (depth_buffer_size < 0) { return CON_ERROR_BUFFER; }
 

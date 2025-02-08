@@ -6,12 +6,8 @@
 
 typedef int (ConWrite)(void const *context, char const *data);
 
-// WARNING: to implement this writer protocol any writer must be something that
-// starts with a v-table (the below type, `struct ConWriter`). To call a writer
-// the write field (`write` below) must be filled with the associated function
-//
-// For examples of writers, see `struct ConWriterString` and others below.
-struct ConWriter {
+struct ConInterfaceWriter {
+    const void *context;
     ConWrite *write;
 };
 
@@ -21,25 +17,16 @@ struct ConWriter {
 // write function.
 //
 // Params:
-//  writer: A writer.
+//  writer: A writer interface
 //  data:   Null-terminated string to write.
-static inline int con_writer_write(void const *writer, char const *data) {
-    assert(writer != NULL);
-
-    // This cast is valid according to the standard since the first field
-    // is guaranteed to start (without padding) at the same address as
-    // its containing struct. If all custom writers have a v-table as
-    // their first field the below cast will unpack the correct associated
-    // function.
-    struct ConWriter const *v_table = (struct ConWriter const*) writer;
-
-    assert(v_table->write != NULL);
-    return v_table->write(writer, data);
+static inline int con_writer_write(struct ConInterfaceWriter writer, char const *data) {
+    assert(writer.write != NULL);
+    assert(data != NULL);
+    return writer.write(writer.context, data);
 }
 
 // A writer that writes to a file, use `con_writer_file` to initialize.
 struct ConWriterFile {
-    struct ConWriter v_table;
     FILE *file;
 };
 
@@ -54,11 +41,11 @@ struct ConWriterFile {
 //  CON_ERROR_NULL: Returned in the following situations:
 //      1. `writer` is null.
 //      2. `file` is null.
-enum ConError con_writer_file(struct ConWriterFile *writer, FILE *file);
+enum ConError con_writer_file_context(struct ConWriterFile *context, FILE *file);
+struct ConInterfaceWriter con_writer_file_interface(struct ConWriterFile *context);
 
 // A writer that writes to a null-terminated char buffer.
 struct ConWriterString {
-    struct ConWriter v_table;
     char *buffer;
     int buffer_size;
     int current;
@@ -78,16 +65,16 @@ struct ConWriterString {
 //      1. `writer` is null.
 //      2. `buffer` is null.
 //  CON_ERROR_BUFFER:   `buffer_size` <= 0.
-enum ConError con_writer_string(
-    struct ConWriterString *writer,
+enum ConError con_writer_string_context(
+    struct ConWriterString *context,
     char *buffer,
     int buffer_size
 );
+struct ConInterfaceWriter con_writer_string_interface(struct ConWriterString *context);
 
 // A writer that buffers any calls to an internal writer.
 struct ConWriterBuffer {
-    struct ConWriter v_table;
-    void const *writer;
+    struct ConInterfaceWriter writer;
     char *buffer;
     int buffer_size;
     int current;
@@ -110,23 +97,23 @@ struct ConWriterBuffer {
 //      2. `inner_writer` is null.
 //      3. `buffer` is null.
 //  CON_ERROR_BUFFER:   `buffer_size` <= 1.
-enum ConError con_writer_buffer(
-        struct ConWriterBuffer *writer,
-        void const *inner_writer,
-        char *buffer,
-        int buffer_size
+enum ConError con_writer_buffer_context(
+    struct ConWriterBuffer *context,
+    struct ConInterfaceWriter writer,
+    char *buffer,
+    int buffer_size
 );
+struct ConInterfaceWriter con_writer_buffer_interface(struct ConWriterBuffer *context);
 
 // Flushes the internal buffer by writing everything in it to the internal writer.
-int con_writer_buffer_flush(struct ConWriterBuffer *writer);
+int con_writer_buffer_flush(struct ConWriterBuffer *context);
 
 // A writer that converts minfied JSON to indented JSON. Note that this writer
 // will destroy any buffering since every write will be broken up into single
 // writes. Therefore this should not be the inner writer to a buffered writer,
 // the inner writer of this writer should be buffered if anything.
 struct ConWriterIndent {
-    struct ConWriter v_table;
-    void const *writer;
+    struct ConInterfaceWriter writer;
     size_t depth;
     char state;
 };
@@ -143,9 +130,10 @@ struct ConWriterIndent {
 //  CON_ERROR_NULL: Returned in the following situations:
 //      1. `writer` is null.
 //      2. `inner_writer` is null.
-enum ConError con_writer_indent(
-    struct ConWriterIndent *writer,
-    void const *inner_writer
+enum ConError con_writer_indent_context(
+    struct ConWriterIndent *context,
+    struct ConInterfaceWriter writer
 );
+struct ConInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *context);
 
 #endif

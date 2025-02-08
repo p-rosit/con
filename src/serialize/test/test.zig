@@ -10,7 +10,7 @@ test "context init" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         0,
     );
@@ -22,7 +22,7 @@ test "context depth null, length positive" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         null,
         1,
     );
@@ -34,7 +34,7 @@ test "context depth null, length zero" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         null,
         0,
     );
@@ -46,7 +46,7 @@ test "context depth negative" {
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         @ptrFromInt(1),
         -1,
     );
@@ -59,7 +59,7 @@ test "context init null" {
 
     const init_err = con.con_serialize_init(
         null,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -71,14 +71,14 @@ test "context init null" {
 test "number int-like" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -91,14 +91,14 @@ test "number int-like" {
 test "number float-like" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -111,14 +111,14 @@ test "number float-like" {
 test "number scientific-like" {
     var buffer: [3:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -131,14 +131,14 @@ test "number scientific-like" {
 test "number null" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -151,14 +151,14 @@ test "number null" {
 test "number writer fail" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -171,14 +171,14 @@ test "number writer fail" {
 test "number empty" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -191,14 +191,14 @@ test "number empty" {
 test "string" {
     var buffer: [3:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -211,14 +211,14 @@ test "string" {
 test "string null" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -231,14 +231,14 @@ test "string null" {
 test "string first quote writer fail" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -251,14 +251,14 @@ test "string first quote writer fail" {
 test "string body writer fail" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -272,14 +272,14 @@ test "string body writer fail" {
 test "string second quote writer fail" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -293,14 +293,14 @@ test "string second quote writer fail" {
 test "bool true" {
     var buffer: [4:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -315,14 +315,14 @@ test "bool true" {
 test "bool true writer fail" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -335,14 +335,14 @@ test "bool true writer fail" {
 test "bool false" {
     var buffer: [5:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -357,14 +357,14 @@ test "bool false" {
 test "bool false writer fail" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -377,14 +377,14 @@ test "bool false writer fail" {
 test "null" {
     var buffer: [4:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var context: con.ConSerialize = undefined;
     var depth: [0]u8 = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -399,14 +399,14 @@ test "null" {
 test "null writer fail" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -421,14 +421,14 @@ test "null writer fail" {
 test "array open" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -443,14 +443,14 @@ test "array open" {
 test "array open too many" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -463,14 +463,14 @@ test "array open too many" {
 test "array nested open too many" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -492,14 +492,14 @@ test "array nested open too many" {
 test "array open writer fail" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -512,14 +512,14 @@ test "array open writer fail" {
 test "array close" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -537,14 +537,14 @@ test "array close" {
 test "array close too many" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -557,14 +557,14 @@ test "array close too many" {
 test "array close writer fail" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -581,14 +581,14 @@ test "array close writer fail" {
 test "dict open" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -603,14 +603,14 @@ test "dict open" {
 test "dict open too many" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -623,14 +623,14 @@ test "dict open too many" {
 test "dict nested open too many" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -652,14 +652,14 @@ test "dict nested open too many" {
 test "dict open writer fail" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -672,14 +672,14 @@ test "dict open writer fail" {
 test "dict close" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -697,14 +697,14 @@ test "dict close" {
 test "dict close too many" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -717,14 +717,14 @@ test "dict close too many" {
 test "dict close writer fail" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -743,14 +743,14 @@ test "dict close writer fail" {
 test "dict key" {
     var buffer: [7:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -770,14 +770,14 @@ test "dict key" {
 test "dict key multiple" {
     var buffer: [13:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -803,14 +803,14 @@ test "dict key multiple" {
 test "dict key null" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -829,14 +829,14 @@ test "dict key null" {
 test "dict key first quote writer fail" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -855,14 +855,14 @@ test "dict key first quote writer fail" {
 test "dict key body writer fail" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -881,14 +881,14 @@ test "dict key body writer fail" {
 test "dict key second quote writer fail" {
     var buffer: [3:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -907,14 +907,14 @@ test "dict key second quote writer fail" {
 test "dict key colon writer fail" {
     var buffer: [4:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -933,14 +933,14 @@ test "dict key colon writer fail" {
 test "dict key comma writer fail" {
     var buffer: [6:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -964,14 +964,14 @@ test "dict key comma writer fail" {
 test "dict key outside dict" {
     var buffer: [0:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -984,14 +984,14 @@ test "dict key outside dict" {
 test "dict key in array" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1009,14 +1009,14 @@ test "dict key in array" {
 test "dict key twice" {
     var buffer: [7:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1037,14 +1037,14 @@ test "dict key twice" {
 test "dict number key missing" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1062,14 +1062,14 @@ test "dict number key missing" {
 test "dict number second key missing" {
     var buffer: [6:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1092,14 +1092,14 @@ test "dict number second key missing" {
 test "dict string key missing" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1117,14 +1117,14 @@ test "dict string key missing" {
 test "dict string second key missing" {
     var buffer: [8:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1147,14 +1147,14 @@ test "dict string second key missing" {
 test "dict array key missing" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1172,14 +1172,14 @@ test "dict array key missing" {
 test "dict array second key missing" {
     var buffer: [6:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1202,14 +1202,14 @@ test "dict array second key missing" {
 test "dict dict key missing" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1227,14 +1227,14 @@ test "dict dict key missing" {
 test "dict dict second key missing" {
     var buffer: [6:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1259,14 +1259,14 @@ test "dict dict second key missing" {
 test "array open -> dict close" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1282,14 +1282,14 @@ test "array open -> dict close" {
 test "dict open -> array close" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1305,14 +1305,14 @@ test "dict open -> array close" {
 test "array number single" {
     var buffer: [3:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1335,14 +1335,14 @@ test "array number single" {
 test "array number multiple" {
     var buffer: [5:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1368,14 +1368,14 @@ test "array number multiple" {
 test "array number comma writer fail" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1397,14 +1397,14 @@ test "array number comma writer fail" {
 test "array string single" {
     var buffer: [5:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1427,14 +1427,14 @@ test "array string single" {
 test "array string multiple" {
     var buffer: [9:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1460,14 +1460,14 @@ test "array string multiple" {
 test "array string comma writer fail" {
     var buffer: [4:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1489,14 +1489,14 @@ test "array string comma writer fail" {
 test "array bool single" {
     var buffer: [6:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1519,14 +1519,14 @@ test "array bool single" {
 test "array bool multiple" {
     var buffer: [12:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1552,14 +1552,14 @@ test "array bool multiple" {
 test "array bool comma writer fail" {
     var buffer: [5:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1581,14 +1581,14 @@ test "array bool comma writer fail" {
 test "array null single" {
     var buffer: [6:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1611,14 +1611,14 @@ test "array null single" {
 test "array null multiple" {
     var buffer: [11:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1644,14 +1644,14 @@ test "array null multiple" {
 test "array null comma writer fail" {
     var buffer: [5:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1673,14 +1673,14 @@ test "array null comma writer fail" {
 test "array array single" {
     var buffer: [4:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1704,14 +1704,14 @@ test "array array single" {
 test "array array multiple" {
     var buffer: [7:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1740,14 +1740,14 @@ test "array array multiple" {
 test "array array comma writer fail" {
     var buffer: [3:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1772,14 +1772,14 @@ test "array array comma writer fail" {
 test "array dict single" {
     var buffer: [4:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1803,14 +1803,14 @@ test "array dict single" {
 test "array dict multiple" {
     var buffer: [7:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1839,14 +1839,14 @@ test "array dict multiple" {
 test "array dict comma writer fail" {
     var buffer: [3:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1871,14 +1871,14 @@ test "array dict comma writer fail" {
 test "dict number single" {
     var buffer: [7:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1903,14 +1903,14 @@ test "dict number single" {
 test "dict string single" {
     var buffer: [9:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1935,14 +1935,14 @@ test "dict string single" {
 test "dict bool true single" {
     var buffer: [10:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1967,14 +1967,14 @@ test "dict bool true single" {
 test "dict bool false single" {
     var buffer: [11:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -1999,14 +1999,14 @@ test "dict bool false single" {
 test "dict null single" {
     var buffer: [10:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2031,14 +2031,14 @@ test "dict null single" {
 test "dict array single" {
     var buffer: [8:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2066,14 +2066,14 @@ test "dict array single" {
 test "dict dict single" {
     var buffer: [8:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2103,14 +2103,14 @@ test "dict dict single" {
 test "number complete" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2130,14 +2130,14 @@ test "number complete" {
 test "string complete" {
     var buffer: [2:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2157,14 +2157,14 @@ test "string complete" {
 test "bool complete" {
     var buffer: [1:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2182,14 +2182,14 @@ test "bool complete" {
 test "null complete" {
     var buffer: [3:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2207,14 +2207,14 @@ test "null complete" {
 test "array complete" {
     var buffer: [4:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2232,14 +2232,14 @@ test "array complete" {
 test "dict complete" {
     var buffer: [4:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2259,14 +2259,14 @@ test "dict complete" {
 test "nested structures" {
     var buffer: [55:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var depth: [3]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &writer,
+        con.con_writer_string_interface(&writer),
         &depth,
         depth.len,
     );
@@ -2327,18 +2327,21 @@ test "nested structures" {
 test "indent writer" {
     var buffer: [119:0]u8 = undefined;
     var writer: con.ConWriterString = undefined;
-    const writer_err = con.con_writer_string(&writer, &buffer, buffer.len + 1);
+    const writer_err = con.con_writer_string_context(&writer, &buffer, buffer.len + 1);
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), writer_err);
 
     var indent: con.ConWriterIndent = undefined;
-    const indent_err = con.con_writer_indent(&indent, &writer);
+    const indent_err = con.con_writer_indent_context(
+        &indent,
+        con.con_writer_string_interface(&writer),
+    );
     try testing.expectEqual(@as(c_uint, con.CON_ERROR_OK), indent_err);
 
     var depth: [3]u8 = undefined;
     var context: con.ConSerialize = undefined;
     const init_err = con.con_serialize_init(
         &context,
-        &indent,
+        con.con_writer_indent_interface(&indent),
         &depth,
         depth.len,
     );

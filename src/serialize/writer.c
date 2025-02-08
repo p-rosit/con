@@ -3,20 +3,23 @@
 #include <limits.h>
 #include "writer.h"
 
-int con_writer_file_write(void const *context, char const *data);
-int con_writer_string_write(void const *context, char const *data);
-int con_writer_buffer_write(void const *context, char const *data);
-int con_writer_indent_write(void const *writer_context, char const *data);
+int con_writer_file_write(void const *void_context, char const *data);
+int con_writer_string_write(void const *void_context, char const *data);
+int con_writer_buffer_write(void const *void_context, char const *data);
+int con_writer_indent_write(void const *void_context, char const *data);
 
-enum ConError con_writer_file(struct ConWriterFile *writer, FILE *file) {
-    if (writer == NULL) { return CON_ERROR_NULL; }
+enum ConError con_writer_file_context(struct ConWriterFile *context, FILE *file) {
+    if (context == NULL) { return CON_ERROR_NULL; }
 
-    writer->file = NULL;
+    context->file = file;
     if (file == NULL) { return CON_ERROR_NULL; }
 
-    writer->v_table.write = con_writer_file_write;
-    writer->file = file;
     return CON_ERROR_OK;
+}
+
+struct ConInterfaceWriter con_writer_file_interface(struct ConWriterFile *writer) {
+    assert(writer != NULL);
+    return (struct ConInterfaceWriter) { .context = writer, .write = con_writer_file_write };
 }
 
 int con_writer_file_write(void const *context, char const *data) {
@@ -26,42 +29,45 @@ int con_writer_file_write(void const *context, char const *data) {
     return fputs(data, writer->file);
 }
 
-enum ConError con_writer_string(
-    struct ConWriterString *writer,
+enum ConError con_writer_string_context(
+    struct ConWriterString *context,
     char *buffer,
     int buffer_size
 ) {
-    if (writer == NULL) { return CON_ERROR_NULL; }
+    if (context == NULL) { return CON_ERROR_NULL; }
 
-    writer->buffer = NULL;
+    context->buffer = NULL;
     if (buffer == NULL) { return CON_ERROR_NULL; }
     if (buffer_size <= 0) { return CON_ERROR_BUFFER; }
 
-    writer->v_table.write = con_writer_string_write;
-    writer->buffer = buffer;
-    writer->buffer_size = buffer_size;
-    writer->current = 0;
+    context->buffer = buffer;
+    context->buffer_size = buffer_size;
+    context->current = 0;
 
     return CON_ERROR_OK;
 }
 
-int con_writer_string_write(void const *context, char const *data) {
-    assert(context != NULL);
+struct ConInterfaceWriter con_writer_string_interface(struct ConWriterString *context) {
+    return (struct ConInterfaceWriter) { .context = context, .write = con_writer_string_write };
+}
+
+int con_writer_string_write(void const *void_context, char const *data) {
+    assert(void_context != NULL);
     assert(data != NULL);
 
-    struct ConWriterString *writer = (struct ConWriterString*) context;
-    assert(writer->buffer != NULL);
-    assert(0 <= writer->current && writer->current < writer->buffer_size);
+    struct ConWriterString *context = (struct ConWriterString*) void_context;
+    assert(context->buffer != NULL);
+    assert(0 <= context->current && context->current < context->buffer_size);
 
     char c = data[0];
     size_t length = 0;
     while (c != '\0') {
-        if (writer->current >= writer->buffer_size - 1) {
+        if (context->current >= context->buffer_size - 1) {
             return EOF;
         }
 
-        writer->buffer[writer->current++] = c;
-        writer->buffer[writer->current] = '\0';
+        context->buffer[context->current++] = c;
+        context->buffer[context->current] = '\0';
 
         length += 1;
         c = data[length];
@@ -74,50 +80,52 @@ int con_writer_string_write(void const *context, char const *data) {
     }
 }
 
-enum ConError con_writer_buffer(
-        struct ConWriterBuffer *writer,
-        void const *inner_writer,
+enum ConError con_writer_buffer_context(
+        struct ConWriterBuffer *context,
+        struct ConInterfaceWriter writer,
         char *buffer,
         int buffer_size
 ) {
-    if (writer == NULL) { return CON_ERROR_NULL; }
-    if (inner_writer == NULL) { return CON_ERROR_NULL; }
+    if (context == NULL) { return CON_ERROR_NULL; }
     if (buffer == NULL) { return CON_ERROR_NULL; }
     if (buffer_size <= 1) { return CON_ERROR_BUFFER; }
 
-    writer->v_table.write = con_writer_buffer_write;
-    writer->writer = inner_writer;
-    writer->buffer = buffer;
-    writer->buffer_size = buffer_size;
-    writer->current = 0;
+    context->writer = writer;
+    context->buffer = buffer;
+    context->buffer_size = buffer_size;
+    context->current = 0;
 
     return CON_ERROR_OK;
 }
 
-int con_writer_buffer_write(void const *context, char const *data) {
-    assert(context != NULL);
+struct ConInterfaceWriter con_writer_buffer_interface(struct ConWriterBuffer *context) {
+    return (struct ConInterfaceWriter) { .context = context, .write = con_writer_buffer_write };
+}
+
+int con_writer_buffer_write(void const *void_context, char const *data) {
+    assert(void_context != NULL);
     assert(data != NULL);
 
-    struct ConWriterBuffer *writer = (struct ConWriterBuffer*) context;
-    assert(writer->buffer != NULL);
-    assert(0 <= writer->current && writer->current < writer->buffer_size);
+    struct ConWriterBuffer *context = (struct ConWriterBuffer*) void_context;
+    assert(context->buffer != NULL);
+    assert(0 <= context->current && context->current < context->buffer_size);
 
     size_t length = 0;
     char c = data[0];
     while (c != '\0') {
-        if (writer->current == writer->buffer_size - 1) {
-            int result = con_writer_buffer_flush(writer);
+        if (context->current == context->buffer_size - 1) {
+            int result = con_writer_buffer_flush(context);
             if (result < 0) { return result; }
         }
 
-        writer->buffer[writer->current++] = c;
+        context->buffer[context->current++] = c;
 
         length += 1;
         c = data[length];
     }
 
-    if (writer->current == writer->buffer_size - 1) {
-        int result = con_writer_buffer_flush(writer);
+    if (context->current == context->buffer_size - 1) {
+        int result = con_writer_buffer_flush(context);
         if (result < 0) { return result; }
     }
 
@@ -128,14 +136,14 @@ int con_writer_buffer_write(void const *context, char const *data) {
     }
 }
 
-int con_writer_buffer_flush(struct ConWriterBuffer *writer) {
-    assert(writer != NULL);
-    assert(writer->buffer != NULL);
-    assert(0 <= writer->current && writer->current < writer->buffer_size);
+int con_writer_buffer_flush(struct ConWriterBuffer *context) {
+    assert(context != NULL);
+    assert(context->buffer != NULL);
+    assert(0 <= context->current && context->current < context->buffer_size);
 
-    writer->buffer[writer->current] = '\0';
-    writer->current = 0;
-    return con_writer_write(writer->writer, writer->buffer);
+    context->buffer[context->current] = '\0';
+    context->current = 0;
+    return con_writer_write(context->writer, context->buffer);
 }
 
 enum StateIndent {
@@ -147,38 +155,41 @@ enum StateIndent {
     INDENT_MAX,
 };
 
-enum ConError con_writer_indent(
-    struct ConWriterIndent *writer,
-    void const *inner_writer
+enum ConError con_writer_indent_context(
+    struct ConWriterIndent *context,
+    struct ConInterfaceWriter writer
 ) {
-    if (writer == NULL) { return CON_ERROR_NULL; }
-    if (inner_writer == NULL) { return CON_ERROR_NULL; }
+    if (context == NULL) { return CON_ERROR_NULL; }
 
-    writer->v_table.write = con_writer_indent_write;
-    writer->writer = inner_writer;
-    writer->depth = 0;
-    writer->state = INDENT_NORMAL;
+    context->writer = writer;
+    context->depth = 0;
+    context->state = INDENT_NORMAL;
 
     return CON_ERROR_OK;
 }
 
-static inline int con_serialize_writer_indent_whitespace(struct ConWriterIndent *writer) {
-    int result = con_writer_write(writer->writer, "\n");
+struct ConInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *context) {
+    return (struct ConInterfaceWriter) { .context=context, .write=con_writer_indent_write };
+}
+
+static inline int con_serialize_writer_indent_whitespace(struct ConWriterIndent *context) {
+    int result = con_writer_write(context->writer, "\n");
     if (result < 0) { return result; }
 
-    for (size_t i = 0; i < writer->depth; i++) {
-        result = con_writer_write(writer->writer, "  ");
+    for (size_t i = 0; i < context->depth; i++) {
+        result = con_writer_write(context->writer, "  ");
         if (result < 0) { return result; }
     }
 
     return 1;
 }
 
-int con_writer_indent_write(void const *writer_context, char const *data) {
-    assert(writer_context != NULL);
+int con_writer_indent_write(void const *void_context, char const *data) {
+    assert(void_context != NULL);
+    assert(data != NULL);
 
-    struct ConWriterIndent *writer = (struct ConWriterIndent*) writer_context;
-    assert(0 < writer->state && writer->state < INDENT_MAX);
+    struct ConWriterIndent *context = (struct ConWriterIndent*) void_context;
+    assert(0 < context->state && context->state < INDENT_MAX);
 
     size_t length = 0;
     char c = data[0];
@@ -187,59 +198,59 @@ int con_writer_indent_write(void const *writer_context, char const *data) {
     write_char[0] = c;
     write_char[1] = '\0';
     while (c != '\0') {
-        bool in_string = writer->state == INDENT_IN_STRING || writer->state == INDENT_ESCAPE;
-        bool normal = writer->state == INDENT_FIRST_ITEM || writer->state == INDENT_NORMAL;
+        bool in_string = context->state == INDENT_IN_STRING || context->state == INDENT_ESCAPE;
+        bool normal = context->state == INDENT_FIRST_ITEM || context->state == INDENT_NORMAL;
 
-        if (writer->state == INDENT_FIRST_ITEM && c != ']' && c != '}') {
-            int result = con_serialize_writer_indent_whitespace(writer);
+        if (context->state == INDENT_FIRST_ITEM && c != ']' && c != '}') {
+            int result = con_serialize_writer_indent_whitespace(context);
             if (result < 0) { return result; }
 
-            writer->state = INDENT_NORMAL;
+            context->state = INDENT_NORMAL;
         }
 
-        if (normal && (c == ']' || c == '}') && writer->depth > 0) {
-            writer->depth -= 1;
+        if (normal && (c == ']' || c == '}') && context->depth > 0) {
+            context->depth -= 1;
 
-            if (writer->state != INDENT_FIRST_ITEM) {
-                int result = con_serialize_writer_indent_whitespace(writer);
+            if (context->state != INDENT_FIRST_ITEM) {
+                int result = con_serialize_writer_indent_whitespace(context);
                 if (result < 0) { return result; }
             }
 
-            writer->state = INDENT_NORMAL;
+            context->state = INDENT_NORMAL;
         }
 
         if (normal && (c == '[' || c == '{')) {
-            writer->state = INDENT_FIRST_ITEM;
+            context->state = INDENT_FIRST_ITEM;
 
-            if (writer->depth > SIZE_MAX - 1) {
+            if (context->depth > SIZE_MAX - 1) {
                 return EOF;
             }
 
-            writer->depth += 1;
+            context->depth += 1;
         }
 
-        int result = con_writer_write(writer->writer, write_char);
+        int result = con_writer_write(context->writer, write_char);
         if (result < 0) { return result; }
 
-        if (c == '"' && in_string && writer->state != INDENT_ESCAPE) {
-            writer->state = INDENT_NORMAL;
+        if (c == '"' && in_string && context->state != INDENT_ESCAPE) {
+            context->state = INDENT_NORMAL;
         } else if (c == '"' && !in_string) {
-            writer->state = INDENT_IN_STRING;
+            context->state = INDENT_IN_STRING;
         }
 
-        if (c == '\\' && writer->state == INDENT_IN_STRING) {
-            writer->state = INDENT_ESCAPE;
-        } else if (in_string && writer->state == INDENT_ESCAPE) {
-            writer->state = INDENT_IN_STRING;
+        if (c == '\\' && context->state == INDENT_IN_STRING) {
+            context->state = INDENT_ESCAPE;
+        } else if (in_string && context->state == INDENT_ESCAPE) {
+            context->state = INDENT_IN_STRING;
         }
 
         if (c == ':' && !in_string) {
-            int result = con_writer_write(writer->writer, " ");
+            int result = con_writer_write(context->writer, " ");
             if (result < 0) { return result; }
         }
 
         if (c == ',' && !in_string) {
-            int result = con_serialize_writer_indent_whitespace(writer);
+            int result = con_serialize_writer_indent_whitespace(context);
             if (result < 0) { return result; }
         }
 
