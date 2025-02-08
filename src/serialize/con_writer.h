@@ -6,15 +6,14 @@
 
 typedef int (ConWrite)(void const *context, char const *data);
 
+// A writer interface, a valid writer will have some optional context
+// (in `context`) and a non-null `write` function.
 struct ConInterfaceWriter {
     const void *context;
     ConWrite *write;
 };
 
-// Calls the associated write function of a writer. The passed in pointer,
-// `writer`, must satisfy the writer protocol. It must be a struct where
-// the first field is a `struct ConWriter` which contains the associated
-// write function.
+// Calls the associated write function of a writer.
 //
 // Params:
 //  writer: A writer interface
@@ -41,6 +40,9 @@ struct ConWriterFile {
 //      1. `writer` is null.
 //      2. `file` is null.
 enum ConError con_writer_file_context(struct ConWriterFile *context, FILE *file);
+
+// Makes a writer interface from an already initialized `struct ConWriterFile`
+// the returned writer owns the passed in `context`.
 struct ConInterfaceWriter con_writer_file_interface(struct ConWriterFile *context);
 
 // A writer that writes to a null-terminated char buffer.
@@ -69,6 +71,9 @@ enum ConError con_writer_string_context(
     char *buffer,
     int buffer_size
 );
+
+// Makes a writer interface from an already initialized `struct ConWriterString`
+// the returned writer owns the passed in `context`.
 struct ConInterfaceWriter con_writer_string_interface(struct ConWriterString *context);
 
 // A writer that buffers any calls to an internal writer.
@@ -102,6 +107,9 @@ enum ConError con_writer_buffer_context(
     char *buffer,
     int buffer_size
 );
+
+// Makes a writer interface from an already initialized `struct ConWriterBuffer`
+// the returned writer owns the passed in `context`.
 struct ConInterfaceWriter con_writer_buffer_interface(struct ConWriterBuffer *context);
 
 // Flushes the internal buffer by writing everything in it to the internal writer.
@@ -133,6 +141,9 @@ enum ConError con_writer_indent_context(
     struct ConWriterIndent *context,
     struct ConInterfaceWriter writer
 );
+
+// Makes a writer interface from an already initialized `struct ConWriterIndent`
+// the returned writer owns the passed in `context`.
 struct ConInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *context);
 
 #endif

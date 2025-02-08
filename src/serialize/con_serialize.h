@@ -6,17 +6,15 @@
 #include <con_writer.h>
 
 // Context struct representing a single JSON element. Any items are written
-// immediately to the `writer` (which is assumed to satisfy the writer
-// protocol specified in `writer.h`). With one `struct ConSerialize` only
-// a single element may be written, if one attempts to write invalid JSON
+// immediately to the `writer`. With one `struct ConSerialize` only a single
+// element may be written, if one attempts to write invalid JSON
 // or multiple elements errors will be raised (returned).
 //
 // Only writes minified JSON, to write un-minified JSON one can use the
 // specific writer `struct ConWriterIndent`.
 //
 // Fields:
-//  writer:             Single item pointer owned by this struct that satisfies
-//                      writer protocol specified in `writer.h`.
+//  writer:             A valid writer, see `con_writer.h`.
 //  depth:              Current depth of nested containers.
 //  depth_buffer:       Pointer to at least as many items as specified by
 //                      `depth_buffer_size`, owned by this struct.
@@ -24,7 +22,6 @@
 //                      `depth_buffer` points to.
 //
 // Invariants:
-//  writer:             Non-null, must point to writer (see `writer.h`).
 //  depth:              0 <= depth <= depth_buffer_size
 //  depth_buffer:       If depth_buffer_size > 0:
 //                          Non-null, points to at least as many items as
@@ -47,9 +44,8 @@ struct ConSerialize {
 //
 // Params:
 //  context:            Valid pointer to single item.
-//  writer:             Valid pointer to single item that satisfies writer.
-//                      protocol specified in `writer.h`. If call succeeds
-//                      this pointer is owned by `context`.
+//  writer:             A writer, see `con_writer.h`. If call succeeds the
+//                      context this writer came from is owned by this `context`
 //  depth_buffer:       May be null if `depth_buffer_size` is 0, must otherwise
 //                      be valid pointer to as many items (or more) as specified.
 //                      by `depth_buffer_size`. If call succeeds this pointer
@@ -61,8 +57,7 @@ struct ConSerialize {
 //  CON_ERROR_OK:       Call succeeded.
 //  CON_ERROR_NULL:     Returned in the following situations:
 //      1. `context` is null.
-//      2. `writer` is null.
-//      3. `depth_buffer` is null.
+//      2. `depth_buffer` is null.
 //  CON_ERROR_BUFFER:   `depth_buffer_size` is negative.
 enum ConError con_serialize_init(
     struct ConSerialize *context,
