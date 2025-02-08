@@ -15,7 +15,7 @@ pub const Serialize = struct {
 
         const err = lib.con_serialize_init(
             &context.inner,
-            @as(*lib.ConInterfaceWriter, @constCast(@ptrCast(&writer.writer))).*,
+            writer.writer,
             depth.ptr,
             @intCast(depth.len),
         );
