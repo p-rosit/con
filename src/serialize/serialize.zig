@@ -1,13 +1,10 @@
 const std = @import("std");
 const zcon = @import("../con.zig");
-const con_error = @import("../error.zig");
-const con = @cImport({
-    @cInclude("serialize.h");
-    @cInclude("writer.h");
-});
+const internal = @import("../internal.zig");
+const lib = internal.lib;
 
 pub const Serialize = struct {
-    inner: con.ConSerialize,
+    inner: lib.ConSerialize,
 
     pub fn init(writer: zcon.InterfaceWriter, depth: []u8) !Serialize {
         var context = Serialize{ .inner = undefined };
@@ -16,14 +13,14 @@ pub const Serialize = struct {
             return error.Overflow;
         }
 
-        const err = con.con_serialize_init(
+        const err = lib.con_serialize_init(
             &context.inner,
-            @as(*con.ConInterfaceWriter, @constCast(@ptrCast(&writer.writer))).*,
+            @as(*lib.ConInterfaceWriter, @constCast(@ptrCast(&writer.writer))).*,
             depth.ptr,
             @intCast(depth.len),
         );
 
-        con_error.enumToError(err) catch |new_err| {
+        internal.enumToError(err) catch |new_err| {
             return new_err;
         };
         return context;
@@ -34,48 +31,48 @@ pub const Serialize = struct {
     }
 
     pub fn arrayOpen(self: *Serialize) !void {
-        const err = con.con_serialize_array_open(&self.inner);
-        return con_error.enumToError(err);
+        const err = lib.con_serialize_array_open(&self.inner);
+        return internal.enumToError(err);
     }
 
     pub fn arrayClose(self: *Serialize) !void {
-        const err = con.con_serialize_array_close(&self.inner);
-        return con_error.enumToError(err);
+        const err = lib.con_serialize_array_close(&self.inner);
+        return internal.enumToError(err);
     }
 
     pub fn dictOpen(self: *Serialize) !void {
-        const err = con.con_serialize_dict_open(&self.inner);
-        return con_error.enumToError(err);
+        const err = lib.con_serialize_dict_open(&self.inner);
+        return internal.enumToError(err);
     }
 
     pub fn dictClose(self: *Serialize) !void {
-        const err = con.con_serialize_dict_close(&self.inner);
-        return con_error.enumToError(err);
+        const err = lib.con_serialize_dict_close(&self.inner);
+        return internal.enumToError(err);
     }
 
     pub fn dictKey(self: *Serialize, key: [:0]const u8) !void {
-        const err = con.con_serialize_dict_key(&self.inner, key.ptr);
-        return con_error.enumToError(err);
+        const err = lib.con_serialize_dict_key(&self.inner, key.ptr);
+        return internal.enumToError(err);
     }
 
     pub fn number(self: *Serialize, num: [:0]const u8) !void {
-        const err = con.con_serialize_number(&self.inner, num.ptr);
-        return con_error.enumToError(err);
+        const err = lib.con_serialize_number(&self.inner, num.ptr);
+        return internal.enumToError(err);
     }
 
     pub fn string(self: *Serialize, str: [:0]const u8) !void {
-        const err = con.con_serialize_string(&self.inner, str.ptr);
-        return con_error.enumToError(err);
+        const err = lib.con_serialize_string(&self.inner, str.ptr);
+        return internal.enumToError(err);
     }
 
     pub fn @"bool"(self: *Serialize, value: bool) !void {
-        const err = con.con_serialize_bool(&self.inner, value);
-        return con_error.enumToError(err);
+        const err = lib.con_serialize_bool(&self.inner, value);
+        return internal.enumToError(err);
     }
 
     pub fn @"null"(self: *Serialize) !void {
-        const err = con.con_serialize_null(&self.inner);
-        return con_error.enumToError(err);
+        const err = lib.con_serialize_null(&self.inner);
+        return internal.enumToError(err);
     }
 };
 

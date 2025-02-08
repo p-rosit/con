@@ -1,15 +1,13 @@
 const std = @import("std");
-const con_error = @import("../error.zig");
-const con = @cImport({
-    @cInclude("reader.h");
-});
+const internal = @import("../internal.zig");
+const lib = internal.lib;
 
 inline fn readData(reader: *const anyopaque, buffer: []u8) !usize {
     if (buffer.len > std.math.maxInt(c_int)) {
         return error.Overflow;
     }
 
-    const result = con.con_reader_read(reader, buffer.ptr, @as(c_int, @intCast(buffer.len)));
+    const result = lib.con_reader_read(reader, buffer.ptr, @as(c_int, @intCast(buffer.len)));
     if (result <= 0) {
         return error.Reader;
     }
@@ -17,12 +15,12 @@ inline fn readData(reader: *const anyopaque, buffer: []u8) !usize {
 }
 
 pub const File = struct {
-    inner: con.ConReaderFile,
+    inner: lib.ConReaderFile,
 
-    pub fn init(file: *con.FILE) !File {
+    pub fn init(file: *lib.FILE) !File {
         var self: File = undefined;
-        const err = con.con_reader_file(&self.inner, file);
-        con_error.enumToError(err) catch |new_err| {
+        const err = lib.con_reader_file(&self.inner, file);
+        internal.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
@@ -34,7 +32,7 @@ pub const File = struct {
 };
 
 pub const String = struct {
-    inner: con.ConReaderString,
+    inner: lib.ConReaderString,
 
     pub fn init(data: []const u8) !String {
         if (data.len > std.math.maxInt(c_int)) {
@@ -42,12 +40,12 @@ pub const String = struct {
         }
 
         var self: String = undefined;
-        const err = con.con_reader_string(
+        const err = lib.con_reader_string(
             &self.inner,
             data.ptr,
             @intCast(data.len),
         );
-        con_error.enumToError(err) catch |new_err| {
+        internal.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
@@ -59,7 +57,7 @@ pub const String = struct {
 };
 
 pub const Buffer = struct {
-    inner: con.ConReaderBuffer,
+    inner: lib.ConReaderBuffer,
 
     pub fn init(reader: *const anyopaque, buffer: []u8) !Buffer {
         if (buffer.len > std.math.maxInt(c_int)) {
@@ -67,13 +65,13 @@ pub const Buffer = struct {
         }
 
         var self: Buffer = undefined;
-        const err = con.con_reader_buffer(
+        const err = lib.con_reader_buffer(
             &self.inner,
             reader,
             buffer.ptr,
             @intCast(buffer.len),
         );
-        con_error.enumToError(err) catch |new_err| {
+        internal.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
@@ -117,7 +115,7 @@ test "file read" {
     const seek_err = clib.fseek(file, 0, clib.SEEK_SET);
     try testing.expectEqual(0, seek_err);
 
-    var reader = try File.init(@as([*c]con.FILE, @ptrCast(file)));
+    var reader = try File.init(@as([*c]lib.FILE, @ptrCast(file)));
 
     var buffer: [1]u8 = undefined;
     const result = try reader.read(&buffer);

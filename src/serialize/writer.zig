@@ -1,14 +1,12 @@
 const std = @import("std");
-const con_error = @import("../error.zig");
-const con = @cImport({
-    @cInclude("writer.h");
-});
+const internal = @import("../internal.zig");
+const lib = internal.lib;
 
 pub const InterfaceWriter = struct {
-    writer: con.ConInterfaceWriter,
+    writer: lib.ConInterfaceWriter,
 
     pub fn write(writer: InterfaceWriter, data: [:0]const u8) !void {
-        const result = con.con_writer_write(writer.writer, data);
+        const result = lib.con_writer_write(writer.writer, data);
         if (result <= 0) {
             return error.Writer;
         }
@@ -16,7 +14,7 @@ pub const InterfaceWriter = struct {
 };
 
 inline fn writeData(writer: *const anyopaque, data: [:0]const u8) !void {
-    const result = con.con_writer_write(writer, data);
+    const result = lib.con_writer_write(writer, data);
     if (result <= 0) {
         return error.Writer;
     }
@@ -34,7 +32,7 @@ pub fn Writer(AnyWriter: type) type {
         }
 
         pub fn interface(self: *Self) InterfaceWriter {
-            const writer = con.ConInterfaceWriter{ .context = self, .write = writeCallback };
+            const writer = lib.ConInterfaceWriter{ .context = self, .write = writeCallback };
             return .{ .writer = writer };
         }
 
@@ -50,31 +48,31 @@ pub fn Writer(AnyWriter: type) type {
             if (result > 0) {
                 return 1;
             } else {
-                return con.EOF;
+                return lib.EOF;
             }
         }
     };
 }
 
 pub const File = struct {
-    inner: con.ConWriterFile,
+    inner: lib.ConWriterFile,
 
-    pub fn init(file: *con.FILE) !File {
+    pub fn init(file: *lib.FILE) !File {
         var self: File = undefined;
-        const err = con.con_writer_file_context(&self.inner, file);
-        con_error.enumToError(err) catch |new_err| {
+        const err = lib.con_writer_file_context(&self.inner, file);
+        internal.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
     }
 
     pub fn interface(self: *File) InterfaceWriter {
-        return .{ .writer = con.con_writer_file_interface(&self.inner) };
+        return .{ .writer = lib.con_writer_file_interface(&self.inner) };
     }
 };
 
 pub const String = struct {
-    inner: con.ConWriterString,
+    inner: lib.ConWriterString,
 
     pub fn init(buffer: [:0]u8) !String {
         if (buffer.len > std.math.maxInt(c_int)) {
@@ -82,24 +80,24 @@ pub const String = struct {
         }
 
         var self: String = undefined;
-        const err = con.con_writer_string_context(
+        const err = lib.con_writer_string_context(
             &self.inner,
             buffer.ptr,
             @intCast(buffer.len + 1),
         );
-        con_error.enumToError(err) catch |new_err| {
+        internal.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
     }
 
     pub fn interface(self: *String) InterfaceWriter {
-        return .{ .writer = con.con_writer_string_interface(&self.inner) };
+        return .{ .writer = lib.con_writer_string_interface(&self.inner) };
     }
 };
 
 pub const Buffer = struct {
-    inner: con.ConWriterBuffer,
+    inner: lib.ConWriterBuffer,
 
     pub fn init(writer: InterfaceWriter, buffer: [:0]u8) !Buffer {
         if (buffer.len >= std.math.maxInt(c_int)) {
@@ -107,13 +105,13 @@ pub const Buffer = struct {
         }
 
         var self: Buffer = undefined;
-        const err = con.con_writer_buffer_context(
+        const err = lib.con_writer_buffer_context(
             &self.inner,
             writer.writer,
             buffer.ptr,
             @intCast(buffer.len + 1),
         );
-        con_error.enumToError(err) catch |new_err| {
+        internal.enumToError(err) catch |new_err| {
             return new_err;
         };
 
@@ -121,11 +119,11 @@ pub const Buffer = struct {
     }
 
     pub fn interface(self: *Buffer) InterfaceWriter {
-        return .{ .writer = con.con_writer_buffer_interface(&self.inner) };
+        return .{ .writer = lib.con_writer_buffer_interface(&self.inner) };
     }
 
     pub fn flush(self: *Buffer) !void {
-        const result = con.con_writer_buffer_flush(&self.inner);
+        const result = lib.con_writer_buffer_flush(&self.inner);
         if (result <= 0) {
             return error.Writer;
         }
@@ -133,19 +131,19 @@ pub const Buffer = struct {
 };
 
 pub const Indent = struct {
-    inner: con.ConWriterIndent,
+    inner: lib.ConWriterIndent,
 
     pub fn init(writer: InterfaceWriter) !Indent {
         var self: Indent = undefined;
-        const err = con.con_writer_indent_context(&self.inner, writer.writer);
-        con_error.enumToError(err) catch |new_err| {
+        const err = lib.con_writer_indent_context(&self.inner, writer.writer);
+        internal.enumToError(err) catch |new_err| {
             return new_err;
         };
         return self;
     }
 
     pub fn interface(self: *Indent) InterfaceWriter {
-        return .{ .writer = con.con_writer_indent_interface(&self.inner) };
+        return .{ .writer = lib.con_writer_indent_interface(&self.inner) };
     }
 };
 
@@ -191,12 +189,12 @@ test "file write" {
     }
     defer _ = clib.fclose(file);
 
-    var context = try File.init(@as([*c]con.FILE, @ptrCast(file)));
+    var context = try File.init(@as([*c]lib.FILE, @ptrCast(file)));
     const writer = context.interface();
 
     try writer.write("1");
 
-    const seek_err = clib.fseek(file, 0, con.SEEK_SET);
+    const seek_err = clib.fseek(file, 0, lib.SEEK_SET);
     try testing.expectEqual(seek_err, 0);
 
     var buffer: [1:0]u8 = undefined;
