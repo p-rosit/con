@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "writer.h"
+#include "con_writer.h"
 
 int con_writer_file_write(void const *void_context, char const *data);
 int con_writer_string_write(void const *void_context, char const *data);

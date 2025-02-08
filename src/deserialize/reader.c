@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <limits.h>
-#include "reader.h"
+#include "con_reader.h"
 
 int con_reader_file_read(void const *context, char *buffer, int buffer_size);
 int con_reader_string_read(void const *context, char *buffer, int buffer_size);

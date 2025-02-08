@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <con_error.h>
-#include "writer.h"
+#include <con_writer.h>
 
 // Context struct representing a single JSON element. Any items are written
 // immediately to the `writer` (which is assumed to satisfy the writer

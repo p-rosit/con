@@ -1,6 +1,6 @@
 #include <assert.h>
-#include "writer.h"
-#include "serialize.h"
+#include "con_writer.h"
+#include "con_serialize.h"
 
 enum ConSerializeContainer {
     CONTAINER_NONE  = 0,

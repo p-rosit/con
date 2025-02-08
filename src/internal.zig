@@ -1,7 +1,7 @@
 pub const lib = @cImport({
-    @cInclude("serialize.h");
-    @cInclude("writer.h");
-    @cInclude("reader.h");
+    @cInclude("con_serialize.h");
+    @cInclude("con_writer.h");
+    @cInclude("con_reader.h");
     @cInclude("con_error.h");
 });
 

@@ -14,7 +14,7 @@ pub fn build(b: *std.Build) void {
         .name = "con-serialize",
         .root = "src/serialize",
         .sources = &.{ "serialize.c", "writer.c" },
-        .headers = &.{ "serialize.h", "writer.h" },
+        .headers = &.{ "con_serialize.h", "con_writer.h" },
     });
     serialize.installHeader(b.path("src/con_error.h"), "con_error.h");
 
@@ -24,7 +24,7 @@ pub fn build(b: *std.Build) void {
         .name = "con-deserialize",
         .root = "src/deserialize",
         .sources = &.{"reader.c"},
-        .headers = &.{"reader.h"},
+        .headers = &.{"con_reader.h"},
     });
     deserialize.installHeader(b.path("src/con_error.h"), "con_error.h");
 
@@ -76,6 +76,8 @@ fn buildCLib(b: *std.Build, allocator: std.mem.Allocator, config: CLibConfig) *s
         .link_libc = true,
     });
     lib.addIncludePath(b.path("src"));
+    lib.addIncludePath(b.path("src/serialize"));
+    lib.addIncludePath(b.path("src/deserialize"));
     b.installArtifact(lib);
 
     lib.addCSourceFiles(.{

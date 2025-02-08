@@ -1,6 +1,7 @@
 #ifndef CON_READER_H
 #define CON_READER_H
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <con_error.h>
 
@@ -53,6 +54,18 @@ enum ConError con_reader_buffer(
     void const *inner_reader,
     char *buffer,
     int buffer_size
+);
+
+struct ConReaderComment {
+    struct ConReader v_table;
+    void const *reader;
+    char buffer_char;
+    bool in_string;
+};
+
+enum ConError con_reader_comment(
+    struct ConReaderComment *reader,
+    void const *inner_reader
 );
 
 #endif
