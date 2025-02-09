@@ -3,7 +3,9 @@
 c
 -I
 /home/pontus/clang/con/src
+-I
 /home/pontus/clang/con/src/serialize
+-I
 /home/pontus/clang/con/src/deserialize
 -Wall
 -Wextra
