@@ -12,7 +12,7 @@ pub const Indent = writer.Indent;
 
 test {
     @import("std").testing.refAllDecls(@This());
-    _ = @import("serialize/test/test.zig");
+    _ = @import("serialize/test/test_serialize.zig");
     _ = @import("serialize/test/test_writer.zig");
 
     _ = @import("deserialize/reader.zig");
