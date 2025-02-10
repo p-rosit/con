@@ -51,17 +51,17 @@ pub const Serialize = struct {
     }
 
     pub fn dictKey(self: *Serialize, key: [:0]const u8) !void {
-        const err = lib.con_serialize_dict_key(&self.inner, key.ptr);
+        const err = lib.con_serialize_dict_key(&self.inner, key.ptr, key.len);
         return internal.enumToError(err);
     }
 
     pub fn number(self: *Serialize, num: [:0]const u8) !void {
-        const err = lib.con_serialize_number(&self.inner, num.ptr);
+        const err = lib.con_serialize_number(&self.inner, num.ptr, num.len);
         return internal.enumToError(err);
     }
 
     pub fn string(self: *Serialize, str: [:0]const u8) !void {
-        const err = lib.con_serialize_string(&self.inner, str.ptr);
+        const err = lib.con_serialize_string(&self.inner, str.ptr, str.len);
         return internal.enumToError(err);
     }
 
