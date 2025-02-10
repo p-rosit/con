@@ -51,7 +51,6 @@ struct ConInterfaceWriter con_writer_string_interface(struct ConWriterString *co
     return (struct ConInterfaceWriter) { .context = context, .write = con_writer_string_write };
 }
 
-#include <stdio.h>
 size_t con_writer_string_write(void const *void_context, char const *data, size_t data_size) {
     assert(void_context != NULL);
     assert(data != NULL);
