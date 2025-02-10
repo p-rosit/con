@@ -105,7 +105,7 @@ enum ConError con_serialize_dict_close(struct ConSerialize *context);
 //  CON_ERROR_WRITER:   Failed to write data.
 //  CON_ERROR_VALUE:    Key has already been written, expected a value.
 //  CON_ERROR_NOT_DICT: Current container is not a dict.
-enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *key);
+enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *key, size_t key_size);
 
 // Note: the number to be written is not verified to be valid JSON
 //
@@ -116,7 +116,7 @@ enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *k
 //  CON_ERROR_COMPLETE:     JSON already complete.
 //  CON_ERROR_KEY:          Missing dictionary key before this element.
 //  CON_ERROR_NOT_NUMBER:   `number` is an empty string.
-enum ConError con_serialize_number(struct ConSerialize *context, char const *number);
+enum ConError con_serialize_number(struct ConSerialize *context, char const *number, size_t number_size);
 
 // Note the string to be written is not changed in any way, i.e. new lines will
 // not be converted to their corrsponding escape sequence.
@@ -127,7 +127,7 @@ enum ConError con_serialize_number(struct ConSerialize *context, char const *num
 //  CON_ERROR_WRITER:   Failed to write data.
 //  CON_ERROR_COMPLETE: JSON already complete.
 //  CON_ERROR_KEY:      Missing dictionary key before this element.
-enum ConError con_serialize_string(struct ConSerialize *context, char const *string);
+enum ConError con_serialize_string(struct ConSerialize *context, char const *string, size_t string_size);
 
 // Return:
 //  CON_ERROR_OK:       Call succeeded.

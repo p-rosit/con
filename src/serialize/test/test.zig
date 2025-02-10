@@ -81,7 +81,7 @@ test "number int-like" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const num_err = lib.con_serialize_number(&context, "2");
+    const num_err = lib.con_serialize_number(&context, "2", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
 }
 
@@ -101,7 +101,7 @@ test "number float-like" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const num_err = lib.con_serialize_number(&context, ".3");
+    const num_err = lib.con_serialize_number(&context, ".3", 2);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
 }
 
@@ -121,7 +121,7 @@ test "number scientific-like" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const num_err = lib.con_serialize_number(&context, "2e4");
+    const num_err = lib.con_serialize_number(&context, "2e4", 3);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
 }
 
@@ -141,7 +141,7 @@ test "number null" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const num_err = lib.con_serialize_number(&context, null);
+    const num_err = lib.con_serialize_number(&context, null, 0);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), num_err);
 }
 
@@ -161,7 +161,7 @@ test "number writer fail" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const num_err = lib.con_serialize_number(&context, "6");
+    const num_err = lib.con_serialize_number(&context, "6", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), num_err);
 }
 
@@ -181,7 +181,7 @@ test "number empty" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const num_err = lib.con_serialize_number(&context, "");
+    const num_err = lib.con_serialize_number(&context, "", 0);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), num_err);
 }
 
@@ -201,7 +201,7 @@ test "string" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const str_err = lib.con_serialize_string(&context, "-");
+    const str_err = lib.con_serialize_string(&context, "-", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
 }
 
@@ -221,7 +221,7 @@ test "string null" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const str_err = lib.con_serialize_string(&context, null);
+    const str_err = lib.con_serialize_string(&context, null, 0);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), str_err);
 }
 
@@ -241,7 +241,7 @@ test "string first quote writer fail" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const str_err = lib.con_serialize_string(&context, "-");
+    const str_err = lib.con_serialize_string(&context, "-", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), str_err);
 }
 
@@ -261,7 +261,7 @@ test "string body writer fail" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const str_err = lib.con_serialize_string(&context, "-");
+    const str_err = lib.con_serialize_string(&context, "-", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), str_err);
     try testing.expectEqualStrings("\"", &buffer);
 }
@@ -282,7 +282,7 @@ test "string second quote writer fail" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const str_err = lib.con_serialize_string(&context, "-");
+    const str_err = lib.con_serialize_string(&context, "-", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), str_err);
     try testing.expectEqualStrings("\"-", &buffer);
 }
@@ -477,7 +477,7 @@ test "array nested open too many" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const num_err = lib.con_serialize_number(&context, "1");
+        const num_err = lib.con_serialize_number(&context, "1", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
         try testing.expectEqualStrings("[1", &buffer);
 
@@ -637,7 +637,7 @@ test "dict nested open too many" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const num_err = lib.con_serialize_number(&context, "1");
+        const num_err = lib.con_serialize_number(&context, "1", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
         try testing.expectEqualStrings("[1", &buffer);
 
@@ -757,7 +757,7 @@ test "dict key" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "key");
+        const key_err = lib.con_serialize_dict_key(&context, "key", 3);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
 
         try testing.expectEqualStrings("{\"key\":", &buffer);
@@ -784,13 +784,13 @@ test "dict key multiple" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "k1");
+        const key_err = lib.con_serialize_dict_key(&context, "k1", 2);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
 
-        const item_err = lib.con_serialize_number(&context, "1");
+        const item_err = lib.con_serialize_number(&context, "1", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item_err);
 
-        const err = lib.con_serialize_dict_key(&context, "k2");
+        const err = lib.con_serialize_dict_key(&context, "k2", 2);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
 
         try testing.expectEqualStrings("{\"k1\":1,\"k2\":", &buffer);
@@ -818,7 +818,7 @@ test "dict key null" {
     try testing.expectEqualStrings("{", &buffer);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, null);
+        const key_err = lib.con_serialize_dict_key(&context, null, 0);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), key_err);
     }
 }
@@ -843,7 +843,7 @@ test "dict key first quote writer fail" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "k");
+        const key_err = lib.con_serialize_dict_key(&context, "k", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), key_err);
         try testing.expectEqualStrings("{", &buffer);
     }
@@ -869,7 +869,7 @@ test "dict key body writer fail" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "k");
+        const key_err = lib.con_serialize_dict_key(&context, "k", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), key_err);
         try testing.expectEqualStrings("{\"", &buffer);
     }
@@ -895,7 +895,7 @@ test "dict key second quote writer fail" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "k");
+        const key_err = lib.con_serialize_dict_key(&context, "k", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), key_err);
         try testing.expectEqualStrings("{\"k", &buffer);
     }
@@ -921,7 +921,7 @@ test "dict key colon writer fail" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "k");
+        const key_err = lib.con_serialize_dict_key(&context, "k", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), key_err);
         try testing.expectEqualStrings("{\"k\"", &buffer);
     }
@@ -947,13 +947,13 @@ test "dict key comma writer fail" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key1_err = lib.con_serialize_dict_key(&context, "a");
+        const key1_err = lib.con_serialize_dict_key(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
-        const item1_err = lib.con_serialize_number(&context, "1");
+        const item1_err = lib.con_serialize_number(&context, "1", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item1_err);
         try testing.expectEqualStrings("{\"a\":1", &buffer);
 
-        const key2_err = lib.con_serialize_dict_key(&context, "2");
+        const key2_err = lib.con_serialize_dict_key(&context, "2", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), key2_err);
     }
 }
@@ -974,7 +974,7 @@ test "dict key outside dict" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const key_err = lib.con_serialize_dict_key(&context, "key");
+    const key_err = lib.con_serialize_dict_key(&context, "key", 3);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_DICT), key_err);
 }
 
@@ -998,7 +998,7 @@ test "dict key in array" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "key");
+        const key_err = lib.con_serialize_dict_key(&context, "key", 3);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_DICT), key_err);
     }
 }
@@ -1023,10 +1023,10 @@ test "dict key twice" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key1_err = lib.con_serialize_dict_key(&context, "key");
+        const key1_err = lib.con_serialize_dict_key(&context, "key", 3);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
 
-        const key2_err = lib.con_serialize_dict_key(&context, "key");
+        const key2_err = lib.con_serialize_dict_key(&context, "key", 3);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_VALUE), key2_err);
     }
 }
@@ -1051,7 +1051,7 @@ test "dict number key missing" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const num_err = lib.con_serialize_number(&context, "2");
+        const num_err = lib.con_serialize_number(&context, "2", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_KEY), num_err);
     }
 }
@@ -1076,12 +1076,12 @@ test "dict number second key missing" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "k");
+        const key_err = lib.con_serialize_dict_key(&context, "k", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
-        const item_err = lib.con_serialize_number(&context, "1");
+        const item_err = lib.con_serialize_number(&context, "1", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item_err);
 
-        const num_err = lib.con_serialize_number(&context, "2");
+        const num_err = lib.con_serialize_number(&context, "2", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_KEY), num_err);
     }
 }
@@ -1106,7 +1106,7 @@ test "dict string key missing" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const str_err = lib.con_serialize_string(&context, "2");
+        const str_err = lib.con_serialize_string(&context, "2", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_KEY), str_err);
     }
 }
@@ -1131,12 +1131,12 @@ test "dict string second key missing" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "k");
+        const key_err = lib.con_serialize_dict_key(&context, "k", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
-        const item_err = lib.con_serialize_string(&context, "a");
+        const item_err = lib.con_serialize_string(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item_err);
 
-        const str_err = lib.con_serialize_string(&context, "b");
+        const str_err = lib.con_serialize_string(&context, "b", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_KEY), str_err);
     }
 }
@@ -1186,9 +1186,9 @@ test "dict array second key missing" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "k");
+        const key_err = lib.con_serialize_dict_key(&context, "k", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
-        const item_err = lib.con_serialize_number(&context, "1");
+        const item_err = lib.con_serialize_number(&context, "1", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item_err);
 
         const str_err = lib.con_serialize_array_open(&context);
@@ -1241,9 +1241,9 @@ test "dict dict second key missing" {
 
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
     {
-        const key_err = lib.con_serialize_dict_key(&context, "k");
+        const key_err = lib.con_serialize_dict_key(&context, "k", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
-        const item_err = lib.con_serialize_number(&context, "1");
+        const item_err = lib.con_serialize_number(&context, "1", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item_err);
 
         const str_err = lib.con_serialize_dict_open(&context);
@@ -1319,7 +1319,7 @@ test "array number single" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const num_err = lib.con_serialize_number(&context, "2");
+        const num_err = lib.con_serialize_number(&context, "2", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
     }
 
@@ -1349,10 +1349,10 @@ test "array number multiple" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const item1_err = lib.con_serialize_number(&context, "6");
+        const item1_err = lib.con_serialize_number(&context, "6", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item1_err);
 
-        const item2_err = lib.con_serialize_number(&context, "4");
+        const item2_err = lib.con_serialize_number(&context, "4", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item2_err);
     }
 
@@ -1382,11 +1382,11 @@ test "array number comma writer fail" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const item1_err = lib.con_serialize_number(&context, "2");
+        const item1_err = lib.con_serialize_number(&context, "2", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item1_err);
         try testing.expectEqualStrings("[2", &buffer);
 
-        const item2_err = lib.con_serialize_number(&context, "3");
+        const item2_err = lib.con_serialize_number(&context, "3", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), item2_err);
     }
 }
@@ -1411,7 +1411,7 @@ test "array string single" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const str_err = lib.con_serialize_string(&context, "a");
+        const str_err = lib.con_serialize_string(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
     }
 
@@ -1441,10 +1441,10 @@ test "array string multiple" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const item1_err = lib.con_serialize_string(&context, "a");
+        const item1_err = lib.con_serialize_string(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item1_err);
 
-        const item2_err = lib.con_serialize_string(&context, "b");
+        const item2_err = lib.con_serialize_string(&context, "b", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item2_err);
     }
 
@@ -1474,11 +1474,11 @@ test "array string comma writer fail" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const item1_err = lib.con_serialize_string(&context, "a");
+        const item1_err = lib.con_serialize_string(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item1_err);
         try testing.expectEqualStrings("[\"a\"", &buffer);
 
-        const item2_err = lib.con_serialize_string(&context, "b");
+        const item2_err = lib.con_serialize_string(&context, "b", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_WRITER), item2_err);
     }
 }
@@ -1885,9 +1885,9 @@ test "dict number single" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key1_err = lib.con_serialize_dict_key(&context, "a");
+        const key1_err = lib.con_serialize_dict_key(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
-        const item1_err = lib.con_serialize_number(&context, "1");
+        const item1_err = lib.con_serialize_number(&context, "1", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item1_err);
     }
 
@@ -1917,9 +1917,9 @@ test "dict string single" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "a");
+        const key_err = lib.con_serialize_dict_key(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
-        const item_err = lib.con_serialize_string(&context, "b");
+        const item_err = lib.con_serialize_string(&context, "b", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item_err);
     }
 
@@ -1949,7 +1949,7 @@ test "dict bool true single" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "a");
+        const key_err = lib.con_serialize_dict_key(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         const item_err = lib.con_serialize_bool(&context, true);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item_err);
@@ -1981,7 +1981,7 @@ test "dict bool false single" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "a");
+        const key_err = lib.con_serialize_dict_key(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         const item_err = lib.con_serialize_bool(&context, false);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item_err);
@@ -2013,7 +2013,7 @@ test "dict null single" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "a");
+        const key_err = lib.con_serialize_dict_key(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         const item_err = lib.con_serialize_null(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), item_err);
@@ -2045,7 +2045,7 @@ test "dict array single" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "a");
+        const key_err = lib.con_serialize_dict_key(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
 
         const sub_open_err = lib.con_serialize_array_open(&context);
@@ -2080,7 +2080,7 @@ test "dict dict single" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
     {
-        const key_err = lib.con_serialize_dict_key(&context, "a");
+        const key_err = lib.con_serialize_dict_key(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
 
         const sub_open_err = lib.con_serialize_dict_open(&context);
@@ -2120,7 +2120,7 @@ test "number complete" {
 
     try testing.expectEqualStrings("[]", &buffer);
 
-    const err = lib.con_serialize_number(&context, "1");
+    const err = lib.con_serialize_number(&context, "1", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMPLETE), err);
 }
 
@@ -2147,7 +2147,7 @@ test "string complete" {
 
     try testing.expectEqualStrings("{}", &buffer);
 
-    const err = lib.con_serialize_string(&context, "1");
+    const err = lib.con_serialize_string(&context, "1", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMPLETE), err);
 }
 
@@ -2167,7 +2167,7 @@ test "bool complete" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const complete_err = lib.con_serialize_number(&context, "1");
+    const complete_err = lib.con_serialize_number(&context, "1", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), complete_err);
 
     try testing.expectEqualStrings("1", &buffer);
@@ -2192,7 +2192,7 @@ test "null complete" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const str_err = lib.con_serialize_string(&context, "1");
+    const str_err = lib.con_serialize_string(&context, "1", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
 
     try testing.expectEqualStrings("\"1\"", &buffer);
@@ -2273,23 +2273,23 @@ test "nested structures" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err1);
 
     {
-        const key_err2 = lib.con_serialize_dict_key(&context, "a");
+        const key_err2 = lib.con_serialize_dict_key(&context, "a", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err2);
         const open_err2 = lib.con_serialize_array_open(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err2);
         {
-            const str_err4 = lib.con_serialize_string(&context, "hello");
+            const str_err4 = lib.con_serialize_string(&context, "hello", 5);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err4);
 
             const open_err5 = lib.con_serialize_dict_open(&context);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err5);
             {
-                const key_err6 = lib.con_serialize_dict_key(&context, "a.a");
+                const key_err6 = lib.con_serialize_dict_key(&context, "a.a", 3);
                 try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err6);
                 const null_err6 = lib.con_serialize_null(&context);
                 try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null_err6);
 
-                const key_err7 = lib.con_serialize_dict_key(&context, "a.b");
+                const key_err7 = lib.con_serialize_dict_key(&context, "a.b", 3);
                 try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err7);
                 const bool_err7 = lib.con_serialize_bool(&context, true);
                 try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), bool_err7);
@@ -2300,12 +2300,12 @@ test "nested structures" {
         const close_err2 = lib.con_serialize_array_close(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err2);
 
-        const key_err3 = lib.con_serialize_dict_key(&context, "b");
+        const key_err3 = lib.con_serialize_dict_key(&context, "b", 1);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err3);
         const open_err3 = lib.con_serialize_array_open(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err3);
         {
-            const num_err8 = lib.con_serialize_number(&context, "234");
+            const num_err8 = lib.con_serialize_number(&context, "234", 3);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err8);
 
             const bool_err9 = lib.con_serialize_bool(&context, false);
@@ -2352,21 +2352,21 @@ test "indent writer" {
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_dict_err);
 
         {
-            const key1_err = lib.con_serialize_dict_key(&context, "key1");
+            const key1_err = lib.con_serialize_dict_key(&context, "key1", 4);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
             const empty_open_array_err = lib.con_serialize_array_open(&context);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_open_array_err);
             const empty_close_array_err = lib.con_serialize_array_close(&context);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_close_array_err);
 
-            const key2_err = lib.con_serialize_dict_key(&context, "key2");
+            const key2_err = lib.con_serialize_dict_key(&context, "key2", 4);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key2_err);
             const empty_open_dict_err = lib.con_serialize_dict_open(&context);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_open_dict_err);
             const empty_close_dict_err = lib.con_serialize_dict_close(&context);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_close_dict_err);
 
-            const key3_err = lib.con_serialize_dict_key(&context, "key3");
+            const key3_err = lib.con_serialize_dict_key(&context, "key3", 4);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key3_err);
             const bool_err = lib.con_serialize_bool(&context, true);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), bool_err);
@@ -2375,13 +2375,13 @@ test "indent writer" {
         const close_dict_err = lib.con_serialize_dict_close(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_dict_err);
 
-        const num_err = lib.con_serialize_number(&context, "123");
+        const num_err = lib.con_serialize_number(&context, "123", 3);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
 
-        const str_err = lib.con_serialize_string(&context, "string");
+        const str_err = lib.con_serialize_string(&context, "string", 6);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
 
-        const no_indent_err = lib.con_serialize_string(&context, "\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}");
+        const no_indent_err = lib.con_serialize_string(&context, "\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}", 26);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), no_indent_err);
 
         const null_err = lib.con_serialize_null(&context);
