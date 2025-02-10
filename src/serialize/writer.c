@@ -1,12 +1,12 @@
 #include <stdint.h>
-#include <stdbool.h>
 #include <limits.h>
+#include <string.h>
 #include "con_writer.h"
 
-int con_writer_file_write(void const *void_context, char const *data);
-int con_writer_string_write(void const *void_context, char const *data);
-int con_writer_buffer_write(void const *void_context, char const *data);
-int con_writer_indent_write(void const *void_context, char const *data);
+size_t con_writer_file_write(void const *void_context, char const *data, size_t data_size);
+size_t con_writer_string_write(void const *void_context, char const *data, size_t data_size);
+size_t con_writer_buffer_write(void const *void_context, char const *data, size_t data_size);
+size_t con_writer_indent_write(void const *void_context, char const *data, size_t data_size);
 
 enum ConError con_writer_file_context(struct ConWriterFile *context, FILE *file) {
     if (context == NULL) { return CON_ERROR_NULL; }
@@ -22,17 +22,17 @@ struct ConInterfaceWriter con_writer_file_interface(struct ConWriterFile *writer
     return (struct ConInterfaceWriter) { .context = writer, .write = con_writer_file_write };
 }
 
-int con_writer_file_write(void const *context, char const *data) {
+size_t con_writer_file_write(void const *context, char const *data, size_t data_size) {
     assert(context != NULL);
     assert(data != NULL);
     struct ConWriterFile *writer = (struct ConWriterFile*) context;
-    return fputs(data, writer->file);
+    return fwrite(data, sizeof(char), data_size, writer->file);
 }
 
 enum ConError con_writer_string_context(
     struct ConWriterString *context,
     char *buffer,
-    int buffer_size
+    size_t buffer_size
 ) {
     if (context == NULL) { return CON_ERROR_NULL; }
 
@@ -51,7 +51,8 @@ struct ConInterfaceWriter con_writer_string_interface(struct ConWriterString *co
     return (struct ConInterfaceWriter) { .context = context, .write = con_writer_string_write };
 }
 
-int con_writer_string_write(void const *void_context, char const *data) {
+#include <stdio.h>
+size_t con_writer_string_write(void const *void_context, char const *data, size_t data_size) {
     assert(void_context != NULL);
     assert(data != NULL);
 
@@ -59,32 +60,21 @@ int con_writer_string_write(void const *void_context, char const *data) {
     assert(context->buffer != NULL);
     assert(0 <= context->current && context->current < context->buffer_size);
 
-    char c = data[0];
-    size_t length = 0;
-    while (c != '\0') {
-        if (context->current >= context->buffer_size - 1) {
-            return EOF;
-        }
+    size_t write_length = context->buffer_size - context->current - 1;
+    write_length = write_length > data_size ? data_size : write_length;
 
-        context->buffer[context->current++] = c;
-        context->buffer[context->current] = '\0';
+    memcpy(context->buffer + context->current, data, write_length);
+    context->current += write_length;
+    context->buffer[context->current] = '\0';
 
-        length += 1;
-        c = data[length];
-    }
-
-    if (length > INT_MAX) {
-        return INT_MAX;
-    } else {
-        return (int) length;
-    }
+    return write_length;
 }
 
 enum ConError con_writer_buffer_context(
         struct ConWriterBuffer *context,
         struct ConInterfaceWriter writer,
         char *buffer,
-        int buffer_size
+        size_t buffer_size
 ) {
     if (context == NULL) { return CON_ERROR_NULL; }
     if (buffer == NULL) { return CON_ERROR_NULL; }
@@ -102,7 +92,7 @@ struct ConInterfaceWriter con_writer_buffer_interface(struct ConWriterBuffer *co
     return (struct ConInterfaceWriter) { .context = context, .write = con_writer_buffer_write };
 }
 
-int con_writer_buffer_write(void const *void_context, char const *data) {
+size_t con_writer_buffer_write(void const *void_context, char const *data, size_t data_size) {
     assert(void_context != NULL);
     assert(data != NULL);
 
@@ -110,40 +100,40 @@ int con_writer_buffer_write(void const *void_context, char const *data) {
     assert(context->buffer != NULL);
     assert(0 <= context->current && context->current < context->buffer_size);
 
-    size_t length = 0;
-    char c = data[0];
-    while (c != '\0') {
-        if (context->current == context->buffer_size - 1) {
-            int result = con_writer_buffer_flush(context);
-            if (result < 0) { return result; }
+    size_t write_length = context->buffer_size - context->current - 1;  // TODO: no null-terminate
+    write_length = write_length > data_size ? data_size : write_length;
+
+    memcpy(context->buffer + context->current, data, write_length);
+    context->current += write_length;
+
+    if (context->current >= context->buffer_size - 1) {
+        bool flush_success = con_writer_buffer_flush(context);
+        if (!flush_success) { return 0; }
+
+        if (data_size - write_length >= context->buffer_size) {
+            size_t result = con_writer_write(context->writer, data + write_length, data_size - write_length);
+            if (result < data_size - write_length) { return write_length + result; } // TODO: wrong
+        } else {
+            memcpy(context->buffer, data + write_length, data_size + write_length);
         }
-
-        context->buffer[context->current++] = c;
-
-        length += 1;
-        c = data[length];
     }
-
-    if (context->current == context->buffer_size - 1) {
-        int result = con_writer_buffer_flush(context);
-        if (result < 0) { return result; }
-    }
-
-    if (length > INT_MAX) {
-        return INT_MAX;
-    } else {
-        return (int) length;
-    }
+    return data_size;
 }
 
-int con_writer_buffer_flush(struct ConWriterBuffer *context) {
+bool con_writer_buffer_flush(struct ConWriterBuffer *context) {
     assert(context != NULL);
     assert(context->buffer != NULL);
     assert(0 <= context->current && context->current < context->buffer_size);
 
-    context->buffer[context->current] = '\0';
+    size_t length = context->current;
+    size_t result = con_writer_write(context->writer, context->buffer, length);
     context->current = 0;
-    return con_writer_write(context->writer, context->buffer);
+
+    if (result != length) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 enum StateIndent {
@@ -172,19 +162,19 @@ struct ConInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *co
     return (struct ConInterfaceWriter) { .context=context, .write=con_writer_indent_write };
 }
 
-static inline int con_serialize_writer_indent_whitespace(struct ConWriterIndent *context) {
-    int result = con_writer_write(context->writer, "\n");
-    if (result < 0) { return result; }
+static inline bool con_serialize_writer_indent_whitespace(struct ConWriterIndent *context) {
+    size_t result = con_writer_write(context->writer, "\n", 1);
+    if (result != 1) { return false; }
 
     for (size_t i = 0; i < context->depth; i++) {
-        result = con_writer_write(context->writer, "  ");
-        if (result < 0) { return result; }
+        result = con_writer_write(context->writer, "  ", 2);
+        if (result != 2) { return false; }
     }
 
-    return 1;
+    return true;
 }
 
-int con_writer_indent_write(void const *void_context, char const *data) {
+size_t con_writer_indent_write(void const *void_context, char const *data, size_t data_size) {
     assert(void_context != NULL);
     assert(data != NULL);
 
@@ -192,18 +182,14 @@ int con_writer_indent_write(void const *void_context, char const *data) {
     assert(0 < context->state && context->state < INDENT_MAX);
 
     size_t length = 0;
-    char c = data[0];
-    char write_char[2];
-
-    write_char[0] = c;
-    write_char[1] = '\0';
-    while (c != '\0') {
+    for (; length < data_size; length++) {
+        char c = data[length];
         bool in_string = context->state == INDENT_IN_STRING || context->state == INDENT_ESCAPE;
         bool normal = context->state == INDENT_FIRST_ITEM || context->state == INDENT_NORMAL;
 
         if (context->state == INDENT_FIRST_ITEM && c != ']' && c != '}') {
-            int result = con_serialize_writer_indent_whitespace(context);
-            if (result < 0) { return result; }
+            bool success = con_serialize_writer_indent_whitespace(context);
+            if (!success) { return length; }
 
             context->state = INDENT_NORMAL;
         }
@@ -212,8 +198,8 @@ int con_writer_indent_write(void const *void_context, char const *data) {
             context->depth -= 1;
 
             if (context->state != INDENT_FIRST_ITEM) {
-                int result = con_serialize_writer_indent_whitespace(context);
-                if (result < 0) { return result; }
+                bool success = con_serialize_writer_indent_whitespace(context);
+                if (!success) { return length; }
             }
 
             context->state = INDENT_NORMAL;
@@ -223,14 +209,14 @@ int con_writer_indent_write(void const *void_context, char const *data) {
             context->state = INDENT_FIRST_ITEM;
 
             if (context->depth > SIZE_MAX - 1) {
-                return EOF;
+                return 0;
             }
 
             context->depth += 1;
         }
 
-        int result = con_writer_write(context->writer, write_char);
-        if (result < 0) { return result; }
+        size_t result = con_writer_write(context->writer, &c, 1);
+        if (result != 1) { return length; }
 
         if (c == '"' && in_string && context->state != INDENT_ESCAPE) {
             context->state = INDENT_NORMAL;
@@ -245,23 +231,15 @@ int con_writer_indent_write(void const *void_context, char const *data) {
         }
 
         if (c == ':' && !in_string) {
-            int result = con_writer_write(context->writer, " ");
-            if (result < 0) { return result; }
+            size_t result = con_writer_write(context->writer, " ", 1);
+            if (result != 1) { return length + 1; }
         }
 
         if (c == ',' && !in_string) {
-            int result = con_serialize_writer_indent_whitespace(context);
-            if (result < 0) { return result; }
+            bool success = con_serialize_writer_indent_whitespace(context);
+            if (!success) { return length + 1; }
         }
-
-        length += 1;
-        c = data[length];
-        write_char[0] = c;
     }
 
-    if (length > INT_MAX) {
-        return INT_MAX;
-    } else {
-        return (int) length;
-    }
+    return length;
 }

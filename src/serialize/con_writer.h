@@ -1,10 +1,11 @@
 #ifndef CON_WRITER_H
 #define CON_WRITER_H
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <con_error.h>
 
-typedef int (ConWrite)(void const *context, char const *data);
+typedef size_t (ConWrite)(void const *context, char const *data, size_t data_size);
 
 // A writer interface, a valid writer will have some optional context
 // (in `context`) and a non-null `write` function.
@@ -18,9 +19,9 @@ struct ConInterfaceWriter {
 // Params:
 //  writer: A writer interface
 //  data:   Null-terminated string to write.
-static inline int con_writer_write(struct ConInterfaceWriter writer, char const *data) {
+static inline size_t con_writer_write(struct ConInterfaceWriter writer, char const *data, size_t data_size) {
     assert(writer.write != NULL);
-    return writer.write(writer.context, data);
+    return writer.write(writer.context, data, data_size);
 }
 
 // A writer that writes to a file, use `con_writer_file` to initialize.
@@ -48,8 +49,8 @@ struct ConInterfaceWriter con_writer_file_interface(struct ConWriterFile *contex
 // A writer that writes to a null-terminated char buffer.
 struct ConWriterString {
     char *buffer;
-    int buffer_size;
-    int current;
+    size_t buffer_size;
+    size_t current;
 };
 
 // Initializes a `struct ConWriterString`.
@@ -69,7 +70,7 @@ struct ConWriterString {
 enum ConError con_writer_string_context(
     struct ConWriterString *context,
     char *buffer,
-    int buffer_size
+    size_t buffer_size
 );
 
 // Makes a writer interface from an already initialized `struct ConWriterString`
@@ -80,8 +81,8 @@ struct ConInterfaceWriter con_writer_string_interface(struct ConWriterString *co
 struct ConWriterBuffer {
     struct ConInterfaceWriter writer;
     char *buffer;
-    int buffer_size;
-    int current;
+    size_t buffer_size;
+    size_t current;
 };
 
 // Initializes a `struct ConWriterBuffer`
@@ -105,7 +106,7 @@ enum ConError con_writer_buffer_context(
     struct ConWriterBuffer *context,
     struct ConInterfaceWriter writer,
     char *buffer,
-    int buffer_size
+    size_t buffer_size
 );
 
 // Makes a writer interface from an already initialized `struct ConWriterBuffer`
@@ -113,7 +114,7 @@ enum ConError con_writer_buffer_context(
 struct ConInterfaceWriter con_writer_buffer_interface(struct ConWriterBuffer *context);
 
 // Flushes the internal buffer by writing everything in it to the internal writer.
-int con_writer_buffer_flush(struct ConWriterBuffer *context);
+bool con_writer_buffer_flush(struct ConWriterBuffer *context);
 
 // A writer that converts minfied JSON to indented JSON. Note that this writer
 // will destroy any buffering since every write will be broken up into single

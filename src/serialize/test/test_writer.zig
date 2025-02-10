@@ -36,8 +36,8 @@ test "file write" {
 
     const writer = lib.con_writer_file_interface(&context);
 
-    const err = lib.con_writer_write(writer, "1");
-    try testing.expect(0 <= err);
+    const res = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(1, res);
 
     const seek_err = clib.fseek(file, 0, lib.SEEK_SET);
     try testing.expectEqual(seek_err, 0);
@@ -71,13 +71,6 @@ test "string buffer null" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
 }
 
-test "string length negative" {
-    var buffer: [1:0]u8 = undefined;
-    var context: lib.ConWriterString = undefined;
-    const init_err = lib.con_writer_string_context(&context, &buffer, -1);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), init_err);
-}
-
 test "string buffer small" {
     var buffer: [0:0]u8 = undefined;
     var context: lib.ConWriterString = undefined;
@@ -94,7 +87,7 @@ test "string write" {
 
     const writer = lib.con_writer_string_interface(&context);
 
-    const write_err = lib.con_writer_write(writer, "12");
+    const write_err = lib.con_writer_write(writer, "12", 2);
     try testing.expect(0 <= write_err);
     try testing.expectEqualStrings("12\x00", &buffer);
 }
@@ -108,8 +101,8 @@ test "string overflow" {
 
     const writer = lib.con_writer_string_interface(&context);
 
-    const write_err = lib.con_writer_write(writer, "1");
-    try testing.expectEqual(lib.EOF, write_err);
+    const write_err = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(0, write_err);
 }
 
 test "buffer init" {
@@ -152,19 +145,6 @@ test "buffer init buffer null" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
 }
 
-test "buffer init length negative" {
-    var c: lib.ConWriterString = undefined;
-    var buffer: [1:0]u8 = undefined;
-    var context: lib.ConWriterBuffer = undefined;
-    const init_err = lib.con_writer_buffer_context(
-        &context,
-        lib.con_writer_string_interface(&c),
-        &buffer,
-        -1,
-    );
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), init_err);
-}
-
 test "buffer init buffer small" {
     var c: lib.ConWriterString = undefined;
     var buffer: [0:0]u8 = undefined;
@@ -196,8 +176,8 @@ test "buffer write" {
 
     const writer = lib.con_writer_buffer_interface(&context);
 
-    const err = lib.con_writer_write(writer, "1");
-    try testing.expect(0 <= err);
+    const res = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(1, res);
     try testing.expectEqualStrings("1", &b);
 }
 
@@ -219,11 +199,11 @@ test "buffer flush" {
 
     const writer = lib.con_writer_buffer_interface(&context);
 
-    const err = lib.con_writer_write(writer, "1");
-    try testing.expect(0 <= err);
+    const res = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(1, res);
 
-    const flush_err = lib.con_writer_buffer_flush(&context);
-    try testing.expect(0 <= flush_err);
+    const flush_res = lib.con_writer_buffer_flush(&context);
+    try testing.expect(flush_res);
     try testing.expectEqualStrings("1", &b);
 }
 
@@ -244,8 +224,8 @@ test "buffer internal writer fail" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const writer = lib.con_writer_buffer_interface(&context);
-    const err = lib.con_writer_write(writer, "1");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(0, res);
 }
 
 test "buffer flush writer fail" {
@@ -266,11 +246,11 @@ test "buffer flush writer fail" {
 
     const writer = lib.con_writer_buffer_interface(&context);
 
-    const err = lib.con_writer_write(writer, "1");
-    try testing.expect(0 <= err);
+    const res = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(1, res);
 
-    const flush_err = lib.con_writer_buffer_flush(&context);
-    try testing.expectEqual(lib.EOF, flush_err);
+    const flush_res = lib.con_writer_buffer_flush(&context);
+    try testing.expect(!flush_res);
 }
 
 test "indent init" {
@@ -300,8 +280,8 @@ test "indent write" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "1");
-    try testing.expect(0 <= err);
+    const res = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(1, res);
     try testing.expectEqualStrings("1", &b);
 }
 
@@ -320,8 +300,9 @@ test "indent write minified" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]");
-    try testing.expect(0 <= err);
+    const json = "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]";
+    const res = lib.con_writer_write(writer, json, 37);
+    try testing.expectEqual(37, res);
     try testing.expectEqualStrings(
         \\[
         \\  {
@@ -353,8 +334,7 @@ test "indent write one character at a time" {
     const writer = lib.con_writer_indent_interface(&context);
 
     for (str) |ch| {
-        const single: [1:0]u8 = .{ch};
-        const err = lib.con_writer_write(writer, &single);
+        const err = lib.con_writer_write(writer, &ch, 1);
         try testing.expect(0 <= err);
     }
 
@@ -386,8 +366,8 @@ test "indent body writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "1");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(0, res);
 }
 
 test "indent newline array open writer fail" {
@@ -405,8 +385,8 @@ test "indent newline array open writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "[1]");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "[1]", 3);
+    try testing.expectEqual(1, res);
     try testing.expectEqualStrings("[", &b);
 }
 
@@ -425,8 +405,8 @@ test "indent whitespace array open writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "[1]");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "[1]", 3);
+    try testing.expectEqual(1, res);
     try testing.expectEqualStrings("[\n", &b);
 }
 
@@ -445,8 +425,8 @@ test "indent newline array close writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "[1]");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "[1]", 3);
+    try testing.expectEqual(2, res);
     try testing.expectEqualStrings("[\n  1", &b);
 }
 
@@ -465,8 +445,8 @@ test "indent whitespace array close writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "[1]");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "[1]", 3);
+    try testing.expectEqual(2, res);
     try testing.expectEqualStrings("[\n  1\n", &b);
 }
 
@@ -485,8 +465,8 @@ test "indent newline dict writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "{\"");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "{\"", 2);
+    try testing.expectEqual(1, res);
     try testing.expectEqualStrings("{", &b);
 }
 
@@ -505,8 +485,8 @@ test "indent whitespace dict writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "{\"");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "{\"", 2);
+    try testing.expectEqual(1, res);
     try testing.expectEqualStrings("{\n", &b);
 }
 
@@ -525,8 +505,8 @@ test "indent newline dict close writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "{\"k\":1}");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "{\"k\":1}", 7);
+    try testing.expectEqual(6, res);
     try testing.expectEqualStrings("{\n  \"k\": 1", &b);
 }
 
@@ -545,8 +525,8 @@ test "indent whitespace dict close writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "{\"k\":1}");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "{\"k\":1}", 7);
+    try testing.expectEqual(6, res);
     try testing.expectEqualStrings("{\n  \"k\": 1\n", &b);
 }
 
@@ -565,8 +545,8 @@ test "indent space writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "{\"k\":");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "{\"k\":", 5);
+    try testing.expectEqual(5, res);
     try testing.expectEqualStrings("{\n  \"k\":", &b);
 }
 
@@ -585,8 +565,8 @@ test "indent newline comma writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "[1,2]");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "[1,2]", 5);
+    try testing.expectEqual(3, res);
     try testing.expectEqualStrings("[\n  1,", &b);
 }
 
@@ -605,7 +585,7 @@ test "indent whitespace comma writer fail" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const err = lib.con_writer_write(writer, "[1,2]");
-    try testing.expectEqual(lib.EOF, err);
+    const res = lib.con_writer_write(writer, "[1,2]", 5);
+    try testing.expectEqual(3, res);
     try testing.expectEqualStrings("[\n  1,\n", &b);
 }

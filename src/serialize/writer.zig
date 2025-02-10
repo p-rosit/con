@@ -6,7 +6,7 @@ pub const InterfaceWriter = struct {
     writer: lib.ConInterfaceWriter,
 
     pub fn write(writer: InterfaceWriter, data: [:0]const u8) !void {
-        const result = lib.con_writer_write(writer.writer, data);
+        const result = lib.con_writer_write(writer.writer, data, data.len);
         if (result <= 0) {
             return error.Writer;
         }
