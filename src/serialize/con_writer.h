@@ -1,6 +1,5 @@
 #ifndef CON_WRITER_H
 #define CON_WRITER_H
-#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <con_error.h>
