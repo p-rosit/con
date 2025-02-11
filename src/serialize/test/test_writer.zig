@@ -42,26 +42,25 @@ test "file write" {
     const seek_err = clib.fseek(file, 0, lib.SEEK_SET);
     try testing.expectEqual(seek_err, 0);
 
-    var buffer: [1:0]u8 = undefined;
+    var buffer: [2]u8 = undefined;
     const result = clib.fread(&buffer, 1, 2, file);
     try testing.expectEqual(1, result);
 
-    buffer[buffer.len] = 0;
-    try testing.expectEqualStrings("1", &buffer);
+    try testing.expectEqualStrings("1", buffer[0..1]);
 }
 
 test "string init" {
-    var buffer: [1:0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
     var context: lib.ConWriterString = undefined;
-    const init_err = lib.con_writer_string_context(&context, &buffer, buffer.len + 1);
+    const init_err = lib.con_writer_string_context(&context, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     _ = lib.con_writer_string_interface(&context);
 }
 
 test "string init null" {
-    var buffer: [1:0]u8 = undefined;
-    const init_err = lib.con_writer_string_context(null, &buffer, buffer.len + 1);
+    var buffer: [1]u8 = undefined;
+    const init_err = lib.con_writer_string_context(null, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
 }
 
@@ -71,32 +70,25 @@ test "string buffer null" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
 }
 
-test "string buffer small" {
-    var buffer: [0:0]u8 = undefined;
-    var context: lib.ConWriterString = undefined;
-    const init_err = lib.con_writer_string_context(&context, &buffer, 0);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), init_err);
-}
-
 test "string write" {
-    var buffer: [3:0]u8 = undefined;
+    var buffer: [2]u8 = undefined;
     var context: lib.ConWriterString = undefined;
 
-    const init_err = lib.con_writer_string_context(&context, &buffer, buffer.len + 1);
+    const init_err = lib.con_writer_string_context(&context, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const writer = lib.con_writer_string_interface(&context);
 
     const write_err = lib.con_writer_write(writer, "12", 2);
     try testing.expect(0 <= write_err);
-    try testing.expectEqualStrings("12\x00", &buffer);
+    try testing.expectEqualStrings("12", &buffer);
 }
 
 test "string overflow" {
-    var buffer: [0:0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
     var context: lib.ConWriterString = undefined;
 
-    const init_err = lib.con_writer_string_context(&context, &buffer, buffer.len + 1);
+    const init_err = lib.con_writer_string_context(&context, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const writer = lib.con_writer_string_interface(&context);
@@ -108,13 +100,13 @@ test "string overflow" {
 test "buffer init" {
     var c: lib.ConWriterString = undefined;
 
-    var buffer: [1:0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
     var context: lib.ConWriterBuffer = undefined;
     const init_err = lib.con_writer_buffer_context(
         &context,
         lib.con_writer_string_interface(&c),
         &buffer,
-        buffer.len + 1,
+        buffer.len,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
@@ -123,12 +115,12 @@ test "buffer init" {
 
 test "buffer init null" {
     var c: lib.ConWriterString = undefined;
-    var buffer: [1:0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
     const init_err = lib.con_writer_buffer_context(
         null,
         lib.con_writer_string_interface(&c),
         &buffer,
-        buffer.len + 1,
+        buffer.len,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
 }
@@ -147,30 +139,30 @@ test "buffer init buffer null" {
 
 test "buffer init buffer small" {
     var c: lib.ConWriterString = undefined;
-    var buffer: [0:0]u8 = undefined;
+    var buffer: [0]u8 = undefined;
     var context: lib.ConWriterBuffer = undefined;
     const init_err = lib.con_writer_buffer_context(
         &context,
         lib.con_writer_string_interface(&c),
         &buffer,
-        buffer.len + 1,
+        buffer.len,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), init_err);
 }
 
 test "buffer write" {
-    var b: [1:0]u8 = undefined;
+    var b: [1]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var buffer: [1:0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
     var context: lib.ConWriterBuffer = undefined;
     const init_err = lib.con_writer_buffer_context(
         &context,
         lib.con_writer_string_interface(&c),
         &buffer,
-        buffer.len + 1,
+        buffer.len,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
@@ -182,18 +174,18 @@ test "buffer write" {
 }
 
 test "buffer flush" {
-    var b: [1:0]u8 = undefined;
+    var b: [1]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var buffer: [2:0]u8 = undefined;
+    var buffer: [2]u8 = undefined;
     var context: lib.ConWriterBuffer = undefined;
     const init_err = lib.con_writer_buffer_context(
         &context,
         lib.con_writer_string_interface(&c),
         &buffer,
-        buffer.len + 1,
+        buffer.len,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
@@ -208,18 +200,18 @@ test "buffer flush" {
 }
 
 test "buffer internal writer fail" {
-    var b: [0:0]u8 = undefined;
+    var b: [0]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var buffer: [1:0]u8 = undefined;
+    var buffer: [1]u8 = undefined;
     var context: lib.ConWriterBuffer = undefined;
     const init_err = lib.con_writer_buffer_context(
         &context,
         lib.con_writer_string_interface(&c),
         &buffer,
-        buffer.len + 1,
+        buffer.len,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
@@ -229,18 +221,18 @@ test "buffer internal writer fail" {
 }
 
 test "buffer flush writer fail" {
-    var b: [0:0]u8 = undefined;
+    var b: [0]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var buffer: [2:0]u8 = undefined;
+    var buffer: [2]u8 = undefined;
     var context: lib.ConWriterBuffer = undefined;
     const init_err = lib.con_writer_buffer_context(
         &context,
         lib.con_writer_string_interface(&c),
         &buffer,
-        buffer.len + 1,
+        buffer.len,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
@@ -266,9 +258,9 @@ test "indent init" {
 }
 
 test "indent write" {
-    var b: [1:0]u8 = undefined;
+    var b: [1]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -286,9 +278,9 @@ test "indent write" {
 }
 
 test "indent write minified" {
-    var b: [56:0]u8 = undefined;
+    var b: [56]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -317,9 +309,9 @@ test "indent write minified" {
 }
 
 test "indent write one character at a time" {
-    var b: [56:0]u8 = undefined;
+    var b: [56]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -352,9 +344,9 @@ test "indent write one character at a time" {
 }
 
 test "indent body writer fail" {
-    var b: [0:0]u8 = undefined;
+    var b: [0]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -371,9 +363,9 @@ test "indent body writer fail" {
 }
 
 test "indent newline array open writer fail" {
-    var b: [1:0]u8 = undefined;
+    var b: [1]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -391,9 +383,9 @@ test "indent newline array open writer fail" {
 }
 
 test "indent whitespace array open writer fail" {
-    var b: [2:0]u8 = undefined;
+    var b: [2]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -411,9 +403,9 @@ test "indent whitespace array open writer fail" {
 }
 
 test "indent newline array close writer fail" {
-    var b: [5:0]u8 = undefined;
+    var b: [5]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -431,9 +423,9 @@ test "indent newline array close writer fail" {
 }
 
 test "indent whitespace array close writer fail" {
-    var b: [6:0]u8 = undefined;
+    var b: [6]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -451,9 +443,9 @@ test "indent whitespace array close writer fail" {
 }
 
 test "indent newline dict writer fail" {
-    var b: [1:0]u8 = undefined;
+    var b: [1]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -471,9 +463,9 @@ test "indent newline dict writer fail" {
 }
 
 test "indent whitespace dict writer fail" {
-    var b: [2:0]u8 = undefined;
+    var b: [2]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -491,9 +483,9 @@ test "indent whitespace dict writer fail" {
 }
 
 test "indent newline dict close writer fail" {
-    var b: [10:0]u8 = undefined;
+    var b: [10]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -511,9 +503,9 @@ test "indent newline dict close writer fail" {
 }
 
 test "indent whitespace dict close writer fail" {
-    var b: [11:0]u8 = undefined;
+    var b: [11]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -531,9 +523,9 @@ test "indent whitespace dict close writer fail" {
 }
 
 test "indent space writer fail" {
-    var b: [8:0]u8 = undefined;
+    var b: [8]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -551,9 +543,9 @@ test "indent space writer fail" {
 }
 
 test "indent newline comma writer fail" {
-    var b: [6:0]u8 = undefined;
+    var b: [6]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;
@@ -571,9 +563,9 @@ test "indent newline comma writer fail" {
 }
 
 test "indent whitespace comma writer fail" {
-    var b: [7:0]u8 = undefined;
+    var b: [7]u8 = undefined;
     var c: lib.ConWriterString = undefined;
-    const i_err = lib.con_writer_string_context(&c, &b, b.len + 1);
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var context: lib.ConWriterIndent = undefined;

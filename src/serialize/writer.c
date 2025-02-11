@@ -38,7 +38,6 @@ enum ConError con_writer_string_context(
 
     context->buffer = NULL;
     if (buffer == NULL) { return CON_ERROR_NULL; }
-    if (buffer_size <= 0) { return CON_ERROR_BUFFER; }
 
     context->buffer = buffer;
     context->buffer_size = buffer_size;
@@ -57,14 +56,17 @@ size_t con_writer_string_write(void const *void_context, char const *data, size_
 
     struct ConWriterString *context = (struct ConWriterString*) void_context;
     assert(context->buffer != NULL);
-    assert(0 <= context->current && context->current < context->buffer_size);
+    if (context->buffer_size <= 0) {
+        assert(context->current == 0);
+    } else {
+        assert(0 <= context->current && context->current <= context->buffer_size);
+    }
 
-    size_t write_length = context->buffer_size - context->current - 1;
+    size_t write_length = context->buffer_size - context->current;
     write_length = write_length > data_size ? data_size : write_length;
 
     memcpy(context->buffer + context->current, data, write_length);
     context->current += write_length;
-    context->buffer[context->current] = '\0';
 
     return write_length;
 }
@@ -77,7 +79,7 @@ enum ConError con_writer_buffer_context(
 ) {
     if (context == NULL) { return CON_ERROR_NULL; }
     if (buffer == NULL) { return CON_ERROR_NULL; }
-    if (buffer_size <= 1) { return CON_ERROR_BUFFER; }
+    if (buffer_size <= 0) { return CON_ERROR_BUFFER; }
 
     context->writer = writer;
     context->buffer = buffer;
@@ -99,19 +101,19 @@ size_t con_writer_buffer_write(void const *void_context, char const *data, size_
     assert(context->buffer != NULL);
     assert(0 <= context->current && context->current < context->buffer_size);
 
-    size_t write_length = context->buffer_size - context->current - 1;  // TODO: no null-terminate
+    size_t write_length = context->buffer_size - context->current;
     write_length = write_length > data_size ? data_size : write_length;
 
     memcpy(context->buffer + context->current, data, write_length);
     context->current += write_length;
 
-    if (context->current >= context->buffer_size - 1) {
+    if (context->current >= context->buffer_size) {
         bool flush_success = con_writer_buffer_flush(context);
         if (!flush_success) { return 0; }
 
         if (data_size - write_length >= context->buffer_size) {
             size_t result = con_writer_write(context->writer, data + write_length, data_size - write_length);
-            if (result < data_size - write_length) { return write_length + result; } // TODO: wrong
+            if (result < data_size - write_length) { return write_length + result; }
         } else {
             memcpy(context->buffer, data + write_length, data_size + write_length);
         }
@@ -122,7 +124,7 @@ size_t con_writer_buffer_write(void const *void_context, char const *data, size_
 bool con_writer_buffer_flush(struct ConWriterBuffer *context) {
     assert(context != NULL);
     assert(context->buffer != NULL);
-    assert(0 <= context->current && context->current < context->buffer_size);
+    assert(0 <= context->current && context->current <= context->buffer_size);
 
     size_t length = context->current;
     size_t result = con_writer_write(context->writer, context->buffer, length);
