@@ -84,6 +84,24 @@ test "string write" {
     try testing.expectEqualStrings("12", &buffer);
 }
 
+test "string write multiple" {
+    var buffer: [2]u8 = undefined;
+    var context: lib.ConWriterString = undefined;
+
+    const init_err = lib.con_writer_string_context(&context, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const writer = lib.con_writer_string_interface(&context);
+
+    const write_err1 = lib.con_writer_write(writer, "1", 1);
+    try testing.expect(0 <= write_err1);
+
+    const write_err2 = lib.con_writer_write(writer, "2", 1);
+    try testing.expect(0 <= write_err2);
+
+    try testing.expectEqualStrings("12", &buffer);
+}
+
 test "string overflow" {
     var buffer: [0]u8 = undefined;
     var context: lib.ConWriterString = undefined;
@@ -171,6 +189,63 @@ test "buffer write" {
     const res = lib.con_writer_write(writer, "1", 1);
     try testing.expectEqual(1, res);
     try testing.expectEqualStrings("1", &b);
+}
+
+test "buffer write moderate" {
+    var b: [2]u8 = undefined;
+    var c: lib.ConWriterString = undefined;
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [2]u8 = undefined;
+    var context: lib.ConWriterBuffer = undefined;
+    const init_err = lib.con_writer_buffer_context(
+        &context,
+        lib.con_writer_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const writer = lib.con_writer_buffer_interface(&context);
+
+    const res1 = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(1, res1);
+
+    // First buffer is filled and flushed, then buffer filled with rest of string
+    const res2 = lib.con_writer_write(writer, "12", 1);
+    try testing.expectEqual(1, res2);
+
+    // Buffer is not flushed after second write
+    try testing.expectEqualStrings("11", &b);
+}
+
+test "buffer write large" {
+    var b: [7]u8 = undefined;
+    var c: lib.ConWriterString = undefined;
+    const i_err = lib.con_writer_string_context(&c, &b, b.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [2]u8 = undefined;
+    var context: lib.ConWriterBuffer = undefined;
+    const init_err = lib.con_writer_buffer_context(
+        &context,
+        lib.con_writer_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const writer = lib.con_writer_buffer_interface(&context);
+
+    // First buffer is filled and flushed, then rest of string is written
+    // directly without passing buffer
+    const res = lib.con_writer_write(writer, "1234567", 7);
+    try testing.expectEqual(7, res);
+
+    // Rest of string didn't pass buffer since last 7 was written instead
+    // of left in buffer
+    try testing.expectEqualStrings("1234567", &b);
 }
 
 test "buffer flush" {
