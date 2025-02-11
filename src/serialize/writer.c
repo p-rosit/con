@@ -35,11 +35,9 @@ enum ConError con_writer_string_context(
     size_t buffer_size
 ) {
     if (context == NULL) { return CON_ERROR_NULL; }
-
-    context->buffer = NULL;
+    context->buffer = buffer;
     if (buffer == NULL) { return CON_ERROR_NULL; }
 
-    context->buffer = buffer;
     context->buffer_size = buffer_size;
     context->current = 0;
 
@@ -78,11 +76,11 @@ enum ConError con_writer_buffer_context(
         size_t buffer_size
 ) {
     if (context == NULL) { return CON_ERROR_NULL; }
+    context->buffer = buffer;
     if (buffer == NULL) { return CON_ERROR_NULL; }
     if (buffer_size <= 0) { return CON_ERROR_BUFFER; }
 
     context->writer = writer;
-    context->buffer = buffer;
     context->buffer_size = buffer_size;
     context->current = 0;
 
