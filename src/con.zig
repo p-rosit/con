@@ -4,17 +4,21 @@ const reader = @import("deserialize/reader.zig");
 
 pub const InterfaceWriter = writer.InterfaceWriter;
 pub const Serialize = serialize.Serialize;
+
 pub const Writer = writer.Writer;
-pub const File = writer.File;
-pub const String = writer.String;
-pub const Buffer = writer.Buffer;
-pub const Indent = writer.Indent;
+pub const WriterFile = writer.File;
+pub const WriterString = writer.String;
+pub const WriterBuffer = writer.Buffer;
+pub const WriterIndent = writer.Indent;
+
+pub const ReaderFile = reader.File;
+pub const ReaderString = reader.String;
+pub const ReaderBuffer = reader.Buffer;
 
 test {
     @import("std").testing.refAllDecls(@This());
     _ = @import("serialize/test/test_serialize.zig");
     _ = @import("serialize/test/test_writer.zig");
 
-    _ = @import("deserialize/reader.zig");
     _ = @import("deserialize/test/test_reader.zig");
 }

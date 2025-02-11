@@ -1366,7 +1366,7 @@ test "indent writer" {
     var fifo = Fifo.init(&buffer);
     var c = ConFifo.init(&fifo.writer());
 
-    var indent = try zcon.Indent.init(c.interface());
+    var indent = try zcon.WriterIndent.init(c.interface());
 
     var context = try Serialize.init(indent.interface(), &depth);
     defer context.deinit();
