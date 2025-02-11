@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <string.h>
+#include "con_interface_writer.h"
 #include "con_writer.h"
 
 size_t con_writer_file_write(void const *void_context, char const *data, size_t data_size);

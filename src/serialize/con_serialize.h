@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <con_error.h>
-#include <con_writer.h>
+#include <con_interface_writer.h>
 
 // Context struct representing a single JSON element. Any items are written
 // immediately to the `writer`. With one `struct ConSerialize` only a single
