@@ -16,4 +16,5 @@ test {
     _ = @import("serialize/test/test_writer.zig");
 
     _ = @import("deserialize/reader.zig");
+    _ = @import("deserialize/test/test_reader.zig");
 }
