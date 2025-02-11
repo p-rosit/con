@@ -79,8 +79,8 @@ test "string write" {
 
     const writer = lib.con_writer_string_interface(&context);
 
-    const write_err = lib.con_writer_write(writer, "12", 2);
-    try testing.expectEqual(2, write_err);
+    const res = lib.con_writer_write(writer, "12", 2);
+    try testing.expectEqual(2, res);
     try testing.expectEqualStrings("12", &buffer);
 }
 
@@ -111,8 +111,8 @@ test "string overflow" {
 
     const writer = lib.con_writer_string_interface(&context);
 
-    const write_err = lib.con_writer_write(writer, "1", 1);
-    try testing.expectEqual(0, write_err);
+    const res = lib.con_writer_write(writer, "1", 1);
+    try testing.expectEqual(0, res);
 }
 
 test "buffer init" {
