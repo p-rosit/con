@@ -9,6 +9,16 @@ typedef size_t (ConWrite)(void const *context, char const *data, size_t data_siz
 
 // A writer interface, a valid writer will have some optional context
 // (in `context`) and a non-null `write` function.
+//
+// The write function must satisfy the following contract:
+//
+// Params:
+//  context:    The `context` in this struct.
+//  data:       Some bytes to be written.
+//  data_size:  The length of `data` in bytes.
+//
+// Returns:
+//  The amount of characters written, less than `data_size` if an error occured.
 struct ConInterfaceWriter {
     const void *context;
     ConWrite *write;
@@ -17,8 +27,12 @@ struct ConInterfaceWriter {
 // Calls the associated write function of a writer.
 //
 // Params:
-//  writer: A writer interface
-//  data:   Null-terminated string to write.
+//  writer:     A writer interface
+//  data:       The bytes to write.
+//  data_size:  The length of `data` in bytes.
+//
+// Returns:
+//  The amount of characters written, less than `data_size` if an error occured.
 static inline size_t con_writer_write(struct ConInterfaceWriter writer, char const *data, size_t data_size) {
     assert(writer.write != NULL);
     return writer.write(writer.context, data, data_size);
@@ -32,21 +46,20 @@ struct ConWriterFile {
 // Initializes a `struct ConWriterFile`.
 //
 // Params:
-//  writer: Single item pointer to `struct ConWriterFile`.
-//  file:   Single item pointer to file, if call succeeds owned by `writer`.
+//  context:    Single item pointer to `struct ConWriterFile`.
+//  file:       Single item pointer to file, if call succeeds owned by `writer`.
 //
 // Return:
 //  CON_ERROR_OK: Call succeeded
-//  CON_ERROR_NULL: Returned in the following situations:
-//      1. `writer` is null.
-//      2. `file` is null.
+//  CON_ERROR_NULL: `file` is null.
 enum ConError con_writer_file_context(struct ConWriterFile *context, FILE *file);
 
 // Makes a writer interface from an already initialized `struct ConWriterFile`
 // the returned writer owns the passed in `context`.
 struct ConInterfaceWriter con_writer_file_interface(struct ConWriterFile *context);
 
-// A writer that writes to a null-terminated char buffer.
+// A writer that writes to a char buffer. The `current` field keeps track
+// of how many bytes have been written so far
 struct ConWriterString {
     char *buffer;
     size_t buffer_size;
@@ -56,17 +69,14 @@ struct ConWriterString {
 // Initializes a `struct ConWriterString`.
 //
 // Params:
-//  writer:         Single item pointer to `struct ConWriterString`.
+//  context:        Single item pointer to `struct ConWriterString`.
 //  buffer:         Pointer to at least as many items as specified by
 //                  `buffer_size`, owned by `writer` if call succeeds.
 //  buffer_size:    Specifies at most how many items `buffer` points to.
 //
 // Return:
 //  CON_ERROR_OK:       Call succeeded.
-//  CON_ERROR_NULL:     Returned in the following situations:
-//      1. `writer` is null.
-//      2. `buffer` is null.
-//  CON_ERROR_BUFFER:   `buffer_size` <= 0.
+//  CON_ERROR_NULL:     `buffer` is null.
 enum ConError con_writer_string_context(
     struct ConWriterString *context,
     char *buffer,
@@ -88,9 +98,8 @@ struct ConWriterBuffer {
 // Initializes a `struct ConWriterBuffer`
 //
 // Params:
-//  writer:         Single item pointer to `struct ConWriterBuffer`.
-//  inner_writer:   Single item pointer to a writer, owned by `writer` if call
-//                  succeeds.
+//  context:        Single item pointer to `struct ConWriterBuffer`.
+//  writer:         Valid write struct, owned by `context` if call succeeds.
 //  buffer:         Pointer to at least as many items as specified by
 //                  `buffer_size`, owned by `writer` if call succeeds.
 //  buffer_size:    Specifies at most how many items `buffer` points to.
@@ -98,10 +107,9 @@ struct ConWriterBuffer {
 // Return:
 //  CON_ERROR_OK:       Call succeeded.
 //  CON_ERROR_NULL:     Returned in the following situations:
-//      1. `writer` is null.
-//      2. `inner_writer` is null.
-//      3. `buffer` is null.
-//  CON_ERROR_BUFFER:   `buffer_size` <= 1.
+//      1. `context` is null.
+//      2. `buffer` is null.
+//  CON_ERROR_BUFFER:   `buffer_size` <= 0.
 enum ConError con_writer_buffer_context(
     struct ConWriterBuffer *context,
     struct ConInterfaceWriter writer,
@@ -114,6 +122,7 @@ enum ConError con_writer_buffer_context(
 struct ConInterfaceWriter con_writer_buffer_interface(struct ConWriterBuffer *context);
 
 // Flushes the internal buffer by writing everything in it to the internal writer.
+// Returns true if the call succeded and false if call failed.
 bool con_writer_buffer_flush(struct ConWriterBuffer *context);
 
 // A writer that converts minfied JSON to indented JSON. Note that this writer
@@ -129,15 +138,12 @@ struct ConWriterIndent {
 // Initializes a `struct ConWriterIndent`
 //
 // Params:
-//  writer:         Single items pointer to `struct ConWriterIndent`.
-//  inner_writer:   Single item pointer to a writer, owned by `writer` if call
-//                  succeeds.
+//  context:    Single items pointer to `struct ConWriterIndent`.
+//  writer:     Valid write struct, owned by `context` if call succeeds.
 //
 // Return:
 //  CON_ERROR_OK:   Call succeeded.
-//  CON_ERROR_NULL: Returned in the following situations:
-//      1. `writer` is null.
-//      2. `inner_writer` is null.
+//  CON_ERROR_NULL: `context` is null.
 enum ConError con_writer_indent_context(
     struct ConWriterIndent *context,
     struct ConInterfaceWriter writer
