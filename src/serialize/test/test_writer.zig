@@ -80,7 +80,7 @@ test "string write" {
     const writer = lib.con_writer_string_interface(&context);
 
     const write_err = lib.con_writer_write(writer, "12", 2);
-    try testing.expect(0 <= write_err);
+    try testing.expectEqual(2, write_err);
     try testing.expectEqualStrings("12", &buffer);
 }
 
@@ -94,10 +94,10 @@ test "string write multiple" {
     const writer = lib.con_writer_string_interface(&context);
 
     const write_err1 = lib.con_writer_write(writer, "1", 1);
-    try testing.expect(0 <= write_err1);
+    try testing.expectEqual(1, write_err1);
 
     const write_err2 = lib.con_writer_write(writer, "2", 1);
-    try testing.expect(0 <= write_err2);
+    try testing.expectEqual(1, write_err2);
 
     try testing.expectEqualStrings("12", &buffer);
 }
@@ -401,8 +401,8 @@ test "indent write one character at a time" {
     const writer = lib.con_writer_indent_interface(&context);
 
     for (str) |ch| {
-        const err = lib.con_writer_write(writer, &ch, 1);
-        try testing.expect(0 <= err);
+        const amount_written = lib.con_writer_write(writer, &ch, 1);
+        try testing.expectEqual(1, amount_written);
     }
 
     try testing.expectEqualStrings(
