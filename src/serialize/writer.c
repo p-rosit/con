@@ -162,7 +162,7 @@ struct ConInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *co
     return (struct ConInterfaceWriter) { .context=context, .write=con_writer_indent_write };
 }
 
-static inline bool con_serialize_writer_indent_whitespace(struct ConWriterIndent *context) {
+static inline bool con_writer_indent_whitespace(struct ConWriterIndent *context) {
     size_t result = con_writer_write(context->writer, "\n", 1);
     if (result != 1) { return false; }
 
@@ -188,7 +188,7 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
         bool normal = context->state == INDENT_FIRST_ITEM || context->state == INDENT_NORMAL;
 
         if (context->state == INDENT_FIRST_ITEM && c != ']' && c != '}') {
-            bool success = con_serialize_writer_indent_whitespace(context);
+            bool success = con_writer_indent_whitespace(context);
             if (!success) { return length; }
 
             context->state = INDENT_NORMAL;
@@ -198,7 +198,7 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
             context->depth -= 1;
 
             if (context->state != INDENT_FIRST_ITEM) {
-                bool success = con_serialize_writer_indent_whitespace(context);
+                bool success = con_writer_indent_whitespace(context);
                 if (!success) { return length; }
             }
 
@@ -236,7 +236,7 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
         }
 
         if (c == ',' && !in_string) {
-            bool success = con_serialize_writer_indent_whitespace(context);
+            bool success = con_writer_indent_whitespace(context);
             if (!success) { return length + 1; }
         }
     }
