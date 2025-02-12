@@ -11,6 +11,7 @@ pub const WriterString = writer.String;
 pub const WriterBuffer = writer.Buffer;
 pub const WriterIndent = writer.Indent;
 
+pub const Reader = reader.Reader;
 pub const ReaderFile = reader.File;
 pub const ReaderString = reader.String;
 pub const ReaderBuffer = reader.Buffer;
