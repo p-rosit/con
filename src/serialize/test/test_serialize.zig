@@ -68,7 +68,7 @@ test "context init null" {
 test "number int-like" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -88,7 +88,7 @@ test "number int-like" {
 test "number float-like" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -108,7 +108,7 @@ test "number float-like" {
 test "number scientific-like" {
     var buffer: [3]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -128,7 +128,7 @@ test "number scientific-like" {
 test "number null" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -148,7 +148,7 @@ test "number null" {
 test "number writer fail" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -168,7 +168,7 @@ test "number writer fail" {
 test "number empty" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -188,7 +188,7 @@ test "number empty" {
 test "string" {
     var buffer: [3]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -208,7 +208,7 @@ test "string" {
 test "string null" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -228,7 +228,7 @@ test "string null" {
 test "string first quote writer fail" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -248,7 +248,7 @@ test "string first quote writer fail" {
 test "string body writer fail" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -269,7 +269,7 @@ test "string body writer fail" {
 test "string second quote writer fail" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -290,7 +290,7 @@ test "string second quote writer fail" {
 test "bool true" {
     var buffer: [4]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -312,7 +312,7 @@ test "bool true" {
 test "bool true writer fail" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -332,7 +332,7 @@ test "bool true writer fail" {
 test "bool false" {
     var buffer: [5]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -354,7 +354,7 @@ test "bool false" {
 test "bool false writer fail" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -374,7 +374,7 @@ test "bool false writer fail" {
 test "null" {
     var buffer: [4]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var context: lib.ConSerialize = undefined;
@@ -396,7 +396,7 @@ test "null" {
 test "null writer fail" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -418,7 +418,7 @@ test "null writer fail" {
 test "array open" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -440,7 +440,7 @@ test "array open" {
 test "array open too many" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -460,7 +460,7 @@ test "array open too many" {
 test "array nested open too many" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -489,7 +489,7 @@ test "array nested open too many" {
 test "array open writer fail" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -509,7 +509,7 @@ test "array open writer fail" {
 test "array close" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -534,7 +534,7 @@ test "array close" {
 test "array close too many" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -554,7 +554,7 @@ test "array close too many" {
 test "array close writer fail" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -578,7 +578,7 @@ test "array close writer fail" {
 test "dict open" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -600,7 +600,7 @@ test "dict open" {
 test "dict open too many" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -620,7 +620,7 @@ test "dict open too many" {
 test "dict nested open too many" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -649,7 +649,7 @@ test "dict nested open too many" {
 test "dict open writer fail" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -669,7 +669,7 @@ test "dict open writer fail" {
 test "dict close" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -694,7 +694,7 @@ test "dict close" {
 test "dict close too many" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -714,7 +714,7 @@ test "dict close too many" {
 test "dict close writer fail" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -740,7 +740,7 @@ test "dict close writer fail" {
 test "dict key" {
     var buffer: [7]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -767,7 +767,7 @@ test "dict key" {
 test "dict key multiple" {
     var buffer: [13]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -800,7 +800,7 @@ test "dict key multiple" {
 test "dict key null" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -826,7 +826,7 @@ test "dict key null" {
 test "dict key first quote writer fail" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -852,7 +852,7 @@ test "dict key first quote writer fail" {
 test "dict key body writer fail" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -878,7 +878,7 @@ test "dict key body writer fail" {
 test "dict key second quote writer fail" {
     var buffer: [3]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -904,7 +904,7 @@ test "dict key second quote writer fail" {
 test "dict key colon writer fail" {
     var buffer: [4]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -930,7 +930,7 @@ test "dict key colon writer fail" {
 test "dict key comma writer fail" {
     var buffer: [6]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -961,7 +961,7 @@ test "dict key comma writer fail" {
 test "dict key outside dict" {
     var buffer: [0]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -981,7 +981,7 @@ test "dict key outside dict" {
 test "dict key in array" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1006,7 +1006,7 @@ test "dict key in array" {
 test "dict key twice" {
     var buffer: [7]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1034,7 +1034,7 @@ test "dict key twice" {
 test "dict number key missing" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1059,7 +1059,7 @@ test "dict number key missing" {
 test "dict number second key missing" {
     var buffer: [6]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1089,7 +1089,7 @@ test "dict number second key missing" {
 test "dict string key missing" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1114,7 +1114,7 @@ test "dict string key missing" {
 test "dict string second key missing" {
     var buffer: [8]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1144,7 +1144,7 @@ test "dict string second key missing" {
 test "dict array key missing" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1169,7 +1169,7 @@ test "dict array key missing" {
 test "dict array second key missing" {
     var buffer: [6]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1199,7 +1199,7 @@ test "dict array second key missing" {
 test "dict dict key missing" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1224,7 +1224,7 @@ test "dict dict key missing" {
 test "dict dict second key missing" {
     var buffer: [6]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1256,7 +1256,7 @@ test "dict dict second key missing" {
 test "array open -> dict close" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1279,7 +1279,7 @@ test "array open -> dict close" {
 test "dict open -> array close" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1302,7 +1302,7 @@ test "dict open -> array close" {
 test "array number single" {
     var buffer: [3]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1332,7 +1332,7 @@ test "array number single" {
 test "array number multiple" {
     var buffer: [5]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1365,7 +1365,7 @@ test "array number multiple" {
 test "array number comma writer fail" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1394,7 +1394,7 @@ test "array number comma writer fail" {
 test "array string single" {
     var buffer: [5]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1424,7 +1424,7 @@ test "array string single" {
 test "array string multiple" {
     var buffer: [9]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1457,7 +1457,7 @@ test "array string multiple" {
 test "array string comma writer fail" {
     var buffer: [4]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1486,7 +1486,7 @@ test "array string comma writer fail" {
 test "array bool single" {
     var buffer: [6]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1516,7 +1516,7 @@ test "array bool single" {
 test "array bool multiple" {
     var buffer: [12]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1549,7 +1549,7 @@ test "array bool multiple" {
 test "array bool comma writer fail" {
     var buffer: [5]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1578,7 +1578,7 @@ test "array bool comma writer fail" {
 test "array null single" {
     var buffer: [6]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1608,7 +1608,7 @@ test "array null single" {
 test "array null multiple" {
     var buffer: [11]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1641,7 +1641,7 @@ test "array null multiple" {
 test "array null comma writer fail" {
     var buffer: [5]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1670,7 +1670,7 @@ test "array null comma writer fail" {
 test "array array single" {
     var buffer: [4]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1701,7 +1701,7 @@ test "array array single" {
 test "array array multiple" {
     var buffer: [7]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1737,7 +1737,7 @@ test "array array multiple" {
 test "array array comma writer fail" {
     var buffer: [3]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1769,7 +1769,7 @@ test "array array comma writer fail" {
 test "array dict single" {
     var buffer: [4]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1800,7 +1800,7 @@ test "array dict single" {
 test "array dict multiple" {
     var buffer: [7]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1836,7 +1836,7 @@ test "array dict multiple" {
 test "array dict comma writer fail" {
     var buffer: [3]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -1868,7 +1868,7 @@ test "array dict comma writer fail" {
 test "dict number single" {
     var buffer: [7]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1900,7 +1900,7 @@ test "dict number single" {
 test "dict string single" {
     var buffer: [9]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1932,7 +1932,7 @@ test "dict string single" {
 test "dict bool true single" {
     var buffer: [10]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1964,7 +1964,7 @@ test "dict bool true single" {
 test "dict bool false single" {
     var buffer: [11]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -1996,7 +1996,7 @@ test "dict bool false single" {
 test "dict null single" {
     var buffer: [10]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -2028,7 +2028,7 @@ test "dict null single" {
 test "dict array single" {
     var buffer: [8]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -2063,7 +2063,7 @@ test "dict array single" {
 test "dict dict single" {
     var buffer: [8]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [2]u8 = undefined;
@@ -2100,7 +2100,7 @@ test "dict dict single" {
 test "number complete" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -2127,7 +2127,7 @@ test "number complete" {
 test "string complete" {
     var buffer: [2]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -2154,7 +2154,7 @@ test "string complete" {
 test "bool complete" {
     var buffer: [1]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -2179,7 +2179,7 @@ test "bool complete" {
 test "null complete" {
     var buffer: [3]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [0]u8 = undefined;
@@ -2204,7 +2204,7 @@ test "null complete" {
 test "array complete" {
     var buffer: [4]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -2229,7 +2229,7 @@ test "array complete" {
 test "dict complete" {
     var buffer: [4]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [1]u8 = undefined;
@@ -2256,7 +2256,7 @@ test "dict complete" {
 test "nested structures" {
     var buffer: [55]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var depth: [3]u8 = undefined;
@@ -2324,11 +2324,11 @@ test "nested structures" {
 test "indent writer" {
     var buffer: [119]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_context(&writer, &buffer, buffer.len);
+    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var indent: lib.ConWriterIndent = undefined;
-    const indent_err = lib.con_writer_indent_context(
+    const indent_err = lib.con_writer_indent_init(
         &indent,
         lib.con_writer_string_interface(&writer),
     );

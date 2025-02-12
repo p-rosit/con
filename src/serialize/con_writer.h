@@ -19,7 +19,7 @@ struct ConWriterFile {
 // Return:
 //  CON_ERROR_OK: Call succeeded
 //  CON_ERROR_NULL: `file` is null.
-enum ConError con_writer_file_context(struct ConWriterFile *context, FILE *file);
+enum ConError con_writer_file_init(struct ConWriterFile *context, FILE *file);
 
 // Makes a writer interface from an already initialized `struct ConWriterFile`
 // the returned writer owns the passed in `context`.
@@ -44,7 +44,7 @@ struct ConWriterString {
 // Return:
 //  CON_ERROR_OK:       Call succeeded.
 //  CON_ERROR_NULL:     `buffer` is null.
-enum ConError con_writer_string_context(
+enum ConError con_writer_string_init(
     struct ConWriterString *context,
     char *buffer,
     size_t buffer_size
@@ -77,7 +77,7 @@ struct ConWriterBuffer {
 //      1. `context` is null.
 //      2. `buffer` is null.
 //  CON_ERROR_BUFFER:   `buffer_size` <= 0.
-enum ConError con_writer_buffer_context(
+enum ConError con_writer_buffer_init(
     struct ConWriterBuffer *context,
     struct ConInterfaceWriter writer,
     char *buffer,
@@ -111,7 +111,7 @@ struct ConWriterIndent {
 // Return:
 //  CON_ERROR_OK:   Call succeeded.
 //  CON_ERROR_NULL: `context` is null.
-enum ConError con_writer_indent_context(
+enum ConError con_writer_indent_init(
     struct ConWriterIndent *context,
     struct ConInterfaceWriter writer
 );

@@ -9,7 +9,7 @@ size_t con_writer_string_write(void const *void_context, char const *data, size_
 size_t con_writer_buffer_write(void const *void_context, char const *data, size_t data_size);
 size_t con_writer_indent_write(void const *void_context, char const *data, size_t data_size);
 
-enum ConError con_writer_file_context(struct ConWriterFile *context, FILE *file) {
+enum ConError con_writer_file_init(struct ConWriterFile *context, FILE *file) {
     if (context == NULL) { return CON_ERROR_NULL; }
 
     context->file = file;
@@ -30,7 +30,7 @@ size_t con_writer_file_write(void const *context, char const *data, size_t data_
     return fwrite(data, sizeof(char), data_size, writer->file);
 }
 
-enum ConError con_writer_string_context(
+enum ConError con_writer_string_init(
     struct ConWriterString *context,
     char *buffer,
     size_t buffer_size
@@ -70,7 +70,7 @@ size_t con_writer_string_write(void const *void_context, char const *data, size_
     return write_length;
 }
 
-enum ConError con_writer_buffer_context(
+enum ConError con_writer_buffer_init(
         struct ConWriterBuffer *context,
         struct ConInterfaceWriter writer,
         char *buffer,
@@ -145,7 +145,7 @@ enum StateIndent {
     INDENT_MAX,
 };
 
-enum ConError con_writer_indent_context(
+enum ConError con_writer_indent_init(
     struct ConWriterIndent *context,
     struct ConInterfaceWriter writer
 ) {
