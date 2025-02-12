@@ -18,7 +18,7 @@ typedef size_t (ConWrite)(void const *context, char const *data, size_t data_siz
 // Returns:
 //  The amount of characters written, less than `data_size` if an error occured.
 struct ConInterfaceWriter {
-    const void *context;
+    void const *context;
     ConWrite *write;
 };
 
