@@ -7,28 +7,28 @@
 
 
 struct ConReaderFile {
-    struct ConReader v_table;
     FILE *file;
 };
 
-enum ConError con_reader_file(struct ConReaderFile *reader, FILE *file);
+enum ConError con_reader_file(struct ConReaderFile *context, FILE *file);
+struct ConInterfaceReader con_reader_file_interface(struct ConReaderFile *context);
 
 struct ConReaderString {
-    struct ConReader v_table;
     char const *buffer;
     int buffer_size;
     int current;
 };
 
 enum ConError con_reader_string(
-    struct ConReaderString *reader,
+    struct ConReaderString *context,
     char const *buffer,
     int buffer_size
 );
 
+struct ConInterfaceReader con_reader_string_interface(struct ConReaderString *context);
+
 struct ConReaderBuffer {
-    struct ConReader v_table;
-    void const *reader;
+    struct ConInterfaceReader reader;
     char *buffer;
     int buffer_size;
     int current;
@@ -36,22 +36,23 @@ struct ConReaderBuffer {
 };
 
 enum ConError con_reader_buffer(
-    struct ConReaderBuffer *reader,
-    void const *inner_reader,
+    struct ConReaderBuffer *context,
+    struct ConInterfaceReader reader,
     char *buffer,
     int buffer_size
 );
 
+struct ConInterfaceReader con_reader_buffer_interface(struct ConReaderBuffer *context);
+
 struct ConReaderComment {
-    struct ConReader v_table;
-    void const *reader;
+    struct ConInterfaceReader reader;
     char buffer_char;
     bool in_string;
 };
 
 enum ConError con_reader_comment(
-    struct ConReaderComment *reader,
-    void const *inner_reader
+    struct ConReaderComment *context,
+    struct ConInterfaceReader reader
 );
 
 #endif

@@ -5,17 +5,14 @@
 
 typedef int (ConRead)(void const *context, char *buffer, int buffer_size);
 
-struct ConReader {
+struct ConInterfaceReader {
+    void const *context;
     ConRead *read;
 };
 
-static inline int con_reader_read(void const *reader, char *buffer, int buffer_size) {
-    assert(reader != NULL);
-
-    struct ConReader const *v_table = (struct ConReader const*) reader;
-
-    assert(v_table->read != NULL);
-    return v_table->read(reader, buffer, buffer_size);
+static inline int con_reader_read(struct ConInterfaceReader reader, char *buffer, int buffer_size) {
+    assert(reader.read != NULL);
+    return reader.read(reader.context, buffer, buffer_size);
 }
 
 #endif
