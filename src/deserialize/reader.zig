@@ -51,7 +51,7 @@ pub const File = struct {
 
     pub fn init(file: *lib.FILE) !File {
         var self: File = undefined;
-        const err = lib.con_reader_file(&self.inner, file);
+        const err = lib.con_reader_file_init(&self.inner, file);
         internal.enumToError(err) catch |new_err| {
             return new_err;
         };
@@ -72,7 +72,7 @@ pub const String = struct {
         }
 
         var self: String = undefined;
-        const err = lib.con_reader_string(
+        const err = lib.con_reader_string_init(
             &self.inner,
             data.ptr,
             @intCast(data.len),
@@ -97,7 +97,7 @@ pub const Buffer = struct {
         }
 
         var self: Buffer = undefined;
-        const err = lib.con_reader_buffer(
+        const err = lib.con_reader_buffer_init(
             &self.inner,
             reader.reader,
             buffer.ptr,

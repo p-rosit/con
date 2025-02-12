@@ -6,7 +6,7 @@ int con_reader_file_read(void const *context, char *buffer, int buffer_size);
 int con_reader_string_read(void const *context, char *buffer, int buffer_size);
 int con_reader_buffer_read(void const *context, char *buffer, int buffer_size);
 
-enum ConError con_reader_file(struct ConReaderFile *context, FILE *file) {
+enum ConError con_reader_file_init(struct ConReaderFile *context, FILE *file) {
     if (context == NULL) { return CON_ERROR_NULL; }
 
     context->file = file;
@@ -31,7 +31,7 @@ int con_reader_file_read(void const *void_context, char *buffer, int buffer_size
     return (int) amount_read;
 }
 
-enum ConError con_reader_string(struct ConReaderString *context, char const *buffer, int buffer_size) {
+enum ConError con_reader_string_init(struct ConReaderString *context, char const *buffer, int buffer_size) {
     if (context == NULL) { return CON_ERROR_NULL; }
 
     context->buffer = NULL;
@@ -72,7 +72,7 @@ int con_reader_string_read(void const *void_context, char *buffer, int buffer_si
     return length;
 }
 
-enum ConError con_reader_buffer(
+enum ConError con_reader_buffer_init(
     struct ConReaderBuffer *context,
     struct ConInterfaceReader reader,
     char *buffer,

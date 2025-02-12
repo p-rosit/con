@@ -10,7 +10,7 @@ struct ConReaderFile {
     FILE *file;
 };
 
-enum ConError con_reader_file(struct ConReaderFile *context, FILE *file);
+enum ConError con_reader_file_init(struct ConReaderFile *context, FILE *file);
 struct ConInterfaceReader con_reader_file_interface(struct ConReaderFile *context);
 
 struct ConReaderString {
@@ -19,7 +19,7 @@ struct ConReaderString {
     int current;
 };
 
-enum ConError con_reader_string(
+enum ConError con_reader_string_init(
     struct ConReaderString *context,
     char const *buffer,
     int buffer_size
@@ -35,7 +35,7 @@ struct ConReaderBuffer {
     int length_read;
 };
 
-enum ConError con_reader_buffer(
+enum ConError con_reader_buffer_init(
     struct ConReaderBuffer *context,
     struct ConInterfaceReader reader,
     char *buffer,
@@ -50,9 +50,11 @@ struct ConReaderComment {
     bool in_string;
 };
 
-enum ConError con_reader_comment(
+enum ConError con_reader_comment_init(
     struct ConReaderComment *context,
     struct ConInterfaceReader reader
 );
+
+struct ConInterfaceReader con_reader_comment_interface(struct ConReaderComment *context);
 
 #endif

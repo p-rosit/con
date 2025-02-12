@@ -8,6 +8,6 @@ const clib = @cImport({
 
 test "file init" {
     var context: lib.ConReaderFile = undefined;
-    const init_err = lib.con_reader_file(&context, @ptrFromInt(256));
+    const init_err = lib.con_reader_file_init(&context, @ptrFromInt(256));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 }
