@@ -342,7 +342,7 @@ test "indent write minified" {
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
-    try writer.write("[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]");
+    try writer.write("[{\"k\" : \":)\"}\n\t,  \r\nnull,\"\\\"{1,2,3} [1,2,3]\"]");
     try testing.expectEqualStrings(
         \\[
         \\  {

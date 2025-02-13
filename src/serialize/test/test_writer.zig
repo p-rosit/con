@@ -367,9 +367,9 @@ test "indent write minified" {
 
     const writer = lib.con_writer_indent_interface(&context);
 
-    const json = "[{\"k\":\":)\"},null,\"\\\"{1,2,3} [1,2,3]\"]";
-    const res = lib.con_writer_write(writer, json, 37);
-    try testing.expectEqual(37, res);
+    const json = "[{\"k\" : \":)\"}\n\t,  \r\nnull,\"\\\"{1,2,3} [1,2,3]\"]";
+    const res = lib.con_writer_write(writer, json, 45);
+    try testing.expectEqual(45, res);
     try testing.expectEqualStrings(
         \\[
         \\  {
