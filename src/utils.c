@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <limits.h>
+#include <ctype.h>
 #include "utils.h"
 
 enum ConJsonState con_utils_json_init(void) {
@@ -22,9 +23,12 @@ enum ConJsonState con_utils_json_next(enum ConJsonState state, char c) {
                 next_state = JSON_STATE_NORMAL;
             } else if (c == '"') {
                 next_state = JSON_STATE_IN_STRING;
+            } else if (!isspace((unsigned char) c)) {
+                next_state = JSON_STATE_NORMAL;
             } else {
                 next_state = state;
             }
+            break;
         }
         case JSON_STATE_IN_STRING: {
             if (c == '"') {
@@ -34,9 +38,11 @@ enum ConJsonState con_utils_json_next(enum ConJsonState state, char c) {
             } else {
                 next_state = JSON_STATE_IN_STRING;
             }
+            break;
         }
         case JSON_STATE_ESCAPE: {
             next_state = JSON_STATE_IN_STRING;
+            break;
         }
         default:
             assert(false);
@@ -60,14 +66,7 @@ bool con_utils_json_is_meaningful(enum ConJsonState state, char c) {
     if (state == JSON_STATE_IN_STRING || state == JSON_STATE_ESCAPE) {
         return true;
     }
-    return (
-        c == '['
-        || c == ']'
-        || c == '{'
-        || c == '}'
-        || c == '"'
-        || c == ':'
-    );
+    return !isspace((unsigned char) c);
 }
 
 bool con_utils_json_is_open(enum ConJsonState state, char c) {
