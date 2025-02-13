@@ -317,3 +317,16 @@ test "comment read" {
     try testing.expectEqual(2, amount_read);
     try testing.expectEqualStrings("12", &buffer);
 }
+
+test "comment read more" {
+    const d: *const [20]u8 = "[  //:(\n \"k //:)\",1]";
+    var c = try String.init(d);
+
+    var context = try Comment.init(c.interface());
+    const reader = context.interface();
+
+    var buffer: [16]u8 = undefined;
+    const amount_read = try reader.read(&buffer);
+    try testing.expectEqual(16, amount_read);
+    try testing.expectEqualStrings("[  \n \"k //:)\",1]", &buffer);
+}

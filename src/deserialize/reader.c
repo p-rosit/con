@@ -179,7 +179,8 @@ int con_reader_comment_read(void const *void_context, char *buffer, int buffer_s
             }
         } else if (context->in_comment && c == '\n') {
             context->in_comment = false;
-        } else {
+            buffer[length++] = '\n';
+        } else if (!context->in_comment) {
             buffer[length++] = c;
         }
 
