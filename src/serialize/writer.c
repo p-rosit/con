@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <string.h>
+#include <utils.h>
 #include "con_interface_writer.h"
 #include "con_writer.h"
 
@@ -136,15 +137,6 @@ bool con_writer_buffer_flush(struct ConWriterBuffer *context) {
     }
 }
 
-enum StateIndent {
-    INDENT_UNKNOWN      = 0,
-    INDENT_NORMAL       = 1,
-    INDENT_FIRST_ITEM   = 2,
-    INDENT_IN_STRING    = 3,
-    INDENT_ESCAPE       = 4,
-    INDENT_MAX,
-};
-
 enum ConError con_writer_indent_init(
     struct ConWriterIndent *context,
     struct ConInterfaceWriter writer
@@ -153,7 +145,7 @@ enum ConError con_writer_indent_init(
 
     context->writer = writer;
     context->depth = 0;
-    context->state = INDENT_NORMAL;
+    context->state = con_utils_json_to_char(con_utils_json_init());
 
     return CON_ERROR_OK;
 }
@@ -179,66 +171,48 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
     assert(data != NULL);
 
     struct ConWriterIndent *context = (struct ConWriterIndent*) void_context;
-    assert(0 < context->state && context->state < INDENT_MAX);
 
     size_t length = 0;
     for (; length < data_size; length++) {
+        enum ConJsonState state = con_utils_json_from_char(context->state);
         char c = data[length];
-        bool in_string = context->state == INDENT_IN_STRING || context->state == INDENT_ESCAPE;
-        bool normal = context->state == INDENT_FIRST_ITEM || context->state == INDENT_NORMAL;
 
-        if (context->state == INDENT_FIRST_ITEM && c != ']' && c != '}') {
+        if (con_utils_json_is_empty(state) && !con_utils_json_is_close(state, c)) {
             bool success = con_writer_indent_whitespace(context);
             if (!success) { return length; }
-
-            context->state = INDENT_NORMAL;
         }
 
-        if (normal && (c == ']' || c == '}') && context->depth > 0) {
+        if (con_utils_json_is_close(state, c) && context->depth > 0) {
             context->depth -= 1;
 
-            if (context->state != INDENT_FIRST_ITEM) {
+            if (!con_utils_json_is_empty(state)) {
                 bool success = con_writer_indent_whitespace(context);
                 if (!success) { return length; }
             }
-
-            context->state = INDENT_NORMAL;
-        }
-
-        if (normal && (c == '[' || c == '{')) {
-            context->state = INDENT_FIRST_ITEM;
-
+        } else if (con_utils_json_is_open(state, c)) {
             if (context->depth > SIZE_MAX - 1) {
-                return 0;
+                return length;
             }
 
             context->depth += 1;
         }
 
-        size_t result = con_writer_write(context->writer, &c, 1);
-        if (result != 1) { return length; }
-
-        if (c == '"' && in_string && context->state != INDENT_ESCAPE) {
-            context->state = INDENT_NORMAL;
-        } else if (c == '"' && !in_string) {
-            context->state = INDENT_IN_STRING;
+        if (con_utils_json_is_meaningful(state, c)) {
+            size_t result = con_writer_write(context->writer, &c, 1);
+            if (result != 1) { return length; }
         }
 
-        if (c == '\\' && context->state == INDENT_IN_STRING) {
-            context->state = INDENT_ESCAPE;
-        } else if (in_string && context->state == INDENT_ESCAPE) {
-            context->state = INDENT_IN_STRING;
-        }
-
-        if (c == ':' && !in_string) {
+        if (con_utils_json_is_key_separator(state, c)) {
             size_t result = con_writer_write(context->writer, " ", 1);
             if (result != 1) { return length + 1; }
         }
 
-        if (c == ',' && !in_string) {
+        if (con_utils_json_is_item_separator(state, c)) {
             bool success = con_writer_indent_whitespace(context);
             if (!success) { return length + 1; }
         }
+
+        context->state = con_utils_json_to_char(con_utils_json_next(state, c));
     }
 
     return length;
