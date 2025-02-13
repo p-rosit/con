@@ -114,6 +114,26 @@ pub const Buffer = struct {
     }
 };
 
+pub const Comment = struct {
+    inner: lib.ConReaderComment,
+
+    pub fn init(reader: InterfaceReader) !Comment {
+        var self: Comment = undefined;
+        const err = lib.con_reader_comment_init(
+            &self.inner,
+            reader.reader,
+        );
+        internal.enumToError(err) catch |new_err| {
+            return new_err;
+        };
+        return self;
+    }
+
+    pub fn interface(self: *Comment) InterfaceReader {
+        return .{ .reader = lib.con_reader_comment_interface(&self.inner) };
+    }
+};
+
 const testing = std.testing;
 const builtin = @import("builtin");
 const clib = @cImport({
@@ -275,4 +295,25 @@ test "buffer internal reader fail" {
     var result: [4]u8 = undefined;
     const err = reader.read(&result);
     try testing.expectError(error.Reader, err);
+}
+
+test "comment init" {
+    const d: *const [0]u8 = "";
+    var c = try String.init(d);
+
+    var context = try Comment.init(c.interface());
+    _ = context.interface();
+}
+
+test "comment read" {
+    const d: *const [2]u8 = "12";
+    var c = try String.init(d);
+
+    var context = try Comment.init(c.interface());
+    const reader = context.interface();
+
+    var buffer: [2]u8 = undefined;
+    const amount_read = try reader.read(&buffer);
+    try testing.expectEqual(2, amount_read);
+    try testing.expectEqualStrings("12", &buffer);
 }

@@ -105,3 +105,8 @@ bool con_utils_json_is_empty(enum ConJsonState state) {
     assert(0 < state && state < JSON_STATE_MAX);
     return state == JSON_STATE_FIRST_ITEM;
 }
+
+bool con_utils_json_is_string(enum ConJsonState state) {
+    assert(0 < state && state < JSON_STATE_MAX);
+    return state == JSON_STATE_IN_STRING || state == JSON_STATE_ESCAPE;
+}

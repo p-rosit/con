@@ -1,10 +1,11 @@
-#include <stdbool.h>
 #include <limits.h>
+#include <utils.h>
 #include "con_reader.h"
 
 int con_reader_file_read(void const *context, char *buffer, int buffer_size);
 int con_reader_string_read(void const *context, char *buffer, int buffer_size);
 int con_reader_buffer_read(void const *context, char *buffer, int buffer_size);
+int con_reader_comment_read(void const *context, char *buffer, int buffer_size);
 
 enum ConError con_reader_file_init(struct ConReaderFile *context, FILE *file) {
     if (context == NULL) { return CON_ERROR_NULL; }
@@ -121,5 +122,71 @@ int con_reader_buffer_read(void const *void_context, char *buffer, int buffer_si
         buffer[length++] = context->buffer[context->current++];
     }
 
+    return length;
+}
+
+enum ConError con_reader_comment_init(struct ConReaderComment *context, struct ConInterfaceReader reader) {
+    if (context == NULL) { return CON_ERROR_NULL; }
+    context->reader = reader;
+    context->buffer_char = EOF;
+    context->state = con_utils_json_to_char(con_utils_json_init());
+    context->in_comment = false;
+    return CON_ERROR_OK;
+}
+
+struct ConInterfaceReader con_reader_comment_interface(struct ConReaderComment *context) {
+    return (struct ConInterfaceReader) { .context = context, .read = con_reader_comment_read };
+}
+
+int con_reader_comment_read(void const *void_context, char *buffer, int buffer_size) {
+    assert(void_context != NULL);
+
+    struct ConReaderComment *context = (struct ConReaderComment*) void_context;
+
+    bool any_read = false;
+    int length = 0;
+
+    if (context->buffer_char != EOF) {
+        if (buffer_size >= 1) {
+            buffer[0] = (char) context->buffer_char;
+            context->buffer_char = EOF;
+        } else {
+            return -1;
+        }
+    }
+
+    while (length < buffer_size) {
+        enum ConJsonState state = con_utils_json_from_char(context->state);
+        char c;
+
+        int result = con_reader_read(context->reader, &c, 1);
+        if (any_read && result <= 0) { break; }
+        if (result <= 0) { return result; }
+
+        if (!context->in_comment && !con_utils_json_is_string(state) && c == '/') {
+            result = con_reader_read(context->reader, &c, 1);
+            if (result <= 0) {
+                buffer[length++] = '/';
+            } else if (c == '/') {
+                context->in_comment = true;
+            } else {
+                buffer[length++] = '/';
+
+                if (length >= buffer_size) {
+                    context->buffer_char = c;
+                    break;
+                }
+            }
+        } else if (context->in_comment && c == '\n') {
+            context->in_comment = false;
+        } else {
+            buffer[length++] = c;
+        }
+
+        context->state = con_utils_json_to_char(con_utils_json_next(state, c));
+        any_read = true;
+    }
+
+    assert(length <= INT_MAX);
     return length;
 }

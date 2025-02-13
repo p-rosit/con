@@ -22,5 +22,6 @@ bool con_utils_json_is_close(enum ConJsonState state, char c);
 bool con_utils_json_is_key_separator(enum ConJsonState state, char c);
 bool con_utils_json_is_item_separator(enum ConJsonState state, char c);
 bool con_utils_json_is_empty(enum ConJsonState state);
+bool con_utils_json_is_string(enum ConJsonState state);
 
 #endif

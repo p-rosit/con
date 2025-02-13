@@ -46,8 +46,9 @@ struct ConInterfaceReader con_reader_buffer_interface(struct ConReaderBuffer *co
 
 struct ConReaderComment {
     struct ConInterfaceReader reader;
-    char buffer_char;
-    bool in_string;
+    int buffer_char;
+    char state;
+    bool in_comment;
 };
 
 enum ConError con_reader_comment_init(
