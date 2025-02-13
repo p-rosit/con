@@ -8,6 +8,17 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const utils = b.addStaticLibrary(.{
+        .name = "con-utils",
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    utils.addCSourceFiles(.{
+        .root = b.path("src"),
+        .files = &.{"utils.c"},
+    });
+
     const serialize = buildCLib(b, allocator, .{
         .target = target,
         .optimize = optimize,
@@ -16,6 +27,7 @@ pub fn build(b: *std.Build) void {
         .sources = &.{ "serialize.c", "writer.c" },
         .headers = &.{ "con_serialize.h", "con_interface_writer.h", "con_writer.h" },
     });
+    serialize.linkLibrary(utils);
     serialize.installHeader(b.path("src/con_error.h"), "con_error.h");
 
     const deserialize = buildCLib(b, allocator, .{
@@ -26,6 +38,7 @@ pub fn build(b: *std.Build) void {
         .sources = &.{"reader.c"},
         .headers = &.{"con_reader.h"},
     });
+    serialize.linkLibrary(utils);
     deserialize.installHeader(b.path("src/con_error.h"), "con_error.h");
 
     const con = b.addModule("con", .{
