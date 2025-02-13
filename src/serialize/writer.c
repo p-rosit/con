@@ -173,13 +173,13 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
     struct ConWriterIndent *context = (struct ConWriterIndent*) void_context;
 
     size_t length = 0;
-    for (; length < data_size; length++) {
+    while (length < data_size) {
         enum ConJsonState state = con_utils_json_from_char(context->state);
         char c = data[length];
 
         if (con_utils_json_is_empty(state) && !con_utils_json_is_close(state, c)) {
             bool success = con_writer_indent_whitespace(context);
-            if (!success) { return length; }
+            if (!success) { break; }
         }
 
         if (con_utils_json_is_close(state, c) && context->depth > 0) {
@@ -187,7 +187,7 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
 
             if (!con_utils_json_is_empty(state)) {
                 bool success = con_writer_indent_whitespace(context);
-                if (!success) { return length; }
+                if (!success) { break; }
             }
         } else if (con_utils_json_is_open(state, c)) {
             if (context->depth > SIZE_MAX - 1) {
@@ -199,17 +199,18 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
 
         if (con_utils_json_is_meaningful(state, c)) {
             size_t result = con_writer_write(context->writer, &c, 1);
-            if (result != 1) { return length; }
+            if (result != 1) { break; }
         }
+        length += 1;
 
         if (con_utils_json_is_key_separator(state, c)) {
             size_t result = con_writer_write(context->writer, " ", 1);
-            if (result != 1) { return length + 1; }
+            if (result != 1) { break; }
         }
 
         if (con_utils_json_is_item_separator(state, c)) {
             bool success = con_writer_indent_whitespace(context);
-            if (!success) { return length + 1; }
+            if (!success) { break; }
         }
 
         context->state = con_utils_json_to_char(con_utils_json_next(state, c));
