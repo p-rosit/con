@@ -319,14 +319,30 @@ test "comment read" {
 }
 
 test "comment read more" {
-    const d: *const [20]u8 = "[  //:(\n \"k //:)\",1]";
+    const d: *const [21]u8 = "[  //:(\n \"k //:)\",1/]";
     var c = try String.init(d);
 
     var context = try Comment.init(c.interface());
     const reader = context.interface();
 
-    var buffer: [16]u8 = undefined;
+    var buffer: [17]u8 = undefined;
     const amount_read = try reader.read(&buffer);
-    try testing.expectEqual(16, amount_read);
-    try testing.expectEqualStrings("[  \n \"k //:)\",1]", &buffer);
+    try testing.expectEqual(17, amount_read);
+    try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
+}
+
+test "comment read one char at a time" {
+    const d: *const [21]u8 = "[  //:(\n \"k //:)\",1/]";
+    var c = try String.init(d);
+
+    var context = try Comment.init(c.interface());
+    const reader = context.interface();
+
+    var buffer: [17]u8 = undefined;
+    for (0..17) |i| {
+        const amount_read = try reader.read(buffer[i .. i + 1]);
+        try testing.expectEqual(1, amount_read);
+    }
+
+    try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
 }

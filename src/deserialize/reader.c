@@ -150,6 +150,9 @@ int con_reader_comment_read(void const *void_context, char *buffer, int buffer_s
         if (buffer_size >= 1) {
             buffer[0] = (char) context->buffer_char;
             context->buffer_char = EOF;
+
+            length = 1;
+            any_read = true;
         } else {
             return -1;
         }
@@ -176,6 +179,8 @@ int con_reader_comment_read(void const *void_context, char *buffer, int buffer_s
                     context->buffer_char = c;
                     break;
                 }
+
+                buffer[length++] = c;
             }
         } else if (context->in_comment && c == '\n') {
             context->in_comment = false;
