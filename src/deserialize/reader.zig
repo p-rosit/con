@@ -318,7 +318,7 @@ test "comment read" {
     try testing.expectEqualStrings("12", &buffer);
 }
 
-test "comment read more" {
+test "comment read comment" {
     const d: *const [21]u8 = "[  //:(\n \"k //:)\",1/]";
     var c = try String.init(d);
 
