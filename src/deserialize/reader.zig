@@ -346,3 +346,15 @@ test "comment read one char at a time" {
 
     try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
 }
+
+test "comment inner reader fail" {
+    const d: *const [0]u8 = "";
+    var c = try String.init(d);
+
+    var context = try Comment.init(c.interface());
+    const reader = context.interface();
+
+    var buffer: [1]u8 = undefined;
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
+}
