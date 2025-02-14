@@ -358,3 +358,28 @@ test "comment inner reader fail" {
     const err = reader.read(&buffer);
     try testing.expectError(error.Reader, err);
 }
+
+test "comment inner reader fail comment" {
+    const d: *const [1]u8 = "/";
+    var c = try String.init(d);
+
+    var context = try Comment.init(c.interface());
+    const reader = context.interface();
+
+    var buffer: [1]u8 = undefined;
+    const amount_read = try reader.read(&buffer);
+    try testing.expectEqual(1, amount_read);
+    try testing.expectEqualStrings("/", &buffer);
+}
+
+test "comment read only comment" {
+    const d: *const [17]u8 = "// only a comment";
+    var c = try String.init(d);
+
+    var context = try Comment.init(c.interface());
+    const reader = context.interface();
+
+    var buffer: [3]u8 = undefined;
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
+}
