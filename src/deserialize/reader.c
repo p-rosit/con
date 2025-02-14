@@ -87,7 +87,7 @@ enum ConError con_reader_buffer_init(
     context->reader = reader;
     context->buffer = buffer;
     context->buffer_size = buffer_size;
-    context->current = buffer_size;
+    context->current = 0;
     context->length_read = 0;
 
     return CON_ERROR_OK;
