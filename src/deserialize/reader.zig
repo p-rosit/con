@@ -331,7 +331,7 @@ test "comment read comment" {
     try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
 }
 
-test "comment read one char at a time" {
+test "comment read comment one char at a time" {
     const d: *const [21]u8 = "[  //:(\n \"k //:)\",1/]";
     var c = try String.init(d);
 
