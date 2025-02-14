@@ -10,7 +10,7 @@ pub const InterfaceReader = struct {
             return error.Overflow;
         }
         const result = lib.con_reader_read(reader.reader, buffer.ptr, @intCast(buffer.len));
-        if ((result < 0) or (result == 0 and buffer.len != 0)) {
+        if (result < 0) {
             return error.Reader;
         }
         return @intCast(result);
@@ -176,8 +176,8 @@ test "file read" {
     try testing.expectEqual(1, result);
     try testing.expectEqualStrings("1", &buffer);
 
-    const err = reader.read(&buffer);
-    try testing.expectError(error.Reader, err);
+    const amount = try reader.read(&buffer);
+    try testing.expectEqual(0, amount);
 }
 
 test "string init" {
@@ -219,8 +219,8 @@ test "string read overflow" {
     try testing.expectEqual(1, amount_read);
     try testing.expectEqualStrings("z", buffer[0..1]);
 
-    const err = reader.read(&buffer);
-    try testing.expectError(error.Reader, err);
+    const next_read = try reader.read(&buffer);
+    try testing.expectEqual(0, next_read);
 }
 
 test "buffer init" {
@@ -293,8 +293,8 @@ test "buffer internal reader fail" {
     const reader = context.interface();
 
     var result: [4]u8 = undefined;
-    const err = reader.read(&result);
-    try testing.expectError(error.Reader, err);
+    const amount_read = try reader.read(&result);
+    try testing.expectEqual(0, amount_read);
 }
 
 test "comment init" {
@@ -355,8 +355,8 @@ test "comment inner reader fail" {
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
-    const err = reader.read(&buffer);
-    try testing.expectError(error.Reader, err);
+    const amount_read = try reader.read(&buffer);
+    try testing.expectEqual(0, amount_read);
 }
 
 test "comment inner reader fail comment" {
@@ -380,6 +380,6 @@ test "comment read only comment" {
     const reader = context.interface();
 
     var buffer: [3]u8 = undefined;
-    const err = reader.read(&buffer);
-    try testing.expectError(error.Reader, err);
+    const amount_read = try reader.read(&buffer);
+    try testing.expectEqual(0, amount_read);
 }

@@ -60,7 +60,7 @@ int con_reader_string_read(void const *void_context, char *buffer, int buffer_si
     assert(0 <= context->current && context->current <= context->buffer_size);
 
     if (context->current >= context->buffer_size) {
-        return -1;
+        return 0;
     }
 
     int current = context->current;
