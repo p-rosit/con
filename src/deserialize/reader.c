@@ -105,25 +105,37 @@ int con_reader_buffer_read(void const *void_context, char *buffer, int buffer_si
     struct ConReaderBuffer *context = (struct ConReaderBuffer*) void_context;
     assert(context->buffer != NULL);
     assert(0 <= context->current && context->current <= context->buffer_size);
+    assert(0 <= context->length_read && context->length_read <= context->buffer_size);
+    assert(context->current <= context->length_read) ;
 
-    bool any_read = false;
-    int length = 0;
-    while (length < buffer_size) {
-        if (context->current >= context->length_read) {
-            context->length_read = 0;
-            int length_read = con_reader_read(context->reader, context->buffer, context->buffer_size);
-            if (any_read && length_read <= 0) { break; }
-            if (length_read <= 0) { return length_read; }
+    int read_length = context->length_read - context->current;
+    read_length = read_length > buffer_size ? buffer_size : read_length;
 
+    assert(read_length >= 0);
+    memcpy(buffer, context->buffer + context->current, (size_t) read_length);
+    context->current += read_length;
+
+    if (context->current >= context->length_read) {
+        if (buffer_size - read_length >= context->buffer_size) {
+            int result = con_reader_read(context->reader, buffer + read_length, buffer_size - read_length);
+            read_length += result;
+        } else {
+            int result = con_reader_read(context->reader, context->buffer, context->buffer_size);
+            if (result <= 0) { return (int)read_length; }
+            context->length_read = result;
             context->current = 0;
-            context->length_read = length_read;
-        }
 
-        any_read = true;
-        buffer[length++] = context->buffer[context->current++];
+            int next_length = context->length_read;
+            next_length = next_length > (buffer_size - read_length) ? (buffer_size - read_length) : next_length;
+
+            assert(next_length >= 0);
+            memcpy(buffer, context->buffer, (size_t) next_length);
+            context->current = next_length;
+            read_length += next_length;
+        }
     }
 
-    return length;
+    return read_length;
 }
 
 enum ConError con_reader_comment_init(struct ConReaderComment *context, struct ConInterfaceReader reader) {
