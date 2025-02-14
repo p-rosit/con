@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <string.h>
 #include <utils.h>
 #include "con_reader.h"
 
@@ -63,14 +64,14 @@ int con_reader_string_read(void const *void_context, char *buffer, int buffer_si
         return 0;
     }
 
-    int current = context->current;
-    int length = 0;
-    while (length < buffer_size && current < context->buffer_size) {
-        buffer[length++] = context->buffer[current++];
-    }
+    size_t read_length = (size_t)(context->buffer_size - context->current);
+    read_length = read_length > (size_t) buffer_size ? (size_t) buffer_size : read_length;
 
-    context->current = current;
-    return length;
+    memcpy(buffer, context->buffer + context->current, read_length);
+    context->current += read_length;
+
+    assert(read_length <= INT_MAX);
+    return (int) read_length;
 }
 
 enum ConError con_reader_buffer_init(
