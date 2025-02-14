@@ -199,7 +199,7 @@ test "string init overflow" {
 }
 
 test "string read" {
-    const data: *const [3]u8 = "zig";
+    const data = "zig";
     var context = try String.init(data);
     const reader = context.interface();
 
@@ -210,7 +210,7 @@ test "string read" {
 }
 
 test "string read overflow" {
-    const data: *const [1]u8 = "z";
+    const data = "z";
     var context = try String.init(data);
     const reader = context.interface();
 
@@ -224,7 +224,7 @@ test "string read overflow" {
 }
 
 test "buffer init" {
-    const d: *const [4]u8 = "data";
+    const d = "data";
     var c = try String.init(d);
 
     var buffer: [2]u8 = undefined;
@@ -233,7 +233,7 @@ test "buffer init" {
 }
 
 test "buffer init buffer small" {
-    const d: *const [4]u8 = "data";
+    const d = "data";
     var c = try String.init(d);
 
     var buffer: [1]u8 = undefined;
@@ -249,7 +249,7 @@ test "buffer init overflow" {
         testing.allocator.free(fake_large_buffer);
     }
 
-    const d: *const [4]u8 = "data";
+    const d = "data";
     var c = try String.init(d);
 
     const err = Buffer.init(c.interface(), fake_large_buffer);
@@ -257,7 +257,7 @@ test "buffer init overflow" {
 }
 
 test "buffer read" {
-    const d: *const [4]u8 = "data";
+    const d = "data";
     var c = try String.init(d);
 
     var buffer: [3]u8 = undefined;
@@ -271,7 +271,7 @@ test "buffer read" {
 }
 
 test "buffer read buffer twice" {
-    const d: *const [4]u8 = "data";
+    const d = "data";
     var c = try String.init(d);
 
     var buffer: [3]u8 = undefined;
@@ -285,7 +285,7 @@ test "buffer read buffer twice" {
 }
 
 test "buffer internal reader fail" {
-    const d: *const [0]u8 = "";
+    const d = "";
     var c = try String.init(d);
 
     var buffer: [3]u8 = undefined;
@@ -298,7 +298,7 @@ test "buffer internal reader fail" {
 }
 
 test "comment init" {
-    const d: *const [0]u8 = "";
+    const d = "";
     var c = try String.init(d);
 
     var context = try Comment.init(c.interface());
@@ -306,7 +306,7 @@ test "comment init" {
 }
 
 test "comment read" {
-    const d: *const [2]u8 = "12";
+    const d = "12";
     var c = try String.init(d);
 
     var context = try Comment.init(c.interface());
@@ -319,7 +319,7 @@ test "comment read" {
 }
 
 test "comment read comment" {
-    const d: *const [21]u8 = "[  //:(\n \"k //:)\",1/]";
+    const d = "[  //:(\n \"k //:)\",1/]";
     var c = try String.init(d);
 
     var context = try Comment.init(c.interface());
@@ -332,7 +332,7 @@ test "comment read comment" {
 }
 
 test "comment read comment one char at a time" {
-    const d: *const [21]u8 = "[  //:(\n \"k //:)\",1/]";
+    const d = "[  //:(\n \"k //:)\",1/]";
     var c = try String.init(d);
 
     var context = try Comment.init(c.interface());
@@ -348,7 +348,7 @@ test "comment read comment one char at a time" {
 }
 
 test "comment inner reader fail" {
-    const d: *const [0]u8 = "";
+    const d = "";
     var c = try String.init(d);
 
     var context = try Comment.init(c.interface());
@@ -360,7 +360,7 @@ test "comment inner reader fail" {
 }
 
 test "comment inner reader fail comment" {
-    const d: *const [1]u8 = "/";
+    const d = "/";
     var c = try String.init(d);
 
     var context = try Comment.init(c.interface());
@@ -373,7 +373,7 @@ test "comment inner reader fail comment" {
 }
 
 test "comment read only comment" {
-    const d: *const [17]u8 = "// only a comment";
+    const d = "// only a comment";
     var c = try String.init(d);
 
     var context = try Comment.init(c.interface());
