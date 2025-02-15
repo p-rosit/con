@@ -211,7 +211,7 @@ test "file read" {
     const seek_err = clib.fseek(file, 0, clib.SEEK_SET);
     try testing.expectEqual(0, seek_err);
 
-    var context = try File.init(@as([*c]lib.FILE, @ptrCast(file)));
+    var context = try File.init(@ptrCast(file));
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
