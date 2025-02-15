@@ -27,9 +27,6 @@ pub const InterfaceReader = struct {
     reader: lib.ConInterfaceReader,
 
     pub fn read(reader: InterfaceReader, buffer: []u8) ![]u8 {
-        if (buffer.len > std.math.maxInt(c_int)) {
-            return error.Overflow;
-        }
         const result = lib.con_reader_read(reader.reader, buffer.ptr, buffer.len);
         if (result.@"error") {
             return error.Reader;
@@ -89,15 +86,11 @@ pub const String = struct {
     inner: lib.ConReaderString,
 
     pub fn init(data: []const u8) !String {
-        if (data.len > std.math.maxInt(c_int)) {
-            return error.Overflow;
-        }
-
         var self: String = undefined;
         const err = lib.con_reader_string_init(
             &self.inner,
             data.ptr,
-            @intCast(data.len),
+            data.len,
         );
         internal.enumToError(err) catch |new_err| {
             return new_err;
@@ -114,16 +107,12 @@ pub const Buffer = struct {
     inner: lib.ConReaderBuffer,
 
     pub fn init(reader: InterfaceReader, buffer: []u8) !Buffer {
-        if (buffer.len > std.math.maxInt(c_int)) {
-            return error.Overflow;
-        }
-
         var self: Buffer = undefined;
         const err = lib.con_reader_buffer_init(
             &self.inner,
             reader.reader,
             buffer.ptr,
-            @intCast(buffer.len),
+            buffer.len,
         );
         internal.enumToError(err) catch |new_err| {
             return new_err;
@@ -228,18 +217,6 @@ test "string init" {
     _ = context.interface();
 }
 
-test "string init overflow" {
-    var fake_large_data = try testing.allocator.alloc(u8, 2);
-    fake_large_data.len = @as(usize, std.math.maxInt(c_int)) + 1;
-    defer {
-        fake_large_data.len = 2;
-        testing.allocator.free(fake_large_data);
-    }
-
-    const err = String.init(fake_large_data);
-    try testing.expectError(error.Overflow, err);
-}
-
 test "string read" {
     const data = "zig";
     var context = try String.init(data);
@@ -279,21 +256,6 @@ test "buffer init buffer small" {
     var buffer: [1]u8 = undefined;
     const err = Buffer.init(c.interface(), &buffer);
     try testing.expectError(error.Buffer, err);
-}
-
-test "buffer init overflow" {
-    var fake_large_buffer = try testing.allocator.alloc(u8, 2);
-    fake_large_buffer.len = @as(usize, @intCast(std.math.maxInt(c_int))) + 1;
-    defer {
-        fake_large_buffer.len = 2;
-        testing.allocator.free(fake_large_buffer);
-    }
-
-    const d = "data";
-    var c = try String.init(d);
-
-    const err = Buffer.init(c.interface(), fake_large_buffer);
-    try testing.expectError(error.Overflow, err);
 }
 
 test "buffer read" {
