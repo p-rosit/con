@@ -422,6 +422,17 @@ test "comment inner reader empty comment" {
     try testing.expectEqualStrings("/", result);
 }
 
+test "comment inner reader fail" {
+    var c = try Fail.init(0);
+
+    var context = try Comment.init(c.interface());
+    const reader = context.interface();
+
+    var buffer: [1]u8 = undefined;
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
+}
+
 test "comment read only comment" {
     const d = "// only a comment";
     var c = try String.init(d);
