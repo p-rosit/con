@@ -139,3 +139,178 @@ test "string read overflow" {
     try testing.expect(!empty.@"error");
     try testing.expectEqual(0, empty.length);
 }
+
+test "buffer init" {
+    const data = "data";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [2]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_buffer_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    _ = lib.con_reader_buffer_interface(&context);
+}
+
+test "buffer init null" {
+    const data = "data";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [2]u8 = undefined;
+    const init_err = lib.con_reader_buffer_init(
+        null,
+        lib.con_reader_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
+}
+
+test "buffer init null buffer" {
+    const data = "data";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_buffer_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+        null,
+        1,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
+}
+
+test "buffer read" {
+    const data = "data";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [3]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_buffer_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_buffer_interface(&context);
+
+    var result_buffer: [2]u8 = undefined;
+    const result = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(2, result.length);
+    try testing.expectEqualStrings("da", result_buffer[0..2]);
+}
+
+test "buffer read buffer twice" {
+    const data = "data";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [3]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_buffer_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_buffer_interface(&context);
+
+    var result_buffer: [5]u8 = undefined;
+    const result = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(4, result.length);
+    try testing.expectEqualStrings("data", result_buffer[0..4]);
+}
+
+test "buffer internal reader empty" {
+    const data = "";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [3]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_buffer_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_buffer_interface(&context);
+
+    var result_buffer: [2]u8 = undefined;
+    const result = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(0, result.length);
+}
+
+test "buffer internal reader fail" {
+    var c1: lib.ConReaderString = undefined;
+    const i1_err = lib.con_reader_string_init(&c1, "1", 1);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i1_err);
+
+    var c2: lib.ConReaderFail = undefined;
+    const i2_err = lib.con_reader_fail_init(&c2, lib.con_reader_string_interface(&c1), 0);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
+
+    var buffer: [3]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_buffer_init(
+        &context,
+        lib.con_reader_fail_interface(&c2),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_buffer_interface(&context);
+
+    var result_buffer: [2]u8 = undefined;
+    const err = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expect(err.@"error");
+    try testing.expectEqual(1, err.length);
+    try testing.expectEqualStrings("1", result_buffer[0..1]);
+}
+
+test "buffer internal reader large fail" {
+    var c1: lib.ConReaderString = undefined;
+    const i1_err = lib.con_reader_string_init(&c1, "1", 1);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i1_err);
+
+    var c2: lib.ConReaderFail = undefined;
+    const i2_err = lib.con_reader_fail_init(&c2, lib.con_reader_string_interface(&c1), 0);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
+
+    var buffer: [3]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_buffer_init(
+        &context,
+        lib.con_reader_fail_interface(&c2),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_buffer_interface(&context);
+
+    var result_buffer: [10]u8 = undefined;
+    const err = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expect(err.@"error");
+    try testing.expectEqual(1, err.length);
+    try testing.expectEqualStrings("1", result_buffer[0..1]);
+}
