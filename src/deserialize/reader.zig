@@ -5,7 +5,7 @@ const lib = internal.lib;
 pub const InterfaceReader = struct {
     reader: lib.ConInterfaceReader,
 
-    pub fn read(reader: InterfaceReader, buffer: []u8) !usize {
+    pub fn read(reader: InterfaceReader, buffer: []u8) ![]u8 {
         if (buffer.len > std.math.maxInt(c_int)) {
             return error.Overflow;
         }
@@ -13,7 +13,7 @@ pub const InterfaceReader = struct {
         if (result.@"error") {
             return error.Reader;
         } else {
-            return result.length;
+            return buffer[0..result.length];
         }
     }
 };
@@ -174,11 +174,10 @@ test "file read" {
 
     var buffer: [1]u8 = undefined;
     const result = try reader.read(&buffer);
-    try testing.expectEqual(1, result);
-    try testing.expectEqualStrings("1", &buffer);
+    try testing.expectEqualStrings("1", result);
 
-    const amount = try reader.read(&buffer);
-    try testing.expectEqual(0, amount);
+    const empty = try reader.read(&buffer);
+    try testing.expectEqualStrings("", empty);
 }
 
 test "string init" {
@@ -205,9 +204,8 @@ test "string read" {
     const reader = context.interface();
 
     var buffer: [3]u8 = undefined;
-    const amount_read = try reader.read(&buffer);
-    try testing.expectEqual(3, amount_read);
-    try testing.expectEqualStrings("zig", &buffer);
+    const result = try reader.read(&buffer);
+    try testing.expectEqualStrings("zig", result);
 }
 
 test "string read overflow" {
@@ -216,12 +214,11 @@ test "string read overflow" {
     const reader = context.interface();
 
     var buffer: [2]u8 = undefined;
-    const amount_read = try reader.read(&buffer);
-    try testing.expectEqual(1, amount_read);
-    try testing.expectEqualStrings("z", buffer[0..1]);
+    const result = try reader.read(&buffer);
+    try testing.expectEqualStrings("z", result);
 
-    const next_read = try reader.read(&buffer);
-    try testing.expectEqual(0, next_read);
+    const empty = try reader.read(&buffer);
+    try testing.expectEqualStrings("", empty);
 }
 
 test "buffer init" {
@@ -265,10 +262,9 @@ test "buffer read" {
     var context = try Buffer.init(c.interface(), &buffer);
     const reader = context.interface();
 
-    var result: [2]u8 = undefined;
-    const amount_read = try reader.read(&result);
-    try testing.expectEqual(2, amount_read);
-    try testing.expectEqualStrings("da", &result);
+    var result_buffer: [2]u8 = undefined;
+    const result = try reader.read(&result_buffer);
+    try testing.expectEqualStrings("da", result);
 }
 
 test "buffer read buffer twice" {
@@ -279,10 +275,9 @@ test "buffer read buffer twice" {
     var context = try Buffer.init(c.interface(), &buffer);
     const reader = context.interface();
 
-    var result: [5]u8 = undefined;
-    const amount_read = try reader.read(&result);
-    try testing.expectEqual(4, amount_read);
-    try testing.expectEqualStrings("data", result[0..4]);
+    var result_buffer: [5]u8 = undefined;
+    const result = try reader.read(&result_buffer);
+    try testing.expectEqualStrings("data", result);
 }
 
 test "buffer internal reader fail" {
@@ -293,9 +288,9 @@ test "buffer internal reader fail" {
     var context = try Buffer.init(c.interface(), &buffer);
     const reader = context.interface();
 
-    var result: [4]u8 = undefined;
-    const amount_read = try reader.read(&result);
-    try testing.expectEqual(0, amount_read);
+    var result_buffer: [4]u8 = undefined;
+    const result = try reader.read(&result_buffer);
+    try testing.expectEqualStrings("", result);
 }
 
 test "comment init" {
@@ -314,9 +309,8 @@ test "comment read" {
     const reader = context.interface();
 
     var buffer: [2]u8 = undefined;
-    const amount_read = try reader.read(&buffer);
-    try testing.expectEqual(2, amount_read);
-    try testing.expectEqualStrings("12", &buffer);
+    const result = try reader.read(&buffer);
+    try testing.expectEqualStrings("12", result);
 }
 
 test "comment read comment" {
@@ -327,9 +321,8 @@ test "comment read comment" {
     const reader = context.interface();
 
     var buffer: [17]u8 = undefined;
-    const amount_read = try reader.read(&buffer);
-    try testing.expectEqual(17, amount_read);
-    try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
+    const result = try reader.read(&buffer);
+    try testing.expectEqualStrings("[  \n \"k //:)\",1/]", result);
 }
 
 test "comment read comment one char at a time" {
@@ -341,14 +334,14 @@ test "comment read comment one char at a time" {
 
     var buffer: [17]u8 = undefined;
     for (0..17) |i| {
-        const amount_read = try reader.read(buffer[i .. i + 1]);
-        try testing.expectEqual(1, amount_read);
+        const result = try reader.read(buffer[i .. i + 1]);
+        try testing.expectEqual(1, result.len);
     }
 
     try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
 }
 
-test "comment inner reader fail" {
+test "comment inner reader empty" {
     const d = "";
     var c = try String.init(d);
 
@@ -356,11 +349,11 @@ test "comment inner reader fail" {
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
-    const amount_read = try reader.read(&buffer);
-    try testing.expectEqual(0, amount_read);
+    const result = try reader.read(&buffer);
+    try testing.expectEqualStrings("", result);
 }
 
-test "comment inner reader fail comment" {
+test "comment inner reader empty comment" {
     const d = "/";
     var c = try String.init(d);
 
@@ -368,9 +361,8 @@ test "comment inner reader fail comment" {
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
-    const amount_read = try reader.read(&buffer);
-    try testing.expectEqual(1, amount_read);
-    try testing.expectEqualStrings("/", &buffer);
+    const result = try reader.read(&buffer);
+    try testing.expectEqualStrings("/", result);
 }
 
 test "comment read only comment" {
@@ -381,6 +373,6 @@ test "comment read only comment" {
     const reader = context.interface();
 
     var buffer: [3]u8 = undefined;
-    const amount_read = try reader.read(&buffer);
-    try testing.expectEqual(0, amount_read);
+    const result = try reader.read(&buffer);
+    try testing.expectEqualStrings("", result);
 }
