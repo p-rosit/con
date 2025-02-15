@@ -15,14 +15,14 @@ struct ConInterfaceReader con_reader_file_interface(struct ConReaderFile *contex
 
 struct ConReaderString {
     char const *buffer;
-    int buffer_size;
-    int current;
+    size_t buffer_size;
+    size_t current;
 };
 
 enum ConError con_reader_string_init(
     struct ConReaderString *context,
     char const *buffer,
-    int buffer_size
+    size_t buffer_size
 );
 
 struct ConInterfaceReader con_reader_string_interface(struct ConReaderString *context);
@@ -30,16 +30,16 @@ struct ConInterfaceReader con_reader_string_interface(struct ConReaderString *co
 struct ConReaderBuffer {
     struct ConInterfaceReader reader;
     char *buffer;
-    int buffer_size;
-    int current;
-    int length_read;
+    size_t buffer_size;
+    size_t current;
+    size_t length_read;
 };
 
 enum ConError con_reader_buffer_init(
     struct ConReaderBuffer *context,
     struct ConInterfaceReader reader,
     char *buffer,
-    int buffer_size
+    size_t buffer_size
 );
 
 struct ConInterfaceReader con_reader_buffer_interface(struct ConReaderBuffer *context);

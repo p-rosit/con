@@ -9,11 +9,12 @@ pub const InterfaceReader = struct {
         if (buffer.len > std.math.maxInt(c_int)) {
             return error.Overflow;
         }
-        const result = lib.con_reader_read(reader.reader, buffer.ptr, @intCast(buffer.len));
-        if (result < 0) {
+        const result = lib.con_reader_read(reader.reader, buffer.ptr, buffer.len);
+        if (result.@"error") {
             return error.Reader;
+        } else {
+            return result.length;
         }
-        return @intCast(result);
     }
 };
 
