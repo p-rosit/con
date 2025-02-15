@@ -326,6 +326,30 @@ test "buffer internal reader empty" {
     try testing.expectEqualStrings("", result);
 }
 
+test "buffer internal reader fail" {
+    var c = try Fail.init(0);
+
+    var buffer: [3]u8 = undefined;
+    var context = try Buffer.init(c.interface(), &buffer);
+    const reader = context.interface();
+
+    var result_buffer: [2]u8 = undefined;
+    const err = reader.read(&result_buffer);
+    try testing.expectError(error.Reader, err);
+}
+
+test "buffer internal reader large fail" {
+    var c = try Fail.init(0);
+
+    var buffer: [3]u8 = undefined;
+    var context = try Buffer.init(c.interface(), &buffer);
+    const reader = context.interface();
+
+    var result_buffer: [10]u8 = undefined;
+    const err = reader.read(&result_buffer);
+    try testing.expectError(error.Reader, err);
+}
+
 test "comment init" {
     const d = "";
     var c = try String.init(d);
