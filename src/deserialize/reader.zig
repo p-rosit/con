@@ -280,7 +280,7 @@ test "buffer read buffer twice" {
     try testing.expectEqualStrings("data", result);
 }
 
-test "buffer internal reader fail" {
+test "buffer internal reader empty" {
     const d = "";
     var c = try String.init(d);
 
