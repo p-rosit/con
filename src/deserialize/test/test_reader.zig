@@ -86,3 +86,55 @@ test "file read" {
     try testing.expect(!empty.@"error");
     try testing.expectEqual(0, empty.length);
 }
+
+test "string init" {
+    var data: [1]u8 = undefined;
+    var context: lib.ConReaderString = undefined;
+    const init_err = lib.con_reader_string_init(&context, &data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    _ = lib.con_reader_string_interface(&context);
+}
+
+test "string init null" {
+    var data: [1]u8 = undefined;
+    const init_err = lib.con_reader_string_init(null, &data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
+}
+
+test "string init null buffer" {
+    var context: lib.ConReaderString = undefined;
+    const init_err = lib.con_reader_string_init(&context, null, 2);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
+}
+
+test "string read" {
+    const data = "zig";
+    var context: lib.ConReaderString = undefined;
+    const init_err = lib.con_reader_string_init(&context, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_string_interface(&context);
+
+    var buffer: [3]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(3, result.length);
+    try testing.expectEqualStrings("zig", &buffer);
+}
+
+test "string read overflow" {
+    const data = "z";
+    var context: lib.ConReaderString = undefined;
+    const init_err = lib.con_reader_string_init(&context, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_string_interface(&context);
+
+    var buffer: [2]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(1, result.length);
+    try testing.expectEqualStrings("z", buffer[0..1]);
+
+    const empty = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!empty.@"error");
+    try testing.expectEqual(0, empty.length);
+}
