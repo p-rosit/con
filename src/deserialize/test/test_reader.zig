@@ -47,3 +47,42 @@ test "file init" {
     const init_err = lib.con_reader_file_init(&context, @ptrFromInt(256));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 }
+
+test "file read" {
+    var file: [*c]clib.FILE = undefined;
+
+    switch (builtin.os.tag) {
+        .linux => {
+            file = clib.tmpfile();
+        },
+        .windows => {
+            @compileError("TODO: allow testing file reader, something to do with `GetTempFileNameA` and `GetTempPathA`");
+        },
+        else => {
+            std.debug.print("TODO: allow testing file reader on this os.\n", .{});
+            return;
+        },
+    }
+    defer _ = clib.fclose(file);
+
+    const written = clib.fputs("1", file);
+    try testing.expectEqual(written, 1);
+
+    const seek_err = clib.fseek(file, 0, clib.SEEK_SET);
+    try testing.expectEqual(0, seek_err);
+
+    var context: lib.ConReaderFile = undefined;
+    const init_err = lib.con_reader_file_init(&context, @ptrCast(file));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_file_interface(&context);
+
+    var buffer: [1]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(1, result.length);
+    try testing.expectEqualStrings("1", &buffer);
+
+    const empty = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!empty.@"error");
+    try testing.expectEqual(0, empty.length);
+}
