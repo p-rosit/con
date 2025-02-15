@@ -2,6 +2,19 @@ const std = @import("std");
 const internal = @import("../internal.zig");
 const lib = internal.lib;
 
+pub const InterfaceReader = struct {
+    reader: lib.ConInterfaceReader,
+
+    pub fn read(reader: InterfaceReader, buffer: []u8) ![]u8 {
+        const result = lib.con_reader_read(reader.reader, buffer.ptr, buffer.len);
+        if (result.@"error") {
+            return error.Reader;
+        } else {
+            return buffer[0..result.length];
+        }
+    }
+};
+
 pub const Fail = struct {
     inner: lib.ConReaderFail,
 
@@ -20,19 +33,6 @@ pub const Fail = struct {
 
     pub fn interface(self: *Fail) InterfaceReader {
         return .{ .reader = lib.con_reader_fail_interface(&self.inner) };
-    }
-};
-
-pub const InterfaceReader = struct {
-    reader: lib.ConInterfaceReader,
-
-    pub fn read(reader: InterfaceReader, buffer: []u8) ![]u8 {
-        const result = lib.con_reader_read(reader.reader, buffer.ptr, buffer.len);
-        if (result.@"error") {
-            return error.Reader;
-        } else {
-            return buffer[0..result.length];
-        }
     }
 };
 
