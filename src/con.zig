@@ -16,6 +16,7 @@ pub const ReaderFile = reader.File;
 pub const ReaderString = reader.String;
 pub const ReaderBuffer = reader.Buffer;
 pub const ReaderComment = reader.Comment;
+pub const ReaderFail = reader.Fail;
 
 test {
     @import("std").testing.refAllDecls(@This());
