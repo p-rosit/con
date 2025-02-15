@@ -2,6 +2,23 @@ const std = @import("std");
 const internal = @import("../internal.zig");
 const lib = internal.lib;
 
+pub const Fail = struct {
+    inner: lib.ConReaderFail,
+
+    pub fn init(reads_before_fail: usize) !Fail {
+        var self: Fail = undefined;
+        const err = lib.con_reader_fail_init(&self.inner, reads_before_fail);
+        internal.enumToError(err) catch |new_err| {
+            return new_err;
+        };
+        return self;
+    }
+
+    pub fn interface(self: *Fail) InterfaceReader {
+        return .{ .reader = lib.con_reader_fail_interface(&self.inner) };
+    }
+};
+
 pub const InterfaceReader = struct {
     reader: lib.ConInterfaceReader,
 
@@ -140,6 +157,22 @@ const builtin = @import("builtin");
 const clib = @cImport({
     @cInclude("stdio.h");
 });
+
+test "fail init" {
+    var context = try Fail.init(0);
+    _ = context.interface();
+}
+
+test "fail fails" {
+    var context = try Fail.init(1);
+    const reader = context.interface();
+
+    var buffer: [0]u8 = undefined;
+    _ = try reader.read(&buffer);
+
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
+}
 
 test "file init" {
     var context = try File.init(@ptrFromInt(256));

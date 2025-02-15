@@ -3,10 +3,42 @@
 #include <utils.h>
 #include "con_reader.h"
 
+struct ConReadResult con_reader_fail_read(void const *context, char *buffer, size_t buffer_size);
 struct ConReadResult con_reader_file_read(void const *context, char *buffer, size_t buffer_size);
 struct ConReadResult con_reader_string_read(void const *context, char *buffer, size_t buffer_size);
 struct ConReadResult con_reader_buffer_read(void const *context, char *buffer, size_t buffer_size);
 struct ConReadResult con_reader_comment_read(void const *context, char *buffer, size_t buffer_size);
+
+enum ConError con_reader_fail_init(struct ConReaderFail *context, size_t reads_before_fail) {
+    if (context == NULL) { return CON_ERROR_NULL; }
+
+    context->reads_before_fail = reads_before_fail;
+    context->amount_of_reads = 0;
+
+    return CON_ERROR_OK;
+}
+
+struct ConInterfaceReader con_reader_fail_interface(struct ConReaderFail *context) {
+    return (struct ConInterfaceReader) { .context = context, .read = con_reader_fail_read };
+}
+
+struct ConReadResult con_reader_fail_read(void const *void_context, char *buffer, size_t buffer_size) {
+    assert(void_context != NULL);
+    struct ConReaderFail *context = (struct ConReaderFail*) void_context;
+    (void) buffer;  // unused
+    (void) buffer_size; // unused
+
+    struct ConReadResult result = {
+        .error = context->amount_of_reads >= context->reads_before_fail,
+        .length = 0,
+    };
+
+    if (context->amount_of_reads < context->reads_before_fail) {
+        context->amount_of_reads += 1;
+    }
+
+    return result;
+}
 
 enum ConError con_reader_file_init(struct ConReaderFile *context, FILE *file) {
     if (context == NULL) { return CON_ERROR_NULL; }

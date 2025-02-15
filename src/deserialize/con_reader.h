@@ -5,6 +5,14 @@
 #include <con_error.h>
 #include <con_interface_reader.h>
 
+struct ConReaderFail {
+    size_t reads_before_fail;
+    size_t amount_of_reads;
+};
+
+enum ConError con_reader_fail_init(struct ConReaderFail *context, size_t reads_before_fail);
+
+struct ConInterfaceReader con_reader_fail_interface(struct ConReaderFail *context);
 
 struct ConReaderFile {
     FILE *file;
