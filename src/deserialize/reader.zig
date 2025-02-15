@@ -336,11 +336,11 @@ test "buffer internal reader empty" {
 }
 
 test "buffer internal reader fail" {
-    var c_string = try String.init("1");
-    var c = try Fail.init(c_string.interface(), 0);
+    var c1 = try String.init("1");
+    var c2 = try Fail.init(c1.interface(), 0);
 
     var buffer: [3]u8 = undefined;
-    var context = try Buffer.init(c.interface(), &buffer);
+    var context = try Buffer.init(c2.interface(), &buffer);
     const reader = context.interface();
 
     var result_buffer: [2]u8 = undefined;
@@ -349,11 +349,11 @@ test "buffer internal reader fail" {
 }
 
 test "buffer internal reader large fail" {
-    var c_string = try String.init("1");
-    var c = try Fail.init(c_string.interface(), 0);
+    var c1 = try String.init("1");
+    var c2 = try Fail.init(c1.interface(), 0);
 
     var buffer: [3]u8 = undefined;
-    var context = try Buffer.init(c.interface(), &buffer);
+    var context = try Buffer.init(c2.interface(), &buffer);
     const reader = context.interface();
 
     var result_buffer: [10]u8 = undefined;
@@ -434,10 +434,10 @@ test "comment inner reader empty comment" {
 }
 
 test "comment inner reader fail" {
-    var c_string = try String.init("1");
-    var c = try Fail.init(c_string.interface(), 0);
+    var c1 = try String.init("1");
+    var c2 = try Fail.init(c1.interface(), 0);
 
-    var context = try Comment.init(c.interface());
+    var context = try Comment.init(c2.interface());
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
@@ -446,10 +446,10 @@ test "comment inner reader fail" {
 }
 
 test "comment inner reader fail comment" {
-    var c_string = try String.init("/");
-    var c = try Fail.init(c_string.interface(), 1);
+    var c1 = try String.init("/");
+    var c2 = try Fail.init(c1.interface(), 1);
 
-    var context = try Comment.init(c.interface());
+    var context = try Comment.init(c2.interface());
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
