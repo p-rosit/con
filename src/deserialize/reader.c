@@ -53,12 +53,9 @@ struct ConInterfaceReader con_reader_string_interface(struct ConReaderString *co
 
 struct ConReadResult con_reader_string_read(void const *void_context, char *buffer, size_t buffer_size) {
     assert(void_context != NULL);
-    assert(buffer != NULL);
-
     struct ConReaderString *context = (struct ConReaderString*) void_context;
-    assert(context->buffer != NULL);
-    assert(0 <= context->current && context->current <= context->buffer_size);
 
+    assert(0 <= context->current && context->current <= context->buffer_size);
     if (context->current >= context->buffer_size) {
         return (struct ConReadResult) { .error = false, .length = 0 };
     }
@@ -66,6 +63,8 @@ struct ConReadResult con_reader_string_read(void const *void_context, char *buff
     size_t read_length = context->buffer_size - context->current;
     read_length = read_length > buffer_size ? buffer_size : read_length;
 
+    assert(buffer != NULL);
+    assert(context->buffer != NULL);
     memcpy(buffer, context->buffer + context->current, read_length);
     context->current += read_length;
 
@@ -98,10 +97,8 @@ struct ConInterfaceReader con_reader_buffer_interface(struct ConReaderBuffer *co
 
 struct ConReadResult con_reader_buffer_read(void const *void_context, char *buffer, size_t buffer_size) {
     assert(void_context != NULL);
-    assert(buffer != NULL);
 
     struct ConReaderBuffer *context = (struct ConReaderBuffer*) void_context;
-    assert(context->buffer != NULL);
     assert(0 <= context->current && context->current <= context->buffer_size);
     assert(0 <= context->length_read && context->length_read <= context->buffer_size);
     assert(context->current <= context->length_read) ;
@@ -109,7 +106,9 @@ struct ConReadResult con_reader_buffer_read(void const *void_context, char *buff
     size_t read_length = context->length_read - context->current;
     read_length = read_length > buffer_size ? buffer_size : read_length;
 
-    memcpy(buffer, context->buffer + context->current, (size_t) read_length);
+    assert(buffer != NULL);
+    assert(context->buffer != NULL);
+    memcpy(buffer, context->buffer + context->current, read_length);
     context->current += read_length;
 
     bool error = false;
@@ -154,12 +153,12 @@ struct ConInterfaceReader con_reader_comment_interface(struct ConReaderComment *
 
 struct ConReadResult con_reader_comment_read(void const *void_context, char *buffer, size_t buffer_size) {
     assert(void_context != NULL);
-
     struct ConReaderComment *context = (struct ConReaderComment*) void_context;
 
     bool any_read = false;
     size_t length = 0;
 
+    assert(buffer != NULL);
     if (context->buffer_char != EOF) {
         if (buffer_size >= 1) {
             buffer[0] = (char) context->buffer_char;
