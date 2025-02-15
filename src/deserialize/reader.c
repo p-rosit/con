@@ -15,6 +15,7 @@ enum ConError con_reader_fail_init(struct ConReaderFail *context, struct ConInte
     context->reader = reader;
     context->reads_before_fail = reads_before_fail;
     context->amount_of_reads = 0;
+    context->final_read = false;
 
     return CON_ERROR_OK;
 }
@@ -32,13 +33,15 @@ struct ConReadResult con_reader_fail_read(void const *void_context, char *buffer
         .length = 0,
     };
 
-    if (!result.error) {
+    if (!result.error || !context->final_read) {
         context->amount_of_reads += 1;
 
         struct ConReadResult r = con_reader_read(context->reader, buffer, buffer_size);
         assert(!r.error);
         result.length = r.length;
     }
+
+    context->final_read = result.error;
     return result;
 }
 
@@ -211,15 +214,18 @@ struct ConReadResult con_reader_comment_read(void const *void_context, char *buf
         char c;
 
         struct ConReadResult result = con_reader_read(context->reader, &c, 1);
-        if (result.length != 1) {
-            error = result.error;
+        assert(result.length == 0 || result.length == 1);
+        error = result.error;
+        if (error || result.length != 1) {
             break;
         }
 
         if (!context->in_comment && !con_utils_json_is_string(state) && c == '/') {
             result = con_reader_read(context->reader, &c, 1);
+            assert(result.length == 0 || result.length == 1);
+            error = result.error;
+
             if (result.length != 1) {
-                error = result.error;
                 buffer[length++] = '/';
             } else if (c == '/') {
                 context->in_comment = true;
@@ -233,6 +239,8 @@ struct ConReadResult con_reader_comment_read(void const *void_context, char *buf
 
                 buffer[length++] = c;
             }
+
+            if (error) { break; }
         } else if (context->in_comment && c == '\n') {
             context->in_comment = false;
             buffer[length++] = '\n';

@@ -39,7 +39,8 @@ test "fail fails" {
 
     const err = lib.con_reader_read(reader, &buffer, buffer.len);
     try testing.expect(err.@"error");
-    try testing.expectEqual(0, err.length);
+    try testing.expectEqual(1, err.length);
+    try testing.expectEqualStrings("2", buffer[0..1]);
 }
 
 test "file init" {
