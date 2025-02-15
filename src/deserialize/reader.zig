@@ -5,9 +5,13 @@ const lib = internal.lib;
 pub const Fail = struct {
     inner: lib.ConReaderFail,
 
-    pub fn init(reads_before_fail: usize) !Fail {
+    pub fn init(reader: InterfaceReader, reads_before_fail: usize) !Fail {
         var self: Fail = undefined;
-        const err = lib.con_reader_fail_init(&self.inner, reads_before_fail);
+        const err = lib.con_reader_fail_init(
+            &self.inner,
+            reader.reader,
+            reads_before_fail,
+        );
         internal.enumToError(err) catch |new_err| {
             return new_err;
         };
@@ -159,16 +163,21 @@ const clib = @cImport({
 });
 
 test "fail init" {
-    var context = try Fail.init(0);
+    var c = try String.init("1");
+
+    var context = try Fail.init(c.interface(), 0);
     _ = context.interface();
 }
 
 test "fail fails" {
-    var context = try Fail.init(1);
+    var c = try String.init("12");
+
+    var context = try Fail.init(c.interface(), 1);
     const reader = context.interface();
 
-    var buffer: [0]u8 = undefined;
-    _ = try reader.read(&buffer);
+    var buffer: [1]u8 = undefined;
+    const result = try reader.read(&buffer);
+    try testing.expectEqualStrings("1", result);
 
     const err = reader.read(&buffer);
     try testing.expectError(error.Reader, err);
@@ -327,7 +336,8 @@ test "buffer internal reader empty" {
 }
 
 test "buffer internal reader fail" {
-    var c = try Fail.init(0);
+    var c_string = try String.init("1");
+    var c = try Fail.init(c_string.interface(), 0);
 
     var buffer: [3]u8 = undefined;
     var context = try Buffer.init(c.interface(), &buffer);
@@ -339,7 +349,8 @@ test "buffer internal reader fail" {
 }
 
 test "buffer internal reader large fail" {
-    var c = try Fail.init(0);
+    var c_string = try String.init("1");
+    var c = try Fail.init(c_string.interface(), 0);
 
     var buffer: [3]u8 = undefined;
     var context = try Buffer.init(c.interface(), &buffer);
@@ -423,7 +434,20 @@ test "comment inner reader empty comment" {
 }
 
 test "comment inner reader fail" {
-    var c = try Fail.init(0);
+    var c_string = try String.init("1");
+    var c = try Fail.init(c_string.interface(), 0);
+
+    var context = try Comment.init(c.interface());
+    const reader = context.interface();
+
+    var buffer: [1]u8 = undefined;
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
+}
+
+test "comment inner reader fail comment" {
+    var c_string = try String.init("/");
+    var c = try Fail.init(c_string.interface(), 1);
 
     var context = try Comment.init(c.interface());
     const reader = context.interface();
