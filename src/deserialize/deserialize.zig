@@ -8,8 +8,10 @@ pub const Type = enum {
     string,
     bool,
     null,
-    array,
-    dict,
+    array_open,
+    array_close,
+    dict_open,
+    dict_close,
     key,
 };
 
@@ -36,8 +38,25 @@ pub const Deserialize = struct {
     }
 
     pub fn next(self: *Deserialize) !Type {
-        _ = self;
-        return .number;
+        var token_type: lib.ConDeserializeType = undefined;
+        const err = lib.con_deserialize_next(&self.inner, &token_type);
+
+        internal.enumToError(err) catch |new_err| {
+            return new_err;
+        };
+
+        return switch (token_type) {
+            lib.CON_DESERIALIZE_TYPE_NUMBER => .number,
+            lib.CON_DESERIALIZE_TYPE_STRING => .string,
+            lib.CON_DESERIALIZE_TYPE_BOOL => .bool,
+            lib.CON_DESERIALIZE_TYPE_NULL => .null,
+            lib.CON_DESERIALIZE_TYPE_ARRAY_OPEN => .array_open,
+            lib.CON_DESERIALIZE_TYPE_ARRAY_CLOSE => .array_close,
+            lib.CON_DESERIALIZE_TYPE_DICT_OPEN => .dict_open,
+            lib.CON_DESERIALIZE_TYPE_DICT_CLOSE => .dict_close,
+            lib.CON_DESERIALIZE_TYPE_KEY => .key,
+            _ => error.Unknown,
+        };
     }
 };
 
