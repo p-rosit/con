@@ -1,12 +1,7 @@
 #include <assert.h>
+#include <utils.h>
 #include "con_writer.h"
 #include "con_serialize.h"
-
-enum ConSerializeContainer {
-    CONTAINER_NONE  = 0,
-    CONTAINER_DICT  = 1,
-    CONTAINER_ARRAY = 2,
-};
 
 enum ConSerializeState {
     STATE_UNKNOWN   = 0,
