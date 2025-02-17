@@ -8,6 +8,16 @@ enum ConSerializeContainer {
     CONTAINER_ARRAY = 2,
 };
 
+enum ConSerializeState {
+    STATE_UNKNOWN   = 0,
+    STATE_EMPTY     = 1,
+    STATE_FIRST     = 2,
+    STATE_LATER     = 3,
+    STATE_COMPLETE  = 4,
+    STATE_VALUE     = 5,
+    STATE_MAX,
+};
+
 enum ConJsonState {
     JSON_STATE_UNKNOWN      = 0,
     JSON_STATE_NORMAL       = 1,

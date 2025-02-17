@@ -3,16 +3,6 @@
 #include "con_writer.h"
 #include "con_serialize.h"
 
-enum ConSerializeState {
-    STATE_UNKNOWN   = 0,
-    STATE_EMPTY     = 1,
-    STATE_FIRST     = 2,
-    STATE_LATER     = 3,
-    STATE_COMPLETE  = 4,
-    STATE_VALUE     = 5,
-    STATE_MAX,
-};
-
 static inline enum ConSerializeState con_serialize_state(struct ConSerialize *context);
 static inline enum ConSerializeContainer con_serialize_current_container(struct ConSerialize *context);
 static inline enum ConError con_serialize_value_prefix(struct ConSerialize *context);
