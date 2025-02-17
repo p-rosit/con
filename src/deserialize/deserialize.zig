@@ -3,6 +3,16 @@ const zcon = @import("../con.zig");
 const internal = @import("../internal.zig");
 const lib = internal.lib;
 
+pub const Type = enum {
+    number,
+    string,
+    bool,
+    null,
+    array,
+    dict,
+    key,
+};
+
 pub const Deserialize = struct {
     inner: lib.ConDeserialize,
 
@@ -23,6 +33,11 @@ pub const Deserialize = struct {
             return new_err;
         };
         return context;
+    }
+
+    pub fn next(self: *Deserialize) !Type {
+        _ = self;
+        return .number;
     }
 };
 
