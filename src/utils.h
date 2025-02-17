@@ -2,13 +2,13 @@
 #define CON_UTILS_H
 #include <stdbool.h>
 
-enum ConSerializeContainer {
+enum ConContainer {
     CONTAINER_NONE  = 0,
     CONTAINER_DICT  = 1,
     CONTAINER_ARRAY = 2,
 };
 
-enum ConSerializeState {
+enum ConState {
     STATE_UNKNOWN   = 0,
     STATE_EMPTY     = 1,
     STATE_FIRST     = 2,
