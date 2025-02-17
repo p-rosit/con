@@ -438,6 +438,35 @@ test "comment inner reader empty comment" {
     try testing.expectEqualStrings("/", &buffer);
 }
 
+test "comment inner reader fail" {
+    const d = "1";
+    var c1: lib.ConReaderString = undefined;
+    const i1_err = lib.con_reader_string_init(&c1, d, d.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i1_err);
+
+    var c2: lib.ConReaderFail = undefined;
+    const i2_err = lib.con_reader_fail_init(
+        &c2,
+        lib.con_reader_string_interface(&c1),
+        0,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
+
+    var context: lib.ConReaderComment = undefined;
+    const init_err = lib.con_reader_comment_init(
+        &context,
+        lib.con_reader_fail_interface(&c2),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_comment_interface(&context);
+
+    var buffer: [1]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(result.@"error");
+    try testing.expectEqual(1, result.length);
+    try testing.expectEqualStrings("1", &buffer);
+}
+
 test "comment inner reader fail comment" {
     const d = "/";
     var c1: lib.ConReaderString = undefined;

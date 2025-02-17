@@ -216,9 +216,7 @@ struct ConReadResult con_reader_comment_read(void const *void_context, char *buf
         struct ConReadResult result = con_reader_read(context->reader, &c, 1);
         assert(result.length == 0 || result.length == 1);
         error = result.error;
-        if (error || result.length != 1) {
-            break;
-        }
+        if (result.length != 1) { break; }
 
         if (!context->in_comment && !con_utils_json_is_string(state) && c == '/') {
             result = con_reader_read(context->reader, &c, 1);
@@ -250,6 +248,8 @@ struct ConReadResult con_reader_comment_read(void const *void_context, char *buf
 
         context->state = con_utils_json_to_char(con_utils_json_next(state, c));
         any_read = true;
+
+        if (error) { break; }
     }
 
     assert(length <= buffer_size);
