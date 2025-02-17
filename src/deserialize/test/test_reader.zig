@@ -314,3 +314,175 @@ test "buffer internal reader large fail" {
     try testing.expectEqual(1, err.length);
     try testing.expectEqualStrings("1", result_buffer[0..1]);
 }
+
+test "comment init" {
+    const d = "";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, d, d.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConReaderComment = undefined;
+    const init_err = lib.con_reader_comment_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    _ = lib.con_reader_comment_interface(&context);
+}
+
+test "comment read" {
+    const d = "12";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, d, d.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConReaderComment = undefined;
+    const init_err = lib.con_reader_comment_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_comment_interface(&context);
+
+    var buffer: [2]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(2, result.length);
+    try testing.expectEqualStrings("12", &buffer);
+}
+
+test "comment read comment" {
+    const d = "[  //:(\n \"k //:)\",1/]";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, d, d.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConReaderComment = undefined;
+    const init_err = lib.con_reader_comment_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_comment_interface(&context);
+
+    var buffer: [17]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(17, result.length);
+    try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
+}
+
+test "comment read comment one char at a time" {
+    const d = "[  //:(\n \"k //:)\",1/]";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, d, d.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConReaderComment = undefined;
+    const init_err = lib.con_reader_comment_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_comment_interface(&context);
+
+    var buffer: [17]u8 = undefined;
+    for (0..17) |i| {
+        const result = lib.con_reader_read(reader, buffer[i .. i + 1].ptr, 1);
+        try testing.expect(!result.@"error");
+        try testing.expectEqual(1, result.length);
+    }
+
+    try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
+}
+
+test "comment inner reader empty" {
+    const d = "";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, d, d.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConReaderComment = undefined;
+    const init_err = lib.con_reader_comment_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_comment_interface(&context);
+
+    var buffer: [1]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(0, result.length);
+}
+
+test "comment inner reader empty comment" {
+    const d = "/";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, d, d.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConReaderComment = undefined;
+    const init_err = lib.con_reader_comment_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_comment_interface(&context);
+
+    var buffer: [1]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(1, result.length);
+    try testing.expectEqualStrings("/", &buffer);
+}
+
+test "comment inner reader fail comment" {
+    const d = "/";
+    var c1: lib.ConReaderString = undefined;
+    const i1_err = lib.con_reader_string_init(&c1, d, d.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i1_err);
+
+    var c2: lib.ConReaderFail = undefined;
+    const i2_err = lib.con_reader_fail_init(
+        &c2,
+        lib.con_reader_string_interface(&c1),
+        1,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
+
+    var context: lib.ConReaderComment = undefined;
+    const init_err = lib.con_reader_comment_init(
+        &context,
+        lib.con_reader_fail_interface(&c2),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_comment_interface(&context);
+
+    var buffer: [1]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(result.@"error");
+    try testing.expectEqual(1, result.length);
+    try testing.expectEqualStrings("/", &buffer);
+}
+
+test "comment read only comment" {
+    const d = "// only a comment";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, d, d.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConReaderComment = undefined;
+    const init_err = lib.con_reader_comment_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    const reader = lib.con_reader_comment_interface(&context);
+
+    var buffer: [3]u8 = undefined;
+    const result = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expect(!result.@"error");
+    try testing.expectEqual(0, result.length);
+}
