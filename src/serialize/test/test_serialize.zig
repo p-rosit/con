@@ -14,6 +14,19 @@ test "context init" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 }
 
+test "context init null" {
+    var writer: lib.ConWriterString = undefined;
+    var depth: [0]u8 = undefined;
+
+    const init_err = lib.con_serialize_init(
+        null,
+        lib.con_writer_string_interface(&writer),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
+}
+
 test "context depth null, length positive" {
     var writer: lib.ConWriterString = undefined;
     var context: lib.ConSerialize = undefined;
@@ -48,19 +61,6 @@ test "context depth negative" {
         -1,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), init_err);
-}
-
-test "context init null" {
-    var writer: lib.ConWriterString = undefined;
-    var depth: [0]u8 = undefined;
-
-    const init_err = lib.con_serialize_init(
-        null,
-        lib.con_writer_string_interface(&writer),
-        &depth,
-        depth.len,
-    );
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
 }
 
 // Section: Values -------------------------------------------------------------
