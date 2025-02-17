@@ -15,7 +15,8 @@ enum ConError {
     CON_ERROR_NOT_ARRAY         = 10,
     CON_ERROR_NOT_DICT          = 11,
     CON_ERROR_NOT_NUMBER        = 12,
-    CON_ERROR_STATE_UNKNOWN     = 13,
+    CON_ERROR_INVALID_JSON      = 13,
+    CON_ERROR_STATE_UNKNOWN     = 14,
 };
 
 #endif

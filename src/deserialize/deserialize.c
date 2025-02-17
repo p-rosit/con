@@ -59,7 +59,7 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
         *type = CON_DESERIALIZE_TYPE_DICT_CLOSE;
     } else {
         *type = CON_DESERIALIZE_TYPE_UNKNOWN;
-        assert(false);
+        return CON_ERROR_INVALID_JSON;
     }
 
     return CON_ERROR_OK;
