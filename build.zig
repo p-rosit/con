@@ -36,7 +36,7 @@ pub fn build(b: *std.Build) void {
         .name = "con-deserialize",
         .root = "src/deserialize",
         .sources = &.{"reader.c"},
-        .headers = &.{"con_reader.h"},
+        .headers = &.{ "con_reader.h", "con_interface_reader.h" },
     });
     serialize.linkLibrary(utils);
     deserialize.installHeader(b.path("src/con_error.h"), "con_error.h");
