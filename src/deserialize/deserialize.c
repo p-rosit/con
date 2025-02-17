@@ -32,23 +32,33 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
 
     if (isdigit((unsigned char) next) || next == '.') {
         // number
+        *type = CON_DESERIALIZE_TYPE_NUMBER;
     } else if (next == '"' /* && expecting key */) {
         // key
+        *type = CON_DESERIALIZE_TYPE_KEY;
     } else if (next == '"') {
         // string
+        *type = CON_DESERIALIZE_TYPE_STRING;
     } else if (next == 't' || next == 'f') {
         // bool
+        *type = CON_DESERIALIZE_TYPE_BOOL;
     } else if (next == 'n') {
         // null
+        *type = CON_DESERIALIZE_TYPE_NULL;
     } else if (next == '[') {
         // open array
+        *type = CON_DESERIALIZE_TYPE_ARRAY_OPEN;
     } else if (next == ']') {
         // close array
+        *type = CON_DESERIALIZE_TYPE_ARRAY_CLOSE;
     } else if (next == '{') {
         // open dict
+        *type = CON_DESERIALIZE_TYPE_DICT_OPEN;
     } else if (next == '}') {
         // close dict
+        *type = CON_DESERIALIZE_TYPE_DICT_CLOSE;
     } else {
+        *type = CON_DESERIALIZE_TYPE_UNKNOWN;
         assert(false);
     }
 
