@@ -1,5 +1,6 @@
 const serialize = @import("serialize/serialize.zig");
 const writer = @import("serialize/writer.zig");
+const deserialize = @import("deserialize/deserialize.zig");
 const reader = @import("deserialize/reader.zig");
 
 pub const InterfaceWriter = writer.InterfaceWriter;
@@ -10,6 +11,9 @@ pub const WriterFile = writer.File;
 pub const WriterString = writer.String;
 pub const WriterBuffer = writer.Buffer;
 pub const WriterIndent = writer.Indent;
+
+pub const InterfaceReader = reader.InterfaceReader;
+pub const Deserialize = deserialize.Deserialize;
 
 pub const Reader = reader.Reader;
 pub const ReaderFile = reader.File;
@@ -23,5 +27,6 @@ test {
     _ = @import("serialize/test/test_serialize.zig");
     _ = @import("serialize/test/test_writer.zig");
 
+    _ = @import("deserialize/test/test_deserialize.zig");
     _ = @import("deserialize/test/test_reader.zig");
 }
