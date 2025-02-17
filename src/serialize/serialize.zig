@@ -7,12 +7,11 @@ pub const Serialize = struct {
     inner: lib.ConSerialize,
 
     pub fn init(writer: zcon.InterfaceWriter, depth: []u8) !Serialize {
-        var context = Serialize{ .inner = undefined };
-
         if (depth.len > std.math.maxInt(c_int)) {
             return error.Overflow;
         }
 
+        var context = Serialize{ .inner = undefined };
         const err = lib.con_serialize_init(
             &context.inner,
             writer.writer,
@@ -88,6 +87,22 @@ test "context init" {
     var depth: [1]u8 = undefined;
     const context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
+}
+
+test "context init depth buffer overflow" {
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var writer = ConFifo.init(&fifo.writer());
+
+    var fake_large_depth = try testing.allocator.alloc(u8, 2);
+    fake_large_depth.len = @as(usize, std.math.maxInt(c_int)) + 1;
+    defer {
+        fake_large_depth.len = 2;
+        testing.allocator.free(fake_large_depth);
+    }
+
+    const err = Serialize.init(writer.interface(), fake_large_depth);
+    try testing.expectError(error.Overflow, err);
 }
 
 // Section: Values -------------------------------------------------------------
