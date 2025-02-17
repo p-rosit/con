@@ -22,6 +22,8 @@ struct ConDeserialize {
     size_t depth;
     char *depth_buffer;
     int depth_buffer_size;
+    int buffer_char;
+    char state;
 };
 
 enum ConError con_deserialize_init(

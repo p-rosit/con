@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <ctype.h>
+#include <utils.h>
 #include "con_writer.h"
 #include "con_deserialize.h"
 
@@ -12,6 +13,8 @@ enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInt
     context->depth = 0;
     context->depth_buffer = depth_buffer;
     context->depth_buffer_size = depth_buffer_size;
+    context->buffer_char = EOF;
+    context->state = STATE_EMPTY;
 
     return CON_ERROR_OK;
 }
@@ -27,9 +30,16 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
         if (result.error || result.length != 1) { return CON_ERROR_READER; }
 
         if (next == ',') {
-            // was comma expected?
             found_comma = true;
+
+            if (context->state != STATE_LATER) {
+                return CON_ERROR_INVALID_JSON;  // unexpected comma
+            }
         }
+    }
+
+    if (!found_comma && context->state == STATE_LATER) {
+        return CON_ERROR_INVALID_JSON;  // missing comma
     }
 
     if (isdigit((unsigned char) next) || next == '.') {
