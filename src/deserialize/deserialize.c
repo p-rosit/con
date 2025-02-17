@@ -21,12 +21,14 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
     if (type == NULL) { return CON_ERROR_NULL; }
 
     char next = ' ';
+    bool found_comma = false;
     while (isspace((unsigned char) next)) {
         struct ConReadResult result = con_reader_read(context->reader, &next, 1);
         if (result.error || result.length != 1) { return CON_ERROR_READER; }
 
         if (next == ',') {
             // was comma expected?
+            found_comma = true;
         }
     }
 
@@ -51,12 +53,14 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
     } else if (next == ']') {
         // close array
         *type = CON_DESERIALIZE_TYPE_ARRAY_CLOSE;
+        if (found_comma) { return CON_ERROR_TRAILING_COMMA; }
     } else if (next == '{') {
         // open dict
         *type = CON_DESERIALIZE_TYPE_DICT_OPEN;
     } else if (next == '}') {
         // close dict
         *type = CON_DESERIALIZE_TYPE_DICT_CLOSE;
+        if (found_comma) { return CON_ERROR_TRAILING_COMMA; }
     } else {
         *type = CON_DESERIALIZE_TYPE_UNKNOWN;
         return CON_ERROR_INVALID_JSON;
