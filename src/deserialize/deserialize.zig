@@ -55,7 +55,7 @@ pub const Deserialize = struct {
             lib.CON_DESERIALIZE_TYPE_DICT_OPEN => .dict_open,
             lib.CON_DESERIALIZE_TYPE_DICT_CLOSE => .dict_close,
             lib.CON_DESERIALIZE_TYPE_KEY => .key,
-            _ => error.Unknown,
+            else => error.Unknown,
         };
     }
 };
