@@ -78,6 +78,7 @@ enum ConJsonState con_utils_json_next(enum ConJsonState state, char c) {
 
 char con_utils_json_to_char(enum ConJsonState state) {
     assert(0 < state && state < CHAR_MAX);
+    assert(0 < state && state < JSON_STATE_MAX);
     return (char) state;
 }
 
