@@ -152,3 +152,25 @@ test "next null" {
     const etype = try context.next();
     try testing.expectEqual(.null, etype);
 }
+
+test "next array open" {
+    const data = "[";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const etype = try context.next();
+    try testing.expectEqual(.array_open, etype);
+}
+
+test "next dict open" {
+    const data = "{";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const etype = try context.next();
+    try testing.expectEqual(.dict_open, etype);
+}
