@@ -119,3 +119,36 @@ test "next string" {
     const etype = try context.next();
     try testing.expectEqual(.string, etype);
 }
+
+test "next bool true" {
+    const data = "  true";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const etype = try context.next();
+    try testing.expectEqual(.bool, etype);
+}
+
+test "next bool false" {
+    const data = "\tfalse";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const etype = try context.next();
+    try testing.expectEqual(.bool, etype);
+}
+
+test "next null" {
+    const data = "null";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const etype = try context.next();
+    try testing.expectEqual(.null, etype);
+}
