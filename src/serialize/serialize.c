@@ -37,7 +37,7 @@ enum ConError con_serialize_array_open(struct ConSerialize *context) {
     if (err) { return err; }
 
     assert(context->depth_buffer != NULL);
-    context->depth_buffer[context->depth] = CONTAINER_ARRAY;
+    context->depth_buffer[context->depth] = con_utils_container_to_char(CONTAINER_ARRAY);
     context->depth += 1;
 
     size_t result = con_writer_write(context->writer, "[", 1);
@@ -83,7 +83,7 @@ enum ConError con_serialize_dict_open(struct ConSerialize *context) {
     if (err) { return err; }
 
     assert(context->depth_buffer != NULL);
-    context->depth_buffer[context->depth] = CONTAINER_DICT;
+    context->depth_buffer[context->depth] = con_utils_container_to_char(CONTAINER_DICT);
     context->depth += 1;
 
     size_t result = con_writer_write(context->writer, "{", 1);
@@ -267,8 +267,9 @@ static inline enum ConContainer con_serialize_current_container(struct ConSerial
 
     assert(context->depth_buffer_size >= 0);
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
-    char container = context->depth_buffer[context->depth - 1];
+    char container_char = context->depth_buffer[context->depth - 1];
+    enum ConContainer container = con_utils_container_from_char(container_char);
 
     assert(container == CONTAINER_ARRAY || container == CONTAINER_DICT);
-    return (enum ConContainer) container;
+    return container;
 }
