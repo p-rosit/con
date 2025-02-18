@@ -108,3 +108,14 @@ test "next number" {
     const etype = try context.next();
     try testing.expectEqual(.number, etype);
 }
+
+test "next string" {
+    const data = " \"abc\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const etype = try context.next();
+    try testing.expectEqual(.string, etype);
+}
