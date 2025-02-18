@@ -21,7 +21,7 @@ enum ConError con_serialize_init(
     context->depth = 0;
     context->depth_buffer = depth_buffer;
     context->depth_buffer_size = depth_buffer_size;
-    context->state = STATE_EMPTY;
+    context->state = con_utils_state_to_char(STATE_EMPTY);
 
     return CON_ERROR_OK;
 }
@@ -43,7 +43,7 @@ enum ConError con_serialize_array_open(struct ConSerialize *context) {
     size_t result = con_writer_write(context->writer, "[", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 
-    context->state = STATE_FIRST;
+    context->state = con_utils_state_to_char(STATE_FIRST);
     return CON_ERROR_OK;
 }
 
@@ -65,9 +65,9 @@ enum ConError con_serialize_array_close(struct ConSerialize *context) {
     context->depth -= 1;
 
     if (context->depth == 0) {
-        context->state = STATE_COMPLETE;
+        context->state = con_utils_state_to_char(STATE_COMPLETE);
     } else {
-        context->state = STATE_LATER;
+        context->state = con_utils_state_to_char(STATE_LATER);
     }
     return CON_ERROR_OK;
 }
@@ -89,7 +89,7 @@ enum ConError con_serialize_dict_open(struct ConSerialize *context) {
     size_t result = con_writer_write(context->writer, "{", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 
-    context->state = STATE_FIRST;
+    context->state = con_utils_state_to_char(STATE_FIRST);
     return CON_ERROR_OK;
 }
 
@@ -112,9 +112,9 @@ enum ConError con_serialize_dict_close(struct ConSerialize *context) {
     context->depth -= 1;
 
     if (context->depth == 0) {
-        context->state = STATE_COMPLETE;
+        context->state = con_utils_state_to_char(STATE_COMPLETE);
     } else {
-        context->state = STATE_LATER;
+        context->state = con_utils_state_to_char(STATE_LATER);
     }
     return CON_ERROR_OK;
 }
@@ -145,7 +145,7 @@ enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *k
     result = con_writer_write(context->writer, "\":", 2);
     if (result != 2) { return CON_ERROR_WRITER; }
 
-    context->state = STATE_VALUE;
+    context->state = con_utils_state_to_char(STATE_VALUE);
     return CON_ERROR_OK;
 }
 
@@ -219,10 +219,10 @@ static inline enum ConError con_serialize_value_prefix(struct ConSerialize *cont
     enum ConState state = con_utils_state_from_char(context->state);
     switch (state) {
         case (STATE_EMPTY):
-            context->state = STATE_COMPLETE;
+            context->state = con_utils_state_to_char(STATE_COMPLETE);
             break;
         case (STATE_FIRST):
-            context->state = STATE_LATER;
+            context->state = con_utils_state_to_char(STATE_LATER);
             break;
         case (STATE_LATER): {
             size_t result = con_writer_write(context->writer, ",", 1);
@@ -232,7 +232,7 @@ static inline enum ConError con_serialize_value_prefix(struct ConSerialize *cont
         case (STATE_COMPLETE):
             return CON_ERROR_COMPLETE;
         case (STATE_VALUE):
-            context->state = STATE_LATER;
+            context->state = con_utils_state_to_char(STATE_LATER);
             break;
         default:
             assert(0);  // State is unknown
