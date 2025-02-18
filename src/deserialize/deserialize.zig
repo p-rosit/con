@@ -84,3 +84,27 @@ test "context init depth buffer overflow" {
     const err = Deserialize.init(reader.interface(), fake_large_depth);
     try testing.expectError(error.Overflow, err);
 }
+
+// Section: Next ---------------------------------------------------------------
+
+test "next empty" {
+    const data = "  \n\t ";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const err = context.next();
+    try testing.expectError(error.Reader, err);
+}
+
+test "next number" {
+    const data = " 12";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const etype = try context.next();
+    try testing.expectEqual(.number, etype);
+}
