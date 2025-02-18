@@ -27,6 +27,13 @@ enum ConJsonState {
     JSON_STATE_MAX,
 };
 
+char con_utils_container_to_char(enum ConContainer container);
+enum ConContainer con_utils_container_from_char(char container);
+
+enum ConState con_utils_state_init(void);
+char con_utils_state_to_char(enum ConState state);
+enum ConState con_utils_state_from_char(char state);
+
 enum ConJsonState con_utils_json_init(void);
 enum ConJsonState con_utils_json_next(enum ConJsonState state, char c);
 char con_utils_json_to_char(enum ConJsonState state);

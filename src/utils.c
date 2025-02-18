@@ -3,6 +3,31 @@
 #include <ctype.h>
 #include "utils.h"
 
+char con_utils_container_to_char(enum ConContainer container) {
+    assert(container == CONTAINER_NONE || container == CONTAINER_DICT || container == CONTAINER_ARRAY);
+    return (char) container;
+}
+
+enum ConContainer con_utils_container_from_char(char container) {
+    assert(container == CONTAINER_NONE || container == CONTAINER_DICT || container == CONTAINER_ARRAY);
+    return (enum ConContainer) container;
+}
+
+enum ConState con_utils_state_init(void) {
+    return STATE_EMPTY;
+}
+
+char con_utils_state_to_char(enum ConState state) {
+    assert(0 < state && state < CHAR_MAX);
+    assert(0 < state && state < STATE_MAX);
+    return (char) state;
+}
+
+enum ConState con_utils_state_from_char(char state) {
+    assert(0 < state && state < STATE_MAX);
+    return (enum ConState) state;
+}
+
 enum ConJsonState con_utils_json_init(void) {
     return JSON_STATE_NORMAL;
 }
