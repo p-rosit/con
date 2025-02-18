@@ -49,32 +49,23 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
     enum ConContainer container = con_deserialize_current_container(context);
     bool expect_key = container == CONTAINER_DICT && (state == STATE_FIRST || state == STATE_LATER);
     if (isdigit((unsigned char) next) || next == '.') {
-        // number
         *type = CON_DESERIALIZE_TYPE_NUMBER;
     } else if (next == '"' && expect_key) {
-        // key
         *type = CON_DESERIALIZE_TYPE_KEY;
     } else if (next == '"') {
-        // string
         *type = CON_DESERIALIZE_TYPE_STRING;
     } else if (next == 't' || next == 'f') {
-        // bool
         *type = CON_DESERIALIZE_TYPE_BOOL;
     } else if (next == 'n') {
-        // null
         *type = CON_DESERIALIZE_TYPE_NULL;
     } else if (next == '[') {
-        // open array
         *type = CON_DESERIALIZE_TYPE_ARRAY_OPEN;
     } else if (next == ']') {
-        // close array
         *type = CON_DESERIALIZE_TYPE_ARRAY_CLOSE;
         if (found_comma) { return CON_ERROR_TRAILING_COMMA; }
     } else if (next == '{') {
-        // open dict
         *type = CON_DESERIALIZE_TYPE_DICT_OPEN;
     } else if (next == '}') {
-        // close dict
         *type = CON_DESERIALIZE_TYPE_DICT_CLOSE;
         if (found_comma) { return CON_ERROR_TRAILING_COMMA; }
     } else {
