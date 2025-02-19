@@ -18,6 +18,7 @@ enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInt
     context->depth_buffer_size = depth_buffer_size;
     context->buffer_char = EOF;
     context->state = STATE_EMPTY;
+    context->found_comma = false;
 
     return CON_ERROR_OK;
 }
@@ -28,17 +29,25 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
 
     char next = ' ';
     bool found_comma = false;
-    while (isspace((unsigned char) next)) {
-        struct ConReadResult result = con_reader_read(context->reader, &next, 1);
-        if (result.error || result.length != 1) { return CON_ERROR_READER; }
+    if (context->buffer_char == EOF) {
+        while (isspace((unsigned char) next)) {
+            struct ConReadResult result = con_reader_read(context->reader, &next, 1);
+            if (result.error || result.length != 1) { return CON_ERROR_READER; }
 
-        if (next == ',') {
-            found_comma = true;
+            if (next == ',') {
+                found_comma = true;
 
-            if (context->state != STATE_LATER) {
-                return CON_ERROR_INVALID_JSON;  // unexpected comma
+                if (context->state != STATE_LATER) {
+                    return CON_ERROR_INVALID_JSON;  // unexpected comma
+                }
             }
         }
+
+        context->buffer_char = next;
+        context->found_comma = found_comma;
+    } else {
+        next = (char) context->buffer_char;
+        found_comma = context->found_comma;
     }
 
     if (!found_comma && context->state == STATE_LATER) {

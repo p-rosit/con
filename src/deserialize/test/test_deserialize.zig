@@ -81,12 +81,15 @@ test "next empty" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var etype: lib.ConDeserializeType = undefined;
-    const err = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err);
+    const err1 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err1);
+
+    const err2 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err2);
 }
 
 test "next number" {
-    const data = " 12";
+    const data = " 1";
     var reader: lib.ConReaderString = undefined;
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
@@ -102,8 +105,12 @@ test "next number" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var etype: lib.ConDeserializeType = undefined;
-    const err = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    const err1 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_NUMBER), etype);
+
+    const err2 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_NUMBER), etype);
 }
 
@@ -124,8 +131,12 @@ test "next string" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var etype: lib.ConDeserializeType = undefined;
-    const err = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    const err1 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_STRING), etype);
+
+    const err2 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_STRING), etype);
 }
 
@@ -146,8 +157,12 @@ test "next bool true" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var etype: lib.ConDeserializeType = undefined;
-    const err = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    const err1 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_BOOL), etype);
+
+    const err2 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_BOOL), etype);
 }
 
@@ -168,8 +183,12 @@ test "next bool false" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var etype: lib.ConDeserializeType = undefined;
-    const err = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    const err1 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_BOOL), etype);
+
+    const err2 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_BOOL), etype);
 }
 
@@ -190,8 +209,12 @@ test "next null" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var etype: lib.ConDeserializeType = undefined;
-    const err = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    const err1 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_NULL), etype);
+
+    const err2 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_NULL), etype);
 }
 
@@ -212,8 +235,12 @@ test "next array open" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var etype: lib.ConDeserializeType = undefined;
-    const err = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    const err1 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_ARRAY_OPEN), etype);
+
+    const err2 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_ARRAY_OPEN), etype);
 }
 
@@ -234,7 +261,11 @@ test "next dict open" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var etype: lib.ConDeserializeType = undefined;
-    const err = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    const err1 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_OPEN), etype);
+
+    const err2 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_OPEN), etype);
 }

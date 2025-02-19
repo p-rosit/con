@@ -94,19 +94,25 @@ test "next empty" {
     var depth: [0]u8 = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
-    const err = context.next();
-    try testing.expectError(error.Reader, err);
+    const err1 = context.next();
+    try testing.expectError(error.Reader, err1);
+
+    const err2 = context.next();
+    try testing.expectError(error.Reader, err2);
 }
 
 test "next number" {
-    const data = " 12";
+    const data = " 1";
     var reader = try zcon.ReaderString.init(data);
 
     var depth: [0]u8 = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
-    const etype = try context.next();
-    try testing.expectEqual(.number, etype);
+    const etype1 = try context.next();
+    try testing.expectEqual(.number, etype1);
+
+    const etype2 = try context.next();
+    try testing.expectEqual(.number, etype2);
 }
 
 test "next string" {
@@ -116,8 +122,11 @@ test "next string" {
     var depth: [0]u8 = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
-    const etype = try context.next();
-    try testing.expectEqual(.string, etype);
+    const etype1 = try context.next();
+    try testing.expectEqual(.string, etype1);
+
+    const etype2 = try context.next();
+    try testing.expectEqual(.string, etype2);
 }
 
 test "next bool true" {
@@ -127,8 +136,11 @@ test "next bool true" {
     var depth: [0]u8 = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
-    const etype = try context.next();
-    try testing.expectEqual(.bool, etype);
+    const etype1 = try context.next();
+    try testing.expectEqual(.bool, etype1);
+
+    const etype2 = try context.next();
+    try testing.expectEqual(.bool, etype2);
 }
 
 test "next bool false" {
@@ -138,8 +150,11 @@ test "next bool false" {
     var depth: [0]u8 = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
-    const etype = try context.next();
-    try testing.expectEqual(.bool, etype);
+    const etype1 = try context.next();
+    try testing.expectEqual(.bool, etype1);
+
+    const etype2 = try context.next();
+    try testing.expectEqual(.bool, etype2);
 }
 
 test "next null" {
@@ -149,8 +164,11 @@ test "next null" {
     var depth: [0]u8 = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
-    const etype = try context.next();
-    try testing.expectEqual(.null, etype);
+    const etype1 = try context.next();
+    try testing.expectEqual(.null, etype1);
+
+    const etype2 = try context.next();
+    try testing.expectEqual(.null, etype2);
 }
 
 test "next array open" {
@@ -160,8 +178,11 @@ test "next array open" {
     var depth: [0]u8 = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
-    const etype = try context.next();
-    try testing.expectEqual(.array_open, etype);
+    const etype1 = try context.next();
+    try testing.expectEqual(.array_open, etype1);
+
+    const etype2 = try context.next();
+    try testing.expectEqual(.array_open, etype2);
 }
 
 test "next dict open" {
@@ -171,6 +192,9 @@ test "next dict open" {
     var depth: [0]u8 = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
-    const etype = try context.next();
-    try testing.expectEqual(.dict_open, etype);
+    const etype1 = try context.next();
+    try testing.expectEqual(.dict_open, etype1);
+
+    const etype2 = try context.next();
+    try testing.expectEqual(.dict_open, etype2);
 }

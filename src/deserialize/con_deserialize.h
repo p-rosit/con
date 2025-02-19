@@ -24,6 +24,7 @@ struct ConDeserialize {
     int depth_buffer_size;
     int buffer_char;
     char state;
+    bool found_comma;
 };
 
 enum ConError con_deserialize_init(
