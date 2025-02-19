@@ -4,7 +4,6 @@
 #include "con_writer.h"
 #include "con_deserialize.h"
 
-static inline enum ConState con_deserialize_state(struct ConDeserialize *context);
 static inline enum ConContainer con_deserialize_current_container(struct ConDeserialize *context);
 
 enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInterfaceReader reader, char *depth_buffer, int depth_buffer_size) {
@@ -54,7 +53,7 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
         return CON_ERROR_INVALID_JSON;  // missing comma
     }
 
-    enum ConState state = con_deserialize_state(context);
+    enum ConState state = con_utils_state_from_char(context->state);
     enum ConContainer container = con_deserialize_current_container(context);
     bool expect_key = container == CONTAINER_DICT && (state == STATE_FIRST || state == STATE_LATER);
     if (isdigit((unsigned char) next) || next == '.') {
@@ -85,14 +84,6 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
     return CON_ERROR_OK;
 }
 
-static inline enum ConState con_deserialize_state(struct ConDeserialize *context) {
-    assert(context != NULL);
-
-    char state = context->state;
-    assert(0 < state && state < STATE_MAX);
-    return (enum ConState) state;
-}
-
 static inline enum ConContainer con_deserialize_current_container(struct ConDeserialize *context) {
     assert(context != NULL);
 
@@ -102,7 +93,8 @@ static inline enum ConContainer con_deserialize_current_container(struct ConDese
 
     assert(context->depth_buffer_size >= 0);
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
-    char container = context->depth_buffer[context->depth - 1];
+    char container_char = context->depth_buffer[context->depth - 1];
+    enum ConContainer container = con_utils_container_from_char(container_char);
 
     assert(container == CONTAINER_ARRAY || container == CONTAINER_DICT);
     return (enum ConContainer) container;
