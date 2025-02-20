@@ -39,4 +39,6 @@ enum ConError con_deserialize_next(
     enum ConDeserializeType *type
 );
 
+enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffer, size_t buffer_size, size_t *length);
+
 #endif

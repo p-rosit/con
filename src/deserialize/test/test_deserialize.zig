@@ -269,3 +269,24 @@ test "next dict open" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_OPEN), etype);
 }
+
+// Section: Values -------------------------------------------------------------
+
+test "number int-like" {
+    const data = "65";
+    var reader: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    var buffer: [4]u8 = undefined;
+    var length: usize = undefined;
+    const err = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    try testing.expectEqual(2, length);
+    try testing.expectEqualStrings("65", buffer[0..2]);
+}

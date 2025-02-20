@@ -84,6 +84,45 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
     return CON_ERROR_OK;
 }
 
+enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffer, size_t buffer_size, size_t *length) {
+    assert(context != NULL);
+    if (buffer == NULL) { return CON_ERROR_NULL; }
+    if (length == NULL) { return CON_ERROR_NULL; }
+    if (buffer_size < 1) { return CON_ERROR_NOT_NUMBER; }
+
+    enum ConDeserializeType next;
+    enum ConError next_err = con_deserialize_next(context, &next);
+    if (next_err) { return next_err; }
+    if (next != CON_DESERIALIZE_TYPE_NUMBER) { return CON_ERROR_TYPE; }
+
+    buffer[0] = (char) context->buffer_char;
+    context->buffer_char = EOF;
+    context->found_comma = false;
+
+    size_t amount_read = 1;
+    while (amount_read < buffer_size) {
+        char c;
+        struct ConReadResult result = con_reader_read(context->reader, &c, 1);
+
+        if (result.length == 1) {
+            if (isdigit((unsigned char) c)) {
+                buffer[amount_read++] = c;
+            } else {
+                context->buffer_char = c;
+                break;
+            }
+        } else if (result.length == 0 && !result.error) {
+            break;
+        } else {
+            return CON_ERROR_READER;
+        }
+    }
+
+    *length = amount_read;
+    assert(amount_read <= buffer_size);
+    return amount_read >= buffer_size ? CON_ERROR_BUFFER : CON_ERROR_OK;
+}
+
 static inline enum ConContainer con_deserialize_current_container(struct ConDeserialize *context) {
     assert(context != NULL);
 

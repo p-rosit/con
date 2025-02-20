@@ -58,6 +58,20 @@ pub const Deserialize = struct {
             else => error.Unknown,
         };
     }
+
+    pub fn number(self: *Deserialize, buffer: []u8) ![]u8 {
+        var length: usize = undefined;
+        const err = lib.con_deserialize_number(
+            &self.inner,
+            buffer.ptr,
+            buffer.len,
+            &length,
+        );
+        internal.enumToError(err) catch |e| {
+            return e;
+        };
+        return buffer[0..length];
+    }
 };
 
 const testing = std.testing;
@@ -197,4 +211,18 @@ test "next dict open" {
 
     const etype2 = try context.next();
     try testing.expectEqual(.dict_open, etype2);
+}
+
+// Section: Values -------------------------------------------------------------
+
+test "number int-like" {
+    const data = "65";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [4]u8 = undefined;
+    const num = try context.number(&buffer);
+    try testing.expectEqualStrings("65", num);
 }
