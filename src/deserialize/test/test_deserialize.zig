@@ -290,3 +290,27 @@ test "number int-like" {
     try testing.expectEqual(2, length);
     try testing.expectEqualStrings("65", buffer[0..2]);
 }
+
+test "number split" {
+    const data = "65";
+    var reader: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    var buffer: [1]u8 = undefined;
+    var length: usize = undefined;
+    const err1 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err1);
+    try testing.expectEqual(1, length);
+    try testing.expectEqualStrings("6", &buffer);
+
+    const err2 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
+    try testing.expectEqual(1, length);
+    try testing.expectEqualStrings("5", &buffer);
+}

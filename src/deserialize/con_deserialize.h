@@ -23,6 +23,7 @@ struct ConDeserialize {
     char *depth_buffer;
     int depth_buffer_size;
     int buffer_char;
+    enum ConDeserializeType middle_of;
     char state;
     bool found_comma;
 };

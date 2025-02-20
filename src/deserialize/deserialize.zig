@@ -226,3 +226,19 @@ test "number int-like" {
     const num = try context.number(&buffer);
     try testing.expectEqualStrings("65", num);
 }
+
+test "number split" {
+    const data = "65";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [1]u8 = undefined;
+    const err1 = context.number(&buffer);
+    try testing.expectError(error.Buffer, err1);
+    try testing.expectEqualStrings("6", &buffer);
+
+    const num = try context.number(&buffer);
+    try testing.expectEqualStrings("5", num);
+}
