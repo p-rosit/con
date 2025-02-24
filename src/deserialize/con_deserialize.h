@@ -22,9 +22,11 @@ struct ConDeserialize {
     size_t depth;
     char *depth_buffer;
     int depth_buffer_size;
-    int buffer_char;
     enum ConDeserializeType middle_of;
     char state;
+
+    int buffer_char;
+    bool same_token;
     bool found_comma;
 };
 
