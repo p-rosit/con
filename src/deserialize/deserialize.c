@@ -168,6 +168,8 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
                 break;
             }
         }
+    } else if (context->buffer_char == ',') {
+        return CON_ERROR_INVALID_JSON;  // multiple commas
     } else {
         if (context->found_comma && context->state != STATE_LATER) {
             return CON_ERROR_INVALID_JSON;  // unexpected comma
