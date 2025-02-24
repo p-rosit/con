@@ -1,12 +1,30 @@
 #include <assert.h>
 #include <ctype.h>
 #include <utils.h>
+#include <limits.h>
 #include "con_writer.h"
 #include "con_deserialize.h"
+
+enum StateNumber {
+    NUMBER_ERROR,
+    NUMBER_START,
+    NUMBER_NEGATIVE,
+    NUMBER_ZERO,
+    NUMBER_WHOLE,
+    NUMBER_POINT,
+    NUMBER_FRACTION,
+    NUMBER_E,
+    NUMBER_EXPONENT_SIGN,
+    NUMBER_EXPONENT,
+    NUMBER_DONE,
+};
 
 static inline enum ConContainer con_deserialize_current_container(struct ConDeserialize *context);
 static inline enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum ConDeserializeType *type, bool *same_token);
 static inline enum ConError con_deserialize_internal_next_character(struct ConDeserialize *context, char *c, bool *same_token);
+static inline enum StateNumber con_deserialize_state_number_from_char(char state);
+static inline char con_deserialize_state_number_to_char(enum StateNumber state);
+static inline enum StateNumber con_deserialize_state_number_next(enum StateNumber state, char c);
 
 enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInterfaceReader reader, char *depth_buffer, int depth_buffer_size) {
     if (context == NULL) { return CON_ERROR_NULL; }
@@ -184,6 +202,97 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
     *same_token = context->same_token;
 
     return CON_ERROR_OK;
+}
+
+static inline enum StateNumber con_deserialize_state_number_from_char(char state) {
+    assert(0 <= state && state <= NUMBER_DONE);
+    return (enum StateNumber) state;
+}
+
+static inline char con_deserialize_state_number_to_char(enum StateNumber state) {
+    assert(0 <= state && state <= CHAR_MAX);
+    assert(0 <= state && state <= NUMBER_DONE);
+    return (char) state;
+}
+
+static inline enum StateNumber con_deserialize_state_number_next(enum StateNumber state, char c) {
+    switch (state) {
+        case (NUMBER_START):
+            if (c == '-') {
+                return NUMBER_NEGATIVE;
+            } else if (c == '0') {
+                return NUMBER_ZERO;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_WHOLE;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_NEGATIVE):
+            if (c == '0') {
+                return NUMBER_ZERO;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_WHOLE;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_ZERO):
+            if (c == '.') {
+                return NUMBER_POINT;
+            } else if (c == 'e' || c == 'E') {
+                return NUMBER_E;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_WHOLE):
+            if (c == '.') {
+                return NUMBER_POINT;
+            } else if (c == 'e' || c == 'E') {
+                return NUMBER_E;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_WHOLE;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_POINT):
+            if (isdigit((unsigned char) c)) {
+                return NUMBER_FRACTION;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_FRACTION):
+            if (c == 'e' || c == 'E') {
+                return NUMBER_E;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_FRACTION;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_E):
+            if (c == '+' || c == '-') {
+                return NUMBER_EXPONENT_SIGN;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_EXPONENT;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_EXPONENT_SIGN):
+            if (isdigit((unsigned char) c)) {
+                return NUMBER_EXPONENT;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_EXPONENT):
+            if (isdigit((unsigned char) c)) {
+                return NUMBER_EXPONENT;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_DONE):
+        case (NUMBER_ERROR):
+            assert(false);
+    }
+
+    assert(false);
 }
 
 static inline enum ConContainer con_deserialize_current_container(struct ConDeserialize *context) {
