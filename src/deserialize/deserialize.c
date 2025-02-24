@@ -45,6 +45,7 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffe
         return CON_ERROR_TYPE;
     }
 
+    assert(isdigit((unsigned char) context->buffer_char));
     buffer[0] = (char) context->buffer_char;
     context->buffer_char = EOF;
     context->found_comma = false;
