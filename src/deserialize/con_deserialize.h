@@ -24,6 +24,7 @@ struct ConDeserialize {
     int depth_buffer_size;
     enum ConDeserializeType middle_of;
     char state;
+    char number_state;
 
     int buffer_char;
     bool same_token;

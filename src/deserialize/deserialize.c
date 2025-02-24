@@ -16,7 +16,7 @@ enum StateNumber {
     NUMBER_E,
     NUMBER_EXPONENT_SIGN,
     NUMBER_EXPONENT,
-    NUMBER_DONE,
+    STATE_NUMBER_MAX,
 };
 
 static inline enum ConContainer con_deserialize_current_container(struct ConDeserialize *context);
@@ -39,6 +39,8 @@ enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInt
     context->middle_of = CON_DESERIALIZE_TYPE_UNKNOWN;
     context->state = STATE_EMPTY;
     context->found_comma = false;
+    context->same_token = true;
+    context->number_state = NUMBER_START;
 
     return CON_ERROR_OK;
 }
@@ -63,7 +65,15 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffe
         return CON_ERROR_TYPE;
     }
 
-    assert(isdigit((unsigned char) context->buffer_char));
+    enum StateNumber state = con_deserialize_state_number_from_char(context->number_state);
+
+    assert(context->buffer_char != EOF);
+    state = con_deserialize_state_number_next(state, (char) context->buffer_char);
+
+    if (state == NUMBER_ERROR) {
+        return CON_ERROR_NOT_NUMBER;  // unexpected char
+    }
+
     buffer[0] = (char) context->buffer_char;
     context->buffer_char = EOF;
     context->found_comma = false;
@@ -74,7 +84,9 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffe
         struct ConReadResult result = con_reader_read(context->reader, &c, 1);
 
         if (result.length == 1) {
-            if (isdigit((unsigned char) c)) {
+            state = con_deserialize_state_number_next(state, c);
+
+            if (state != NUMBER_ERROR) {
                 buffer[amount_read++] = c;
             } else {
                 context->buffer_char = c;
@@ -89,23 +101,32 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffe
 
     assert(amount_read <= buffer_size);
     *length = amount_read;
+    context->number_state = con_deserialize_state_number_to_char(state);
 
     if (amount_read >= buffer_size) {
         context->middle_of = CON_DESERIALIZE_TYPE_UNKNOWN;
 
         char c;
-        struct ConReadResult result = con_reader_read(context->reader, &c, 1);
+        bool same_token;
+        enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
+        if (err == CON_ERROR_READER && c == '\0') {
+            // ok
+        } else if (err) {
+            return err;
+        }
 
-        if (result.length == 1) {
-            if (isdigit((unsigned char) c)) {
-                context->middle_of = CON_DESERIALIZE_TYPE_NUMBER;
-                context->buffer_char = c;
-            }
-            return CON_ERROR_BUFFER;
-        } else if (result.length == 0 && !result.error) {
+        if (!same_token) {
             return CON_ERROR_OK;
+        }
+
+        state = con_deserialize_state_number_next(state, c);
+
+        if (state != NUMBER_ERROR) {
+            context->middle_of = CON_DESERIALIZE_TYPE_NUMBER;
+            context->buffer_char = c;
+            return CON_ERROR_BUFFER;
         } else {
-            return CON_ERROR_READER;
+            return CON_ERROR_OK;
         }
     }
     return CON_ERROR_OK;
@@ -164,7 +185,10 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
 
             char next;
             struct ConReadResult result = con_reader_read(context->reader, &next, 1);
-            if (result.error || result.length != 1) { return CON_ERROR_READER; }
+            if (result.error || result.length != 1) {
+                *c = result.error ? ' ' : '\0';
+                return CON_ERROR_READER;
+            }
 
             context->buffer_char = next;
 
@@ -205,13 +229,13 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
 }
 
 static inline enum StateNumber con_deserialize_state_number_from_char(char state) {
-    assert(0 <= state && state <= NUMBER_DONE);
+    assert(0 <= state && state <= STATE_NUMBER_MAX);
     return (enum StateNumber) state;
 }
 
 static inline char con_deserialize_state_number_to_char(enum StateNumber state) {
     assert(0 <= state && state <= CHAR_MAX);
-    assert(0 <= state && state <= NUMBER_DONE);
+    assert(0 <= state && state <= STATE_NUMBER_MAX);
     return (char) state;
 }
 
@@ -287,9 +311,8 @@ static inline enum StateNumber con_deserialize_state_number_next(enum StateNumbe
             } else {
                 return NUMBER_ERROR;
             }
-        case (NUMBER_DONE):
         case (NUMBER_ERROR):
-            assert(false);
+            return NUMBER_ERROR;
     }
 
     assert(false);
