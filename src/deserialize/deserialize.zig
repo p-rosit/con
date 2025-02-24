@@ -227,7 +227,7 @@ test "number int-like" {
     try testing.expectEqualStrings("65", num);
 }
 
-test "number split" {
+test "number int-like one character at a time" {
     const data = "65";
     var reader = try zcon.ReaderString.init(data);
 

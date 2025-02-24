@@ -291,7 +291,7 @@ test "number int-like" {
     try testing.expectEqualStrings("65", buffer[0..2]);
 }
 
-test "number split" {
+test "number int-like one character at a time" {
     const data = "65";
     var reader: lib.ConReaderString = undefined;
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
