@@ -270,10 +270,18 @@ test "next dict open" {
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_OPEN), etype);
 }
 
+// test "next dict close" {}
+//
+// test "next dict first" {}
+//
+// test "next dict second" {}
+//
+// test "next dict key" {}
+
 // Section: Values -------------------------------------------------------------
 
 test "number int-like" {
-    const data = "65";
+    const data = "-6";
     var reader: lib.ConReaderString = undefined;
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
@@ -288,11 +296,11 @@ test "number int-like" {
     const err = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
     try testing.expectEqual(2, length);
-    try testing.expectEqualStrings("65", buffer[0..2]);
+    try testing.expectEqualStrings("-6", buffer[0..2]);
 }
 
 test "number int-like one character at a time" {
-    const data = "65";
+    const data = "-6";
     var reader: lib.ConReaderString = undefined;
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
@@ -307,10 +315,10 @@ test "number int-like one character at a time" {
     const err1 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err1);
     try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("6", &buffer);
+    try testing.expectEqualStrings("-", &buffer);
 
     const err2 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
     try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("5", &buffer);
+    try testing.expectEqualStrings("6", &buffer);
 }

@@ -216,7 +216,7 @@ test "next dict open" {
 // Section: Values -------------------------------------------------------------
 
 test "number int-like" {
-    const data = "65";
+    const data = "-6";
     var reader = try zcon.ReaderString.init(data);
 
     var depth: [0]u8 = undefined;
@@ -224,11 +224,11 @@ test "number int-like" {
 
     var buffer: [4]u8 = undefined;
     const num = try context.number(&buffer);
-    try testing.expectEqualStrings("65", num);
+    try testing.expectEqualStrings("-6", num);
 }
 
 test "number int-like one character at a time" {
-    const data = "65";
+    const data = "-6";
     var reader = try zcon.ReaderString.init(data);
 
     var depth: [0]u8 = undefined;
@@ -237,8 +237,8 @@ test "number int-like one character at a time" {
     var buffer: [1]u8 = undefined;
     const err1 = context.number(&buffer);
     try testing.expectError(error.Buffer, err1);
-    try testing.expectEqualStrings("6", &buffer);
+    try testing.expectEqualStrings("-", &buffer);
 
     const num = try context.number(&buffer);
-    try testing.expectEqualStrings("5", num);
+    try testing.expectEqualStrings("6", num);
 }

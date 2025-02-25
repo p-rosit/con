@@ -143,7 +143,7 @@ enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum
     enum ConState state = con_utils_state_from_char(context->state);
     enum ConContainer container = con_deserialize_current_container(context);
     bool expect_key = container == CONTAINER_DICT && (state == STATE_FIRST || state == STATE_LATER);
-    if (isdigit((unsigned char) next) || next == '.') {
+    if (isdigit((unsigned char) next) || next == '.' || next == '-') {
         *type = CON_DESERIALIZE_TYPE_NUMBER;
     } else if (next == '"' && expect_key) {
         *type = CON_DESERIALIZE_TYPE_KEY;
