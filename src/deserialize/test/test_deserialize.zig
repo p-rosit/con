@@ -370,3 +370,56 @@ test "number float-like one character at a time" {
     try testing.expectEqual(1, length);
     try testing.expectEqualStrings("3", &buffer);
 }
+
+test "number scientific-like" {
+    const data = "2e+4";
+    var reader: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    var buffer: [5]u8 = undefined;
+    var length: usize = undefined;
+    const err = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    try testing.expectEqual(4, length);
+    try testing.expectEqualStrings("2e+4", buffer[0..4]);
+}
+
+test "number scientific-like one character at a time" {
+    const data = "2e+4";
+    var reader: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    var buffer: [1]u8 = undefined;
+    var length: usize = undefined;
+    const err1 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err1);
+    try testing.expectEqual(1, length);
+    try testing.expectEqualStrings("2", &buffer);
+
+    const err2 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err2);
+    try testing.expectEqual(1, length);
+    try testing.expectEqualStrings("e", &buffer);
+
+    const err3 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err3);
+    try testing.expectEqual(1, length);
+    try testing.expectEqualStrings("+", &buffer);
+
+    const err4 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err4);
+    try testing.expectEqual(1, length);
+    try testing.expectEqualStrings("4", &buffer);
+}

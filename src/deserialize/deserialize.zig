@@ -274,3 +274,39 @@ test "number float-like one character at a time" {
     const num = try context.number(&buffer);
     try testing.expectEqualStrings("3", num);
 }
+
+test "number scientific-like" {
+    const data = "2e+4";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [5]u8 = undefined;
+    const num = try context.number(&buffer);
+    try testing.expectEqualStrings("2e+4", num);
+}
+
+test "number scientific-like one character at a time" {
+    const data = "2e+4";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [1]u8 = undefined;
+    const err1 = context.number(&buffer);
+    try testing.expectError(error.Buffer, err1);
+    try testing.expectEqualStrings("2", &buffer);
+
+    const err2 = context.number(&buffer);
+    try testing.expectError(error.Buffer, err2);
+    try testing.expectEqualStrings("e", &buffer);
+
+    const err3 = context.number(&buffer);
+    try testing.expectError(error.Buffer, err3);
+    try testing.expectEqualStrings("+", &buffer);
+
+    const num = try context.number(&buffer);
+    try testing.expectEqualStrings("4", num);
+}
