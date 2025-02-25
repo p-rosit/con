@@ -310,3 +310,15 @@ test "number scientific-like one character at a time" {
     const num = try context.number(&buffer);
     try testing.expectEqualStrings("4", num);
 }
+
+test "number small" {
+    const data = "";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [0]u8 = undefined;
+    const err = context.number(&buffer);
+    try testing.expectError(error.NotNumber, err);
+}

@@ -455,3 +455,20 @@ test "number length null" {
     const err1 = lib.con_deserialize_number(&context, &buffer, buffer.len, null);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), err1);
 }
+
+test "number small" {
+    const data = "";
+    var reader: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    var buffer: [1]u8 = undefined;
+    var length: usize = undefined;
+    const err1 = lib.con_deserialize_number(&context, &buffer, 0, &length);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), err1);
+}
