@@ -81,21 +81,20 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffe
     size_t amount_read = 1;
     while (amount_read < buffer_size) {
         char c;
-        struct ConReadResult result = con_reader_read(context->reader, &c, 1);
-
-        if (result.length == 1) {
+        bool same_token;
+        enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
+        if (err) {
+            return err;
+        } else if (!same_token) {
+            break;  // number done
+        } else {
             state = con_deserialize_state_number_next(state, c);
 
             if (state != NUMBER_ERROR) {
                 buffer[amount_read++] = c;
             } else {
-                context->buffer_char = c;
-                break;
+                return CON_ERROR_INVALID_JSON;
             }
-        } else if (result.length == 0 && !result.error) {
-            break;
-        } else {
-            return CON_ERROR_READER;
         }
     }
 
@@ -109,11 +108,7 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffe
         char c;
         bool same_token;
         enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
-        if (err == CON_ERROR_READER && c == '\0') {
-            // ok
-        } else if (err) {
-            return err;
-        }
+        if (err) { return err; }
 
         if (!same_token) {
             return CON_ERROR_OK;
@@ -185,28 +180,35 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
 
             char next;
             struct ConReadResult result = con_reader_read(context->reader, &next, 1);
-            if (result.error || result.length != 1) {
-                *c = result.error ? ' ' : '\0';
+            if (result.error && result.length != 1) {
                 return CON_ERROR_READER;
+            } else if (!result.error && result.length != 1) {
+                assert(result.length == 0);
+                return CON_ERROR_EMPTY;
             }
 
             context->buffer_char = next;
 
             if (context->buffer_char == ',') {
                 if (context->found_comma) {
+                    if (result.error) { return CON_ERROR_READER; }
                     return CON_ERROR_INVALID_JSON;  // multiple commas
                 }
 
                 context->found_comma = true;
                 context->same_token = false;
 
+                if (result.error) { return CON_ERROR_READER; }
                 if (context->state != STATE_LATER) {
                     return CON_ERROR_INVALID_JSON;  // unexpected comma
                 }
             } else if (isspace((unsigned char) next)) {
                 context->same_token = false;
+
+                if (result.error) { return CON_ERROR_READER; }
                 continue;
             } else {
+                if (result.error) { return CON_ERROR_READER; }
                 break;
             }
         }

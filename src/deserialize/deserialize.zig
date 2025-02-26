@@ -109,6 +109,21 @@ test "next empty" {
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err1 = context.next();
+    try testing.expectError(error.Empty, err1);
+
+    const err2 = context.next();
+    try testing.expectError(error.Empty, err2);
+}
+
+test "next error" {
+    const data = "";
+    var r = try zcon.ReaderString.init(data);
+    var reader = try zcon.ReaderFail.init(r.interface(), 0);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const err1 = context.next();
     try testing.expectError(error.Reader, err1);
 
     const err2 = context.next();
