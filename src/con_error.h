@@ -18,8 +18,7 @@ enum ConError {
     CON_ERROR_INVALID_JSON      = 13,
     CON_ERROR_TRAILING_COMMA    = 14,
     CON_ERROR_TYPE              = 15,
-    CON_ERROR_EMPTY             = 16,
-    CON_ERROR_STATE_UNKNOWN     = 17,
+    CON_ERROR_STATE_UNKNOWN     = 16,
 };
 
 #endif

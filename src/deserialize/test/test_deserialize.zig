@@ -67,8 +67,8 @@ test "context depth negative" {
 test "next empty" {
     const data = "  \n\t ";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
@@ -82,10 +82,10 @@ test "next empty" {
 
     var etype: lib.ConDeserializeType = undefined;
     const err1 = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_EMPTY), err1);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err1);
 
     const err2 = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_EMPTY), err2);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err2);
 }
 
 test "next error" {
@@ -123,8 +123,8 @@ test "next error" {
 test "next number" {
     const data = " 1";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
@@ -149,8 +149,8 @@ test "next number" {
 test "next string" {
     const data = " \"abc\"";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
@@ -175,8 +175,8 @@ test "next string" {
 test "next bool true" {
     const data = "  true";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
@@ -201,8 +201,8 @@ test "next bool true" {
 test "next bool false" {
     const data = "\tfalse";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
@@ -227,8 +227,8 @@ test "next bool false" {
 test "next null" {
     const data = "null";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
@@ -253,8 +253,8 @@ test "next null" {
 test "next array open" {
     const data = "[";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
@@ -279,8 +279,8 @@ test "next array open" {
 test "next dict open" {
     const data = "{";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
@@ -302,112 +302,13 @@ test "next dict open" {
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_OPEN), etype);
 }
 
-// test "next dict close" {}
-//
-// test "next dict first" {}
-//
-// test "next dict second" {}
-//
-// test "next dict key" {}
-
 // Section: Values -------------------------------------------------------------
 
 test "number int-like" {
-    const data = "-6";
+    const data = "-6 ";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
-
-    var depth: [0]u8 = undefined;
-    var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
-
-    var buffer: [4]u8 = undefined;
-    var length: usize = undefined;
-    const err = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
-    try testing.expectEqual(2, length);
-    try testing.expectEqualStrings("-6", buffer[0..2]);
-}
-
-test "number int-like one character at a time" {
-    const data = "-6";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
-
-    var depth: [0]u8 = undefined;
-    var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
-
-    var buffer: [1]u8 = undefined;
-    var length: usize = undefined;
-    const err1 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err1);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("-", &buffer);
-
-    const err2 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("6", &buffer);
-}
-
-test "number float-like" {
-    const data = "0.3";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
-
-    var depth: [0]u8 = undefined;
-    var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
-
-    var buffer: [4]u8 = undefined;
-    var length: usize = undefined;
-    const err = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
-    try testing.expectEqual(3, length);
-    try testing.expectEqualStrings("0.3", buffer[0..3]);
-}
-
-test "number float-like one character at a time" {
-    const data = "0.3";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
-
-    var depth: [0]u8 = undefined;
-    var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
-
-    var buffer: [1]u8 = undefined;
-    var length: usize = undefined;
-    const err1 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err1);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("0", &buffer);
-
-    const err2 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err2);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings(".", &buffer);
-
-    const err3 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err3);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("3", &buffer);
-}
-
-test "number scientific-like" {
-    const data = "2e+4";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
@@ -415,92 +316,159 @@ test "number scientific-like" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [5]u8 = undefined;
-    var length: usize = undefined;
-    const err = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
+    var writer: lib.ConWriterString = undefined;
+    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+    const err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
-    try testing.expectEqual(4, length);
-    try testing.expectEqualStrings("2e+4", buffer[0..4]);
+    try testing.expectEqual(2, writer.current);
+    try testing.expectEqualStrings("-6", buffer[0..2]);
 }
 
-test "number scientific-like one character at a time" {
+test "number float-like" {
+    const data = "0.3";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    var buffer: [5]u8 = undefined;
+    var writer: lib.ConWriterString = undefined;
+    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+    const err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    try testing.expectEqual(3, writer.current);
+    try testing.expectEqualStrings("0.3", buffer[0..3]);
+}
+
+test "number scientific-like" {
     const data = "2e+4";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    var buffer: [1]u8 = undefined;
-    var length: usize = undefined;
-    const err1 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err1);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("2", &buffer);
+    var buffer: [5]u8 = undefined;
+    var writer: lib.ConWriterString = undefined;
+    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const err2 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err2);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("e", &buffer);
-
-    const err3 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), err3);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("+", &buffer);
-
-    const err4 = lib.con_deserialize_number(&context, &buffer, buffer.len, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err4);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("4", &buffer);
-}
-
-test "number null" {
-    const data = "";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
-
-    var depth: [0]u8 = undefined;
-    var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
-
-    var length: usize = undefined;
-    const err1 = lib.con_deserialize_number(&context, null, 5, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), err1);
-}
-
-test "number length null" {
-    const data = "";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
-
-    var depth: [0]u8 = undefined;
-    var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
-
-    var buffer: [1]u8 = undefined;
-    const err1 = lib.con_deserialize_number(&context, &buffer, buffer.len, null);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), err1);
+    const err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+    try testing.expectEqual(4, writer.current);
+    try testing.expectEqualStrings("2e+4", buffer[0..4]);
 }
 
 test "number small" {
     const data = "";
     var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]u8 = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    var buffer: [1]u8 = undefined;
-    var length: usize = undefined;
-    const err1 = lib.con_deserialize_number(&context, &buffer, 0, &length);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), err1);
+    var buffer: [5]u8 = undefined;
+    var writer: lib.ConWriterString = undefined;
+    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+    const err1 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err1);
+}
+
+test "number reader fail" {
+    var reader: lib.ConReaderString = undefined;
+    var buffer: [6]u8 = undefined;
+    var writer: lib.ConWriterString = undefined;
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const data1 = "2.";
+    const ir1_err = lib.con_reader_string_init(&reader, data1, data1.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir1_err);
+    const iw1_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw1_err);
+    const err1 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err1);
+    try testing.expectEqual(2, writer.current);
+    try testing.expectEqualStrings("2.", buffer[0..2]);
+
+    const data2 = "2.5E";
+    const ir2_err = lib.con_reader_string_init(&reader, data2, data2.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir2_err);
+    const iw2_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw2_err);
+    const err2 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err2);
+    try testing.expectEqual(4, writer.current);
+    try testing.expectEqualStrings("2.5E", buffer[0..4]);
+
+    const data3 = "-";
+    const ir3_err = lib.con_reader_string_init(&reader, data3, data3.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir3_err);
+    const iw3_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw3_err);
+    const err3 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err3);
+    try testing.expectEqual(1, writer.current);
+    try testing.expectEqualStrings("-", buffer[0..1]);
+
+    const data4 = "3.4e-";
+    const ir4_err = lib.con_reader_string_init(&reader, data4, data4.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir4_err);
+    const iw4_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw4_err);
+    const err4 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err4);
+    try testing.expectEqual(5, writer.current);
+    try testing.expectEqualStrings("3.4e-", buffer[0..5]);
+}
+
+test "number invalid" {
+    var reader: lib.ConReaderString = undefined;
+    var buffer: [6]u8 = undefined;
+    var writer: lib.ConWriterString = undefined;
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+
+    const data1 = "+";
+    const ir1_err = lib.con_reader_string_init(&reader, data1, data1.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir1_err);
+    const iw1_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw1_err);
+    const init1_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
+    const err1 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err1);
+    try testing.expectEqual(0, writer.current);
+
+    const data2 = "0f";
+    const ir2_err = lib.con_reader_string_init(&reader, data2, data2.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir2_err);
+    const iw2_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw2_err);
+    const init2_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
+    const err2 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err2);
+    try testing.expectEqual(1, writer.current);
+    try testing.expectEqualStrings("0", buffer[0..1]);
 }

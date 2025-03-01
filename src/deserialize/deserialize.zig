@@ -59,18 +59,9 @@ pub const Deserialize = struct {
         };
     }
 
-    pub fn number(self: *Deserialize, buffer: []u8) ![]u8 {
-        var length: usize = undefined;
-        const err = lib.con_deserialize_number(
-            &self.inner,
-            buffer.ptr,
-            buffer.len,
-            &length,
-        );
-        internal.enumToError(err) catch |e| {
-            return e;
-        };
-        return buffer[0..length];
+    pub fn number(self: *Deserialize, writer: zcon.InterfaceWriter) !void {
+        const err = lib.con_deserialize_number(&self.inner, writer.writer);
+        try internal.enumToError(err);
     }
 };
 
@@ -109,10 +100,10 @@ test "next empty" {
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err1 = context.next();
-    try testing.expectError(error.Empty, err1);
+    try testing.expectError(error.Reader, err1);
 
     const err2 = context.next();
-    try testing.expectError(error.Empty, err2);
+    try testing.expectError(error.Reader, err2);
 }
 
 test "next error" {
@@ -238,24 +229,10 @@ test "number int-like" {
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [4]u8 = undefined;
-    const num = try context.number(&buffer);
-    try testing.expectEqualStrings("-6", num);
-}
-
-test "number int-like one character at a time" {
-    const data = "-6";
-    var reader = try zcon.ReaderString.init(data);
-
-    var depth: [0]u8 = undefined;
-    var context = try Deserialize.init(reader.interface(), &depth);
-
-    var buffer: [1]u8 = undefined;
-    const err1 = context.number(&buffer);
-    try testing.expectError(error.Buffer, err1);
-    try testing.expectEqualStrings("-", &buffer);
-
-    const num = try context.number(&buffer);
-    try testing.expectEqualStrings("6", num);
+    var writer = try zcon.WriterString.init(&buffer);
+    try context.number(writer.interface());
+    try testing.expectEqual(2, writer.inner.current);
+    try testing.expectEqualStrings("-6", buffer[0..2]);
 }
 
 test "number float-like" {
@@ -266,28 +243,10 @@ test "number float-like" {
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [5]u8 = undefined;
-    const num = try context.number(&buffer);
-    try testing.expectEqualStrings("0.3", num);
-}
-
-test "number float-like one character at a time" {
-    const data = "0.3";
-    var reader = try zcon.ReaderString.init(data);
-
-    var depth: [0]u8 = undefined;
-    var context = try Deserialize.init(reader.interface(), &depth);
-
-    var buffer: [1]u8 = undefined;
-    const err1 = context.number(&buffer);
-    try testing.expectError(error.Buffer, err1);
-    try testing.expectEqualStrings("0", &buffer);
-
-    const err2 = context.number(&buffer);
-    try testing.expectError(error.Buffer, err2);
-    try testing.expectEqualStrings(".", &buffer);
-
-    const num = try context.number(&buffer);
-    try testing.expectEqualStrings("3", num);
+    var writer = try zcon.WriterString.init(&buffer);
+    try context.number(writer.interface());
+    try testing.expectEqual(3, writer.inner.current);
+    try testing.expectEqualStrings("0.3", buffer[0..3]);
 }
 
 test "number scientific-like" {
@@ -298,32 +257,10 @@ test "number scientific-like" {
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [5]u8 = undefined;
-    const num = try context.number(&buffer);
-    try testing.expectEqualStrings("2e+4", num);
-}
-
-test "number scientific-like one character at a time" {
-    const data = "2e+4";
-    var reader = try zcon.ReaderString.init(data);
-
-    var depth: [0]u8 = undefined;
-    var context = try Deserialize.init(reader.interface(), &depth);
-
-    var buffer: [1]u8 = undefined;
-    const err1 = context.number(&buffer);
-    try testing.expectError(error.Buffer, err1);
-    try testing.expectEqualStrings("2", &buffer);
-
-    const err2 = context.number(&buffer);
-    try testing.expectError(error.Buffer, err2);
-    try testing.expectEqualStrings("e", &buffer);
-
-    const err3 = context.number(&buffer);
-    try testing.expectError(error.Buffer, err3);
-    try testing.expectEqualStrings("+", &buffer);
-
-    const num = try context.number(&buffer);
-    try testing.expectEqualStrings("4", num);
+    var writer = try zcon.WriterString.init(&buffer);
+    try context.number(writer.interface());
+    try testing.expectEqual(4, writer.inner.current);
+    try testing.expectEqualStrings("2e+4", buffer[0..4]);
 }
 
 test "number small" {
@@ -334,6 +271,74 @@ test "number small" {
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [0]u8 = undefined;
-    const err = context.number(&buffer);
-    try testing.expectError(error.NotNumber, err);
+    var writer = try zcon.WriterString.init(&buffer);
+    const err = context.number(writer.interface());
+    try testing.expectError(error.Reader, err);
+    try testing.expectEqual(0, writer.inner.current);
+}
+
+test "number reader fail" {
+    var reader: zcon.ReaderString = undefined;
+    var buffer: [5]u8 = undefined;
+    var writer: zcon.WriterString = undefined;
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const data1 = "2.";
+    reader = try zcon.ReaderString.init(data1);
+    writer = try zcon.WriterString.init(&buffer);
+    const err1 = context.number(writer.interface());
+    try testing.expectError(error.Reader, err1);
+    try testing.expectEqual(2, writer.inner.current);
+    try testing.expectEqualStrings("2.", buffer[0..2]);
+
+    const data2 = "2.5E";
+    reader = try zcon.ReaderString.init(data2);
+    writer = try zcon.WriterString.init(&buffer);
+    const err2 = context.number(writer.interface());
+    try testing.expectError(error.Reader, err2);
+    try testing.expectEqual(4, writer.inner.current);
+    try testing.expectEqualStrings("2.5E", buffer[0..4]);
+
+    const data3 = "-";
+    reader = try zcon.ReaderString.init(data3);
+    writer = try zcon.WriterString.init(&buffer);
+    const err3 = context.number(writer.interface());
+    try testing.expectError(error.Reader, err3);
+    try testing.expectEqual(1, writer.inner.current);
+    try testing.expectEqualStrings("-", buffer[0..1]);
+
+    const data4 = "3.4e-";
+    reader = try zcon.ReaderString.init(data4);
+    writer = try zcon.WriterString.init(&buffer);
+    const err4 = context.number(writer.interface());
+    try testing.expectError(error.Reader, err4);
+    try testing.expectEqual(5, writer.inner.current);
+    try testing.expectEqualStrings("3.4e-", buffer[0..5]);
+}
+
+test "number invalid" {
+    var reader: zcon.ReaderString = undefined;
+    var buffer: [5]u8 = undefined;
+    var writer: zcon.WriterString = undefined;
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const data1 = "+";
+    reader = try zcon.ReaderString.init(data1);
+    writer = try zcon.WriterString.init(&buffer);
+    const err1 = context.number(writer.interface());
+    try testing.expectError(error.InvalidJson, err1);
+    try testing.expectEqual(0, writer.inner.current);
+
+    const data2 = "0f";
+    reader = try zcon.ReaderString.init(data2);
+    writer = try zcon.WriterString.init(&buffer);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err2 = context.number(writer.interface());
+    try testing.expectError(error.InvalidJson, err2);
+    try testing.expectEqual(1, writer.inner.current);
+    try testing.expectEqualStrings("0", buffer[0..1]);
 }

@@ -26,7 +26,6 @@ pub fn enumToError(err: lib.ConError) !void {
         lib.CON_ERROR_INVALID_JSON => return error.InvalidJson,
         lib.CON_ERROR_TRAILING_COMMA => return error.TrailingComma,
         lib.CON_ERROR_TYPE => return error.Type,
-        lib.CON_ERROR_EMPTY => return error.Empty,
         lib.CON_ERROR_STATE_UNKNOWN => return error.StateUnknown,
         else => return error.Unknown,
     }

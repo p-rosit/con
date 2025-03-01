@@ -1,6 +1,7 @@
 #ifndef CON_DESERIALIZE_H
 #define CON_DESERIALIZE_H
 #include <con_error.h>
+#include <con_interface_writer.h>
 #include <con_interface_reader.h>
 
 enum ConDeserializeType {
@@ -22,12 +23,8 @@ struct ConDeserialize {
     size_t depth;
     char *depth_buffer;
     int depth_buffer_size;
-    enum ConDeserializeType middle_of;
     char state;
-    char number_state;
-
     int buffer_char;
-    bool same_token;
     bool found_comma;
 };
 
@@ -43,6 +40,6 @@ enum ConError con_deserialize_next(
     enum ConDeserializeType *type
 );
 
-enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffer, size_t buffer_size, size_t *length);
+enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConInterfaceWriter writer);
 
 #endif

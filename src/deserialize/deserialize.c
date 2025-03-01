@@ -22,9 +22,8 @@ enum StateNumber {
 static inline enum ConContainer con_deserialize_current_container(struct ConDeserialize *context);
 static inline enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum ConDeserializeType *type, bool *same_token);
 static inline enum ConError con_deserialize_internal_next_character(struct ConDeserialize *context, char *c, bool *same_token);
-static inline enum StateNumber con_deserialize_state_number_from_char(char state);
-static inline char con_deserialize_state_number_to_char(enum StateNumber state);
 static inline enum StateNumber con_deserialize_state_number_next(enum StateNumber state, char c);
+static inline bool con_deserialize_state_number_terminal(enum StateNumber state);
 
 enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInterfaceReader reader, char *depth_buffer, int depth_buffer_size) {
     if (context == NULL) { return CON_ERROR_NULL; }
@@ -36,11 +35,8 @@ enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInt
     context->depth_buffer = depth_buffer;
     context->depth_buffer_size = depth_buffer_size;
     context->buffer_char = EOF;
-    context->middle_of = CON_DESERIALIZE_TYPE_UNKNOWN;
     context->state = STATE_EMPTY;
     context->found_comma = false;
-    context->same_token = true;
-    context->number_state = NUMBER_START;
 
     return CON_ERROR_OK;
 }
@@ -50,22 +46,15 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
     return con_deserialize_internal_next(context, type, &same_token);
 }
 
-enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffer, size_t buffer_size, size_t *length) {
+enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
     assert(context != NULL);
-    if (buffer == NULL) { return CON_ERROR_NULL; }
-    if (length == NULL) { return CON_ERROR_NULL; }
-    if (buffer_size < 1) { return CON_ERROR_NOT_NUMBER; }
 
-    if (context->middle_of == CON_DESERIALIZE_TYPE_UNKNOWN) {
-        enum ConDeserializeType next;
-        enum ConError next_err = con_deserialize_next(context, &next);
-        if (next_err) { return next_err; }
-        if (next != CON_DESERIALIZE_TYPE_NUMBER) { return CON_ERROR_TYPE; }
-    } else if (context->middle_of != CON_DESERIALIZE_TYPE_NUMBER) {
-        return CON_ERROR_TYPE;
-    }
+    enum ConDeserializeType next;
+    enum ConError next_err = con_deserialize_next(context, &next);
+    if (next_err) { return next_err; }
+    if (next != CON_DESERIALIZE_TYPE_NUMBER) { return CON_ERROR_TYPE; }
 
-    enum StateNumber state = con_deserialize_state_number_from_char(context->number_state);
+    enum StateNumber state = NUMBER_START;
 
     assert(context->buffer_char != EOF);
     state = con_deserialize_state_number_next(state, (char) context->buffer_char);
@@ -73,17 +62,21 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffe
     if (state == NUMBER_ERROR) {
         return CON_ERROR_NOT_NUMBER;  // unexpected char
     }
+    size_t amount_written = con_writer_write(writer, (char*) &context->buffer_char, 1);
+    if (amount_written != 1) { return CON_ERROR_WRITER; }
 
-    buffer[0] = (char) context->buffer_char;
     context->buffer_char = EOF;
     context->found_comma = false;
 
-    size_t amount_read = 1;
-    while (amount_read < buffer_size) {
-        char c;
-        bool same_token;
+    while (true) {
+        char c = '*';
+        bool same_token = false;
+        context->buffer_char = EOF;
         enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
-        if (err) {
+
+        if (err && con_deserialize_state_number_terminal(state)) {
+            break;  // number maybe done
+        } if (err) {
             return err;
         } else if (!same_token) {
             break;  // number done
@@ -91,38 +84,16 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, char *buffe
             state = con_deserialize_state_number_next(state, c);
 
             if (state != NUMBER_ERROR) {
-                buffer[amount_read++] = c;
+                amount_written = con_writer_write(writer, &c, 1);
+                if (amount_written != 1) { return CON_ERROR_WRITER; }
             } else {
                 return CON_ERROR_INVALID_JSON;
             }
         }
     }
 
-    assert(amount_read <= buffer_size);
-    *length = amount_read;
-    context->number_state = con_deserialize_state_number_to_char(state);
-
-    if (amount_read >= buffer_size) {
-        context->middle_of = CON_DESERIALIZE_TYPE_UNKNOWN;
-
-        char c;
-        bool same_token;
-        enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
-        if (err) { return err; }
-
-        if (!same_token) {
-            return CON_ERROR_OK;
-        }
-
-        state = con_deserialize_state_number_next(state, c);
-
-        if (state != NUMBER_ERROR) {
-            context->middle_of = CON_DESERIALIZE_TYPE_NUMBER;
-            context->buffer_char = c;
-            return CON_ERROR_BUFFER;
-        } else {
-            return CON_ERROR_OK;
-        }
+    if (!con_deserialize_state_number_terminal(state)) {
+        return CON_ERROR_NOT_NUMBER;
     }
     return CON_ERROR_OK;
 }
@@ -173,20 +144,16 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
 
     if (context->buffer_char == EOF) {
         context->found_comma = false;
-        context->same_token = true;
+        *same_token = true;
 
         while (true) {
             context->buffer_char = EOF;
 
             char next;
             struct ConReadResult result = con_reader_read(context->reader, &next, 1);
-            if (result.error && result.length != 1) {
+            if (result.error || result.length != 1) {
                 return CON_ERROR_READER;
-            } else if (!result.error && result.length != 1) {
-                assert(result.length == 0);
-                return CON_ERROR_EMPTY;
             }
-
             context->buffer_char = next;
 
             if (context->buffer_char == ',') {
@@ -196,14 +163,14 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
                 }
 
                 context->found_comma = true;
-                context->same_token = false;
+                *same_token = false;
 
                 if (result.error) { return CON_ERROR_READER; }
                 if (context->state != STATE_LATER) {
                     return CON_ERROR_INVALID_JSON;  // unexpected comma
                 }
             } else if (isspace((unsigned char) next)) {
-                context->same_token = false;
+                *same_token = false;
 
                 if (result.error) { return CON_ERROR_READER; }
                 continue;
@@ -225,20 +192,17 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
     }
 
     *c = (char) context->buffer_char;
-    *same_token = context->same_token;
-
     return CON_ERROR_OK;
 }
 
-static inline enum StateNumber con_deserialize_state_number_from_char(char state) {
+static inline bool con_deserialize_state_number_terminal(enum StateNumber state) {
     assert(0 <= state && state <= STATE_NUMBER_MAX);
-    return (enum StateNumber) state;
-}
-
-static inline char con_deserialize_state_number_to_char(enum StateNumber state) {
-    assert(0 <= state && state <= CHAR_MAX);
-    assert(0 <= state && state <= STATE_NUMBER_MAX);
-    return (char) state;
+    return (
+        state == NUMBER_ZERO
+        || state == NUMBER_WHOLE
+        || state == NUMBER_FRACTION
+        || state == NUMBER_EXPONENT
+    );
 }
 
 static inline enum StateNumber con_deserialize_state_number_next(enum StateNumber state, char c) {
@@ -315,6 +279,8 @@ static inline enum StateNumber con_deserialize_state_number_next(enum StateNumbe
             }
         case (NUMBER_ERROR):
             return NUMBER_ERROR;
+        case (STATE_NUMBER_MAX):
+            assert(false);
     }
 
     assert(false);
