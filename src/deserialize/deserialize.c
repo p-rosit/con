@@ -74,7 +74,7 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
 
         if (err && con_deserialize_state_number_terminal(state)) {
             break;  // number maybe done
-        } if (err) {
+        } else if (err) {
             return err;
         } else if (!same_token) {
             break;  // number done
