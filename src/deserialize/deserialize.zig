@@ -31,19 +31,14 @@ pub const Deserialize = struct {
             @intCast(depth.len),
         );
 
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return context;
     }
 
     pub fn next(self: *Deserialize) !Type {
         var token_type: lib.ConDeserializeType = undefined;
         const err = lib.con_deserialize_next(&self.inner, &token_type);
-
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
 
         return switch (token_type) {
             lib.CON_DESERIALIZE_TYPE_NUMBER => .number,
@@ -61,7 +56,7 @@ pub const Deserialize = struct {
 
     pub fn number(self: *Deserialize, writer: zcon.InterfaceWriter) !void {
         const err = lib.con_deserialize_number(&self.inner, writer.writer);
-        try internal.enumToError(err);
+        return internal.enumToError(err);
     }
 };
 

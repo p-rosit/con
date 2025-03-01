@@ -25,9 +25,7 @@ pub const Fail = struct {
             reader.reader,
             reads_before_fail,
         );
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return self;
     }
 
@@ -71,9 +69,7 @@ pub const File = struct {
     pub fn init(file: *lib.FILE) !File {
         var self: File = undefined;
         const err = lib.con_reader_file_init(&self.inner, file);
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return self;
     }
 
@@ -92,9 +88,7 @@ pub const String = struct {
             data.ptr,
             data.len,
         );
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return self;
     }
 
@@ -114,9 +108,7 @@ pub const Buffer = struct {
             buffer.ptr,
             buffer.len,
         );
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return self;
     }
 
@@ -134,9 +126,7 @@ pub const Comment = struct {
             &self.inner,
             reader.reader,
         );
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return self;
     }
 

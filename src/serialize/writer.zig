@@ -54,9 +54,7 @@ pub const File = struct {
     pub fn init(file: *lib.FILE) !File {
         var self: File = undefined;
         const err = lib.con_writer_file_init(&self.inner, file);
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return self;
     }
 
@@ -79,9 +77,7 @@ pub const String = struct {
             buffer.ptr,
             @intCast(buffer.len),
         );
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return self;
     }
 
@@ -105,10 +101,7 @@ pub const Buffer = struct {
             buffer.ptr,
             @intCast(buffer.len),
         );
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
-
+        try internal.enumToError(err);
         return self;
     }
 
@@ -130,9 +123,7 @@ pub const Indent = struct {
     pub fn init(writer: InterfaceWriter) !Indent {
         var self: Indent = undefined;
         const err = lib.con_writer_indent_init(&self.inner, writer.writer);
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return self;
     }
 

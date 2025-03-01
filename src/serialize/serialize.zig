@@ -19,9 +19,7 @@ pub const Serialize = struct {
             @intCast(depth.len),
         );
 
-        internal.enumToError(err) catch |new_err| {
-            return new_err;
-        };
+        try internal.enumToError(err);
         return context;
     }
 
