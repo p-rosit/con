@@ -58,6 +58,11 @@ pub const Deserialize = struct {
         const err = lib.con_deserialize_number(&self.inner, writer.writer);
         return internal.enumToError(err);
     }
+
+    pub fn string(self: *Deserialize, writer: zcon.InterfaceWriter) !void {
+        const err = lib.con_deserialize_string(&self.inner, writer.writer);
+        return internal.enumToError(err);
+    }
 };
 
 const testing = std.testing;
@@ -336,4 +341,18 @@ test "number invalid" {
     try testing.expectError(error.InvalidJson, err2);
     try testing.expectEqual(1, writer.inner.current);
     try testing.expectEqualStrings("0", buffer[0..1]);
+}
+
+test "string" {
+    const data = "\"a b\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [5]u8 = undefined;
+    var writer = try zcon.WriterString.init(&buffer);
+    try context.string(writer.interface());
+    try testing.expectEqual(3, writer.inner.current);
+    try testing.expectEqualStrings("a b", buffer[0..3]);
 }

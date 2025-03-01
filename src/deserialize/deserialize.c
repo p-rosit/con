@@ -96,6 +96,31 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
     return CON_ERROR_OK;
 }
 
+enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
+    assert(context != NULL);
+
+    enum ConDeserializeType next;
+    enum ConError next_err = con_deserialize_next(context, &next);
+    if (next_err) { return next_err; }
+    if (next != CON_DESERIALIZE_TYPE_STRING) { return CON_ERROR_TYPE; }
+
+    context->buffer_char = EOF;
+    while (true) {
+        char c;
+        struct ConReadResult result = con_reader_read(context->reader, &c, 1);
+        if (result.error || result.length != 1) { return CON_ERROR_READER; }
+
+        if (c == '\"') {
+            break;  // string done
+        } else {
+            size_t amount_written = con_writer_write(writer, &c, 1);
+            if (amount_written != 1) { return CON_ERROR_WRITER; }
+        }
+    }
+
+    return CON_ERROR_OK;
+}
+
 enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum ConDeserializeType *type, bool *same_token) {
     assert(context != NULL);
     if (type == NULL) { return CON_ERROR_NULL; }
