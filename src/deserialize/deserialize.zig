@@ -59,6 +59,11 @@ pub const Deserialize = struct {
         return internal.enumToError(err);
     }
 
+    pub fn arrayClose(self: *Deserialize) !void {
+        const err = lib.con_deserialize_array_close(&self.inner);
+        return internal.enumToError(err);
+    }
+
     pub fn number(self: *Deserialize, writer: zcon.InterfaceWriter) !void {
         const err = lib.con_deserialize_number(&self.inner, writer.writer);
         return internal.enumToError(err);
@@ -592,5 +597,39 @@ test "array open reader fail" {
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err = context.arrayOpen();
+    try testing.expectError(error.Reader, err);
+}
+
+test "array close" {
+    const data = "[]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+    try context.arrayClose();
+}
+
+test "array close too many" {
+    const data = "]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const err = context.arrayClose();
+    try testing.expectError(error.ClosedTooMany, err);
+}
+
+test "array close reader fail" {
+    const data = "[";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+    const err = context.arrayClose();
     try testing.expectError(error.Reader, err);
 }
