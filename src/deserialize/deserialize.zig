@@ -54,6 +54,11 @@ pub const Deserialize = struct {
         };
     }
 
+    pub fn arrayOpen(self: *Deserialize) !void {
+        const err = lib.con_deserialize_array_open(&self.inner);
+        return internal.enumToError(err);
+    }
+
     pub fn number(self: *Deserialize, writer: zcon.InterfaceWriter) !void {
         const err = lib.con_deserialize_number(&self.inner, writer.writer);
         return internal.enumToError(err);
@@ -295,11 +300,12 @@ test "number reader fail" {
     var writer: zcon.WriterString = undefined;
 
     var depth: [0]u8 = undefined;
-    var context = try Deserialize.init(reader.interface(), &depth);
+    var context: Deserialize = undefined;
 
     const data1 = "2.";
     reader = try zcon.ReaderString.init(data1);
     writer = try zcon.WriterString.init(&buffer);
+    context = try Deserialize.init(reader.interface(), &depth);
     const err1 = context.number(writer.interface());
     try testing.expectError(error.Reader, err1);
     try testing.expectEqual(2, writer.inner.current);
@@ -308,6 +314,7 @@ test "number reader fail" {
     const data2 = "2.5E";
     reader = try zcon.ReaderString.init(data2);
     writer = try zcon.WriterString.init(&buffer);
+    context = try Deserialize.init(reader.interface(), &depth);
     const err2 = context.number(writer.interface());
     try testing.expectError(error.Reader, err2);
     try testing.expectEqual(4, writer.inner.current);
@@ -316,6 +323,7 @@ test "number reader fail" {
     const data3 = "-";
     reader = try zcon.ReaderString.init(data3);
     writer = try zcon.WriterString.init(&buffer);
+    context = try Deserialize.init(reader.interface(), &depth);
     const err3 = context.number(writer.interface());
     try testing.expectError(error.Reader, err3);
     try testing.expectEqual(1, writer.inner.current);
@@ -324,6 +332,7 @@ test "number reader fail" {
     const data4 = "3.4e-";
     reader = try zcon.ReaderString.init(data4);
     writer = try zcon.WriterString.init(&buffer);
+    context = try Deserialize.init(reader.interface(), &depth);
     const err4 = context.number(writer.interface());
     try testing.expectError(error.Reader, err4);
     try testing.expectEqual(5, writer.inner.current);
@@ -531,4 +540,57 @@ test "null invalid" {
     context = try Deserialize.init(reader.interface(), &depth);
     const err3 = context.null();
     try testing.expectError(error.InvalidJson, err3);
+}
+
+// Section: Containers ---------------------------------------------------------
+
+test "array open" {
+    const data = "[";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+}
+
+test "array open too many" {
+    const data = "[";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const err = context.arrayOpen();
+    try testing.expectError(error.TooDeep, err);
+}
+
+test "array nested open too many" {
+    const data = "[1,[";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        try context.number(writer.interface());
+
+        const err = context.arrayOpen();
+        try testing.expectError(error.TooDeep, err);
+    }
+}
+
+test "array open reader fail" {
+    const data = "";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const err = context.arrayOpen();
+    try testing.expectError(error.Reader, err);
 }
