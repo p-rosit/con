@@ -63,6 +63,13 @@ pub const Deserialize = struct {
         const err = lib.con_deserialize_string(&self.inner, writer.writer);
         return internal.enumToError(err);
     }
+
+    pub fn @"bool"(self: *Deserialize) !bool {
+        var value: bool = undefined;
+        const err = lib.con_deserialize_bool(&self.inner, &value);
+        try internal.enumToError(err);
+        return value;
+    }
 };
 
 const testing = std.testing;
@@ -421,4 +428,62 @@ test "string invalid" {
     try testing.expectError(error.InvalidJson, err5);
     try testing.expectEqual(1, writer.inner.current);
     try testing.expectEqualStrings("3", buffer[0..1]);
+}
+
+test "bool true" {
+    const data = "true";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const val = try context.bool();
+    try testing.expectEqual(true, val);
+}
+
+test "bool false" {
+    const data = "false";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const val = try context.bool();
+    try testing.expectEqual(false, val);
+}
+
+test "bool invalid" {
+    var depth: [0]u8 = undefined;
+    var reader: zcon.ReaderString = undefined;
+    var context: Deserialize = undefined;
+
+    const data1 = "t";
+    reader = try zcon.ReaderString.init(data1);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err1 = context.bool();
+    try testing.expectError(error.Reader, err1);
+
+    const data2 = "f";
+    reader = try zcon.ReaderString.init(data2);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err2 = context.bool();
+    try testing.expectError(error.Reader, err2);
+
+    const data3 = "talse";
+    reader = try zcon.ReaderString.init(data3);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err3 = context.bool();
+    try testing.expectError(error.InvalidJson, err3);
+
+    const data4 = "frue";
+    reader = try zcon.ReaderString.init(data4);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err4 = context.bool();
+    try testing.expectError(error.InvalidJson, err4);
+
+    const data5 = "f,";
+    reader = try zcon.ReaderString.init(data5);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err5 = context.bool();
+    try testing.expectError(error.InvalidJson, err5);
 }

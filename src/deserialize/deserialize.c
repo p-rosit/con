@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <utils.h>
 #include <limits.h>
+#include <string.h>
 #include "con_writer.h"
 #include "con_deserialize.h"
 
@@ -126,6 +127,49 @@ enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConI
         }
     }
 
+    return CON_ERROR_OK;
+}
+
+enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value) {
+    assert(context != NULL);
+
+    enum ConDeserializeType next;
+    enum ConError next_err = con_deserialize_next(context, &next);
+    if (next_err) { return next_err; }
+    if (next != CON_DESERIALIZE_TYPE_BOOL) { return CON_ERROR_TYPE; }
+
+    assert(context->buffer_char == 't' || context->buffer_char == 'f');
+    bool is_true = context->buffer_char == 't';
+
+    size_t length;
+    char expected[4];
+
+    if (is_true) {
+        length = 3;
+        memcpy(expected, "rue", length);
+    } else {
+        length = 4;
+        memcpy(expected, "alse", length);
+    }
+
+    for (size_t i = 0; i < length; i++) {
+        char c;
+        bool same_token = false;
+        context->buffer_char = EOF;
+        enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
+
+        if (err) {
+            return err;
+        } else if (!same_token) {
+            return CON_ERROR_INVALID_JSON;
+        } else {
+            if (expected[i] != c) {
+                return CON_ERROR_INVALID_JSON;
+            }
+        }
+    }
+
+    *value = is_true;
     return CON_ERROR_OK;
 }
 

@@ -42,5 +42,6 @@ enum ConError con_deserialize_next(
 
 enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConInterfaceWriter writer);
 enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConInterfaceWriter writer);
+enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value);
 
 #endif
