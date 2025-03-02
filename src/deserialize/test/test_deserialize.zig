@@ -673,3 +673,48 @@ test "bool invalid" {
     const err6 = lib.con_deserialize_bool(&context, &value);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err6);
 }
+
+test "null" {
+    const data = "null";
+    var reader: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const err = lib.con_deserialize_null(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+}
+
+test "null invalid" {
+    var depth: [0]u8 = undefined;
+    var reader: lib.ConReaderString = undefined;
+    var context: lib.ConDeserialize = undefined;
+
+    const data1 = "n";
+    const i1_err = lib.con_reader_string_init(&reader, data1, data1.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i1_err);
+    const init1_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
+    const err1 = lib.con_deserialize_null(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err1);
+
+    const data2 = "nulll";
+    const i2_err = lib.con_reader_string_init(&reader, data2, data2.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
+    const init2_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
+    const err2 = lib.con_deserialize_null(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err2);
+
+    const data3 = "nu ll";
+    const i3_err = lib.con_reader_string_init(&reader, data3, data3.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i3_err);
+    const init3_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init3_err);
+    const err3 = lib.con_deserialize_null(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err3);
+}

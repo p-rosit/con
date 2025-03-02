@@ -70,6 +70,11 @@ pub const Deserialize = struct {
         try internal.enumToError(err);
         return value;
     }
+
+    pub fn @"null"(self: *Deserialize) !void {
+        const err = lib.con_deserialize_null(&self.inner);
+        return internal.enumToError(err);
+    }
 };
 
 const testing = std.testing;
@@ -492,4 +497,38 @@ test "bool invalid" {
     context = try Deserialize.init(reader.interface(), &depth);
     const err6 = context.bool();
     try testing.expectError(error.InvalidJson, err6);
+}
+
+test "null" {
+    const data = "null";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.null();
+}
+
+test "null invalid" {
+    var depth: [0]u8 = undefined;
+    var reader: zcon.ReaderString = undefined;
+    var context: Deserialize = undefined;
+
+    const data1 = "n";
+    reader = try zcon.ReaderString.init(data1);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err1 = context.null();
+    try testing.expectError(error.Reader, err1);
+
+    const data2 = "nulll";
+    reader = try zcon.ReaderString.init(data2);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err2 = context.null();
+    try testing.expectError(error.InvalidJson, err2);
+
+    const data3 = "nu ll";
+    reader = try zcon.ReaderString.init(data3);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err3 = context.null();
+    try testing.expectError(error.InvalidJson, err3);
 }

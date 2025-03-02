@@ -186,6 +186,50 @@ enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value) 
     return CON_ERROR_OK;
 }
 
+enum ConError con_deserialize_null(struct ConDeserialize *context) {
+    assert(context != NULL);
+
+    enum ConDeserializeType next;
+    enum ConError next_err = con_deserialize_next(context, &next);
+    if (next_err) { return next_err; }
+    if (next != CON_DESERIALIZE_TYPE_NULL) { return CON_ERROR_TYPE; }
+
+    assert(context->buffer_char == 'n');
+    size_t length = 3;
+    char *expected = "ull";
+
+    for (size_t i = 0; i < length; i++) {
+        char c;
+        bool same_token = false;
+        context->buffer_char = EOF;
+        enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
+
+        if (err) {
+            return err;
+        } else if (!same_token) {
+            return CON_ERROR_INVALID_JSON;
+        } else {
+            if (expected[i] != c) {
+                return CON_ERROR_INVALID_JSON;
+            }
+        }
+    }
+
+    char c;
+    bool same_token;
+    context->buffer_char = EOF;
+    enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
+    if (err == CON_ERROR_READER) {
+        return CON_ERROR_OK;
+    } else if (err) {
+        return err;
+    } else if (same_token) {
+        return CON_ERROR_INVALID_JSON;
+    }
+
+    return CON_ERROR_OK;
+}
+
 enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum ConDeserializeType *type, bool *same_token) {
     assert(context != NULL);
     if (type == NULL) { return CON_ERROR_NULL; }
