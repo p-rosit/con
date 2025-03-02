@@ -24,6 +24,7 @@ static inline enum ConError con_deserialize_internal_next(struct ConDeserialize 
 static inline enum ConError con_deserialize_internal_next_character(struct ConDeserialize *context, char *c, bool *same_token);
 static inline enum StateNumber con_deserialize_state_number_next(enum StateNumber state, char c);
 static inline bool con_deserialize_state_number_terminal(enum StateNumber state);
+static inline enum ConError con_deserialize_string_next(struct ConDeserialize *context, bool escaped, char *c, bool *is_u);
 
 enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInterfaceReader reader, char *depth_buffer, int depth_buffer_size) {
     if (context == NULL) { return CON_ERROR_NULL; }
@@ -107,16 +108,21 @@ enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConI
     assert(context->buffer_char == '"');
     context->buffer_char = EOF;
 
+    bool escaped = false;
     while (true) {
-        char c;
-        struct ConReadResult result = con_reader_read(context->reader, &c, 1);
-        if (result.error || result.length != 1) { return CON_ERROR_READER; }
+        bool is_u;
+        char c[2];
+        enum ConError err = con_deserialize_string_next(context, escaped, c, &is_u);
+        if (err) { return err; }
 
-        if (c == '\"') {
+        if (*c == '"' && !escaped) {
             break;  // string done
+        } else if (*c == '\\' && !escaped) {
+            escaped = true;
         } else {
-            size_t amount_written = con_writer_write(writer, &c, 1);
-            if (amount_written != 1) { return CON_ERROR_WRITER; }
+            escaped = false;
+            size_t amount_written = con_writer_write(writer, c, 1 + is_u);
+            if (amount_written != 1 + is_u) { return CON_ERROR_WRITER; }
         }
     }
 
@@ -309,6 +315,104 @@ static inline enum StateNumber con_deserialize_state_number_next(enum StateNumbe
     }
 
     assert(false);
+}
+
+static inline enum ConError con_deserialize_string_next(struct ConDeserialize *context, bool escaped, char *c, bool *is_u) {
+    struct ConReadResult result = con_reader_read(context->reader, c, 1);
+    if (result.error || result.length != 1) { return CON_ERROR_READER; }
+    *is_u = false;
+
+    if (escaped) {
+        switch (*c) {
+            case '"':
+                break;
+            case '\\':
+                break;
+            case '/':
+                break;
+            case 'b':
+                *c = '\b';
+                break;
+            case 'f':
+                *c = '\f';
+                break;
+            case 'n':
+                *c = '\n';
+                break;
+            case 'r':
+                *c = '\r';
+                break;
+            case 't':
+                *c = '\t';
+                break;
+            case 'u': {
+                *is_u = true;
+
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        char d;
+                        struct ConReadResult r = con_reader_read(context->reader, &d, 1);
+                        if (r.error || r.length != 1) { return CON_ERROR_READER; }
+                        if (!isxdigit((unsigned char) d)) { return CON_ERROR_INVALID_JSON; }
+
+                        // Here we convert a hex digit to a number in a complicated way:
+                        // '0' to '9' are guaranteed to be contiguous, i.e. d - '0' results
+                        // in the correct value. Alas 'a' to 'f' and 'A' to 'F' are not
+                        // guaranteed to be contiguous by the C standard which means that
+                        // if we know that d is lower case then 10 + d - 'a' is not guaranteed
+                        // to equal the value we're looking for...
+                        switch (d) {
+                            case '0':
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                            case '8':
+                            case '9':
+                                d -= '0';
+                                break;
+                            case 'a':
+                            case 'A':
+                                d = 10;
+                                break;
+                            case 'b':
+                            case 'B':
+                                d = 11;
+                                break;
+                            case 'c':
+                            case 'C':
+                                d = 12;
+                                break;
+                            case 'd':
+                            case 'D':
+                                d = 13;
+                                break;
+                            case 'e':
+                            case 'E':
+                                d = 14;
+                                break;
+                            case 'f':
+                            case 'F':
+                                d = 15;
+                                break;
+                            default:
+                                assert(false);
+                        }
+
+                        c[i] = 16 * c[i] + d;
+                    }
+                }
+                break;
+            }
+            default:
+                return CON_ERROR_INVALID_JSON;
+        }
+    }
+
+    return CON_ERROR_OK;
 }
 
 static inline enum ConContainer con_deserialize_current_container(struct ConDeserialize *context) {

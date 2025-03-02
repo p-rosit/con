@@ -356,3 +356,17 @@ test "string" {
     try testing.expectEqual(3, writer.inner.current);
     try testing.expectEqualStrings("a b", buffer[0..3]);
 }
+
+test "string escaped" {
+    const data = "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u12f4\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [16]u8 = undefined;
+    var writer = try zcon.WriterString.init(&buffer);
+    try context.string(writer.interface());
+    try testing.expectEqual(10, writer.inner.current);
+    try testing.expectEqualStrings("\"\\/\x08\x0c\n\r\t\x12\xf4", buffer[0..10]);
+}
