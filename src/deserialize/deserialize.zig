@@ -370,3 +370,55 @@ test "string escaped" {
     try testing.expectEqual(10, writer.inner.current);
     try testing.expectEqualStrings("\"\\/\x08\x0c\n\r\t\x12\xf4", buffer[0..10]);
 }
+
+test "string invalid" {
+    var reader: zcon.ReaderString = undefined;
+    var buffer: [5]u8 = undefined;
+    var writer: zcon.WriterString = undefined;
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const data1 = "ab\"";
+    reader = try zcon.ReaderString.init(data1);
+    writer = try zcon.WriterString.init(&buffer);
+    const err1 = context.string(writer.interface());
+    try testing.expectError(error.InvalidJson, err1);
+    try testing.expectEqual(0, writer.inner.current);
+
+    const data2 = "\"ab";
+    reader = try zcon.ReaderString.init(data2);
+    writer = try zcon.WriterString.init(&buffer);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err2 = context.string(writer.interface());
+    try testing.expectError(error.Reader, err2);
+    try testing.expectEqual(2, writer.inner.current);
+    try testing.expectEqualStrings("ab", buffer[0..2]);
+
+    const data3 = "\"1\\h";
+    reader = try zcon.ReaderString.init(data3);
+    writer = try zcon.WriterString.init(&buffer);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err3 = context.string(writer.interface());
+    try testing.expectError(error.InvalidJson, err3);
+    try testing.expectEqual(1, writer.inner.current);
+    try testing.expectEqualStrings("1", buffer[0..1]);
+
+    const data4 = "\"2\\u123";
+    reader = try zcon.ReaderString.init(data4);
+    writer = try zcon.WriterString.init(&buffer);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err4 = context.string(writer.interface());
+    try testing.expectError(error.Reader, err4);
+    try testing.expectEqual(1, writer.inner.current);
+    try testing.expectEqualStrings("2", buffer[0..1]);
+
+    const data5 = "\"3\\u123G";
+    reader = try zcon.ReaderString.init(data5);
+    writer = try zcon.WriterString.init(&buffer);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err5 = context.string(writer.interface());
+    try testing.expectError(error.InvalidJson, err5);
+    try testing.expectEqual(1, writer.inner.current);
+    try testing.expectEqualStrings("3", buffer[0..1]);
+}

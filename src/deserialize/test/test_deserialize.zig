@@ -516,3 +516,71 @@ test "string escaped" {
     try testing.expectEqual(10, writer.current);
     try testing.expectEqualStrings("\"\\/\x08\x0c\n\r\t\x12\xf4", buffer[0..10]);
 }
+
+test "string invalid" {
+    var reader: lib.ConReaderString = undefined;
+    var buffer: [6]u8 = undefined;
+    var writer: lib.ConWriterString = undefined;
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+
+    const data1 = "ab\"";
+    const ir1_err = lib.con_reader_string_init(&reader, data1, data1.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir1_err);
+    const iw1_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw1_err);
+    const init1_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
+    const err1 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err1);
+    try testing.expectEqual(0, writer.current);
+
+    const data2 = "\"ab";
+    const ir2_err = lib.con_reader_string_init(&reader, data2, data2.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir2_err);
+    const iw2_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw2_err);
+    const init2_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
+    const err2 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err2);
+    try testing.expectEqual(2, writer.current);
+    try testing.expectEqualStrings("ab", buffer[0..2]);
+
+    const data3 = "\"1\\h";
+    const ir3_err = lib.con_reader_string_init(&reader, data3, data3.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir3_err);
+    const iw3_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw3_err);
+    const init3_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init3_err);
+    const err3 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err3);
+    try testing.expectEqual(1, writer.current);
+    try testing.expectEqualStrings("1", buffer[0..1]);
+
+    const data4 = "\"2\\u123";
+    const ir4_err = lib.con_reader_string_init(&reader, data4, data4.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir4_err);
+    const iw4_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw4_err);
+    const init4_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init4_err);
+    const err4 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err4);
+    try testing.expectEqual(1, writer.current);
+    try testing.expectEqualStrings("2", buffer[0..1]);
+
+    const data5 = "\"3\\u123G";
+    const ir5_err = lib.con_reader_string_init(&reader, data5, data5.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir5_err);
+    const iw5_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw5_err);
+    const init5_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init5_err);
+    const err5 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err5);
+    try testing.expectEqual(1, writer.current);
+    try testing.expectEqualStrings("3", buffer[0..1]);
+}
