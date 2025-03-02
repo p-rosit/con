@@ -463,11 +463,11 @@ test "bool invalid" {
     const err1 = context.bool();
     try testing.expectError(error.Reader, err1);
 
-    const data2 = "f";
+    const data2 = "f a l s e";
     reader = try zcon.ReaderString.init(data2);
     context = try Deserialize.init(reader.interface(), &depth);
     const err2 = context.bool();
-    try testing.expectError(error.Reader, err2);
+    try testing.expectError(error.InvalidJson, err2);
 
     const data3 = "talse";
     reader = try zcon.ReaderString.init(data3);
@@ -486,4 +486,10 @@ test "bool invalid" {
     context = try Deserialize.init(reader.interface(), &depth);
     const err5 = context.bool();
     try testing.expectError(error.InvalidJson, err5);
+
+    const data6 = "truet";
+    reader = try zcon.ReaderString.init(data6);
+    context = try Deserialize.init(reader.interface(), &depth);
+    const err6 = context.bool();
+    try testing.expectError(error.InvalidJson, err6);
 }
