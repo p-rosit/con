@@ -64,6 +64,11 @@ pub const Deserialize = struct {
         return internal.enumToError(err);
     }
 
+    pub fn dictOpen(self: *Deserialize) !void {
+        const err = lib.con_deserialize_dict_open(&self.inner);
+        return internal.enumToError(err);
+    }
+
     pub fn number(self: *Deserialize, writer: zcon.InterfaceWriter) !void {
         const err = lib.con_deserialize_number(&self.inner, writer.writer);
         return internal.enumToError(err);
@@ -687,5 +692,56 @@ test "array close reader fail" {
 
     try context.arrayOpen();
     const err = context.arrayClose();
+    try testing.expectError(error.Reader, err);
+}
+
+test "dict open" {
+    const data = "{";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+}
+
+test "dict open too many" {
+    const data = "{";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const err = context.dictOpen();
+    try testing.expectError(error.TooDeep, err);
+}
+
+test "dict nested open too many" {
+    const data = "[1,{";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        try context.number(writer.interface());
+
+        const err = context.dictOpen();
+        try testing.expectError(error.TooDeep, err);
+    }
+}
+
+test "dict open reader fail" {
+    const data = "";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const err = context.dictOpen();
     try testing.expectError(error.Reader, err);
 }

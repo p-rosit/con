@@ -43,6 +43,8 @@ enum ConError con_deserialize_next(
 enum ConError con_deserialize_array_open(struct ConDeserialize *context);
 enum ConError con_deserialize_array_close(struct ConDeserialize *context);
 
+enum ConError con_deserialize_dict_open(struct ConDeserialize *context);
+
 enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConInterfaceWriter writer);
 enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConInterfaceWriter writer);
 enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value);

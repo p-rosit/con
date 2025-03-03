@@ -944,3 +944,76 @@ test "array close reader fail" {
     const err = lib.con_deserialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err);
 }
+
+test "dict open" {
+    const data = "{";
+    var reader: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+}
+
+test "dict open too many" {
+    const data = "{";
+    var reader: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var depth: [0]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_TOO_DEEP), err);
+}
+
+test "dict nested open too many" {
+    const data = "[1,{";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const num_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
+
+        const err = lib.con_deserialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_TOO_DEEP), err);
+    }
+}
+
+test "dict open reader fail" {
+    const data = "";
+    var reader: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err);
+}
