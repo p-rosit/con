@@ -125,6 +125,36 @@ enum ConError con_deserialize_dict_open(struct ConDeserialize *context) {
     return CON_ERROR_OK;
 }
 
+enum ConError con_deserialize_dict_close(struct ConDeserialize *context) {
+    assert(context != NULL);
+
+    enum ConDeserializeType next;
+    enum ConError next_err = con_deserialize_next(context, &next);
+    if (next_err) { return next_err; }
+    if (next != CON_DESERIALIZE_TYPE_DICT_CLOSE) { return CON_ERROR_TYPE; }
+
+    assert(context->depth_buffer_size >= 0);
+    assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
+    if (context->depth <= 0) { return CON_ERROR_CLOSED_TOO_MANY; }
+
+    enum ConContainer current = con_deserialize_current_container(context);
+    if (current != CONTAINER_DICT) {
+        return CON_ERROR_NOT_DICT;
+    }
+
+    assert(context->buffer_char == '}');
+    context->buffer_char = EOF;
+
+    context->depth -= 1;
+
+    if (context->depth == 0) {
+        context->state = con_utils_state_to_char(STATE_COMPLETE);
+    } else {
+        context->state = con_utils_state_to_char(STATE_LATER);
+    }
+    return CON_ERROR_OK;
+}
+
 enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
     assert(context != NULL);
 

@@ -69,6 +69,11 @@ pub const Deserialize = struct {
         return internal.enumToError(err);
     }
 
+    pub fn dictClose(self: *Deserialize) !void {
+        const err = lib.con_deserialize_dict_close(&self.inner);
+        return internal.enumToError(err);
+    }
+
     pub fn number(self: *Deserialize, writer: zcon.InterfaceWriter) !void {
         const err = lib.con_deserialize_number(&self.inner, writer.writer);
         return internal.enumToError(err);
@@ -300,6 +305,22 @@ test "next dict open" {
 
     const etype2 = try context.next();
     try testing.expectEqual(.dict_open, etype2);
+}
+
+test "next dict close" {
+    const data = "{}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    const etype1 = try context.next();
+    try testing.expectEqual(.dict_close, etype1);
+
+    const etype2 = try context.next();
+    try testing.expectEqual(.dict_close, etype2);
 }
 
 // Section: Values -------------------------------------------------------------
@@ -743,5 +764,40 @@ test "dict open reader fail" {
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err = context.dictOpen();
+    try testing.expectError(error.Reader, err);
+}
+
+test "dict close" {
+    const data = "{}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+    try context.dictClose();
+}
+
+test "dict close too many" {
+    const data = "}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const err = context.dictClose();
+    try testing.expectError(error.ClosedTooMany, err);
+}
+
+test "dict close reader fail" {
+    const data = "{";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    const err = context.dictClose();
     try testing.expectError(error.Reader, err);
 }
