@@ -164,6 +164,9 @@ enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConI
     if (next_err) { return next_err; }
     if (next != CON_DESERIALIZE_TYPE_STRING) { return CON_ERROR_TYPE; }
 
+    enum ConError state_err = con_deserialize_internal_state_value(context);
+    if (state_err) { return state_err; }
+
     assert(context->buffer_char == '"');
     context->buffer_char = EOF;
 
@@ -228,6 +231,9 @@ enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value) 
     }
 
     *value = is_true;
+
+    enum ConError state_err = con_deserialize_internal_state_value(context);
+    if (state_err) { return state_err; }
 
     char c;
     bool same_token;
