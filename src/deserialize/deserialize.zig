@@ -227,6 +227,62 @@ test "next array open" {
     try testing.expectEqual(.array_open, etype2);
 }
 
+test "next array close" {
+    const data = "[]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        const etype1 = try context.next();
+        try testing.expectEqual(.array_close, etype1);
+
+        const etype2 = try context.next();
+        try testing.expectEqual(.array_close, etype2);
+    }
+}
+
+test "next array first" {
+    const data = "[true]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        const etype1 = try context.next();
+        try testing.expectEqual(.bool, etype1);
+
+        const etype2 = try context.next();
+        try testing.expectEqual(.bool, etype2);
+    }
+}
+
+test "next array second" {
+    const data = "[null, 0.0]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        try context.null();
+
+        const etype1 = try context.next();
+        try testing.expectEqual(.number, etype1);
+
+        const etype2 = try context.next();
+        try testing.expectEqual(.number, etype2);
+    }
+}
+
 test "next dict open" {
     const data = "{";
     var reader = try zcon.ReaderString.init(data);

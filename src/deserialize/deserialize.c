@@ -290,6 +290,27 @@ enum ConError con_deserialize_null(struct ConDeserialize *context) {
         }
     }
 
+    enum ConState context_state = con_utils_state_from_char(context->state);
+    switch (context_state) {
+        case (STATE_EMPTY):
+            context->state = con_utils_state_to_char(STATE_COMPLETE);
+            break;
+        case (STATE_FIRST):
+            context->state = con_utils_state_to_char(STATE_LATER);
+            break;
+        case (STATE_LATER):
+            break;
+        case (STATE_COMPLETE):
+            assert(false);
+            break;
+        case (STATE_VALUE):
+            context->state = con_utils_state_to_char(STATE_LATER);
+            break;
+        default:
+            assert(false);
+            return CON_ERROR_STATE_UNKNOWN;
+    }
+
     char c;
     bool same_token;
     context->buffer_char = EOF;
