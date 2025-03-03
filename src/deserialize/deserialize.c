@@ -23,6 +23,7 @@ enum StateNumber {
 static inline enum ConContainer con_deserialize_current_container(struct ConDeserialize *context);
 static inline enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum ConDeserializeType *type, bool *same_token);
 static inline enum ConError con_deserialize_internal_next_character(struct ConDeserialize *context, char *c, bool *same_token);
+static inline enum ConError con_deserialize_internal_state_value(struct ConDeserialize *context);
 static inline enum StateNumber con_deserialize_state_number_next(enum StateNumber state, char c);
 static inline bool con_deserialize_state_number_terminal(enum StateNumber state);
 static inline enum ConError con_deserialize_string_next(struct ConDeserialize *context, bool escaped, char *c, bool *is_u);
@@ -109,26 +110,8 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
     if (next_err) { return next_err; }
     if (next != CON_DESERIALIZE_TYPE_NUMBER) { return CON_ERROR_TYPE; }
 
-    enum ConState context_state = con_utils_state_from_char(context->state);
-    switch (context_state) {
-        case (STATE_EMPTY):
-            context->state = con_utils_state_to_char(STATE_COMPLETE);
-            break;
-        case (STATE_FIRST):
-            context->state = con_utils_state_to_char(STATE_LATER);
-            break;
-        case (STATE_LATER):
-            break;
-        case (STATE_COMPLETE):
-            assert(false);
-            break;
-        case (STATE_VALUE):
-            context->state = con_utils_state_to_char(STATE_LATER);
-            break;
-        default:
-            assert(false);
-            return CON_ERROR_STATE_UNKNOWN;
-    }
+    enum ConError state_err = con_deserialize_internal_state_value(context);
+    if (state_err) { return state_err; }
 
     enum StateNumber state = NUMBER_START;
 
@@ -290,26 +273,8 @@ enum ConError con_deserialize_null(struct ConDeserialize *context) {
         }
     }
 
-    enum ConState context_state = con_utils_state_from_char(context->state);
-    switch (context_state) {
-        case (STATE_EMPTY):
-            context->state = con_utils_state_to_char(STATE_COMPLETE);
-            break;
-        case (STATE_FIRST):
-            context->state = con_utils_state_to_char(STATE_LATER);
-            break;
-        case (STATE_LATER):
-            break;
-        case (STATE_COMPLETE):
-            assert(false);
-            break;
-        case (STATE_VALUE):
-            context->state = con_utils_state_to_char(STATE_LATER);
-            break;
-        default:
-            assert(false);
-            return CON_ERROR_STATE_UNKNOWN;
-    }
+    enum ConError state_err = con_deserialize_internal_state_value(context);
+    if (state_err) { return state_err; }
 
     char c;
     bool same_token;
@@ -420,6 +385,31 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
     }
 
     *c = (char) context->buffer_char;
+    return CON_ERROR_OK;
+}
+
+static inline enum ConError con_deserialize_internal_state_value(struct ConDeserialize *context) {
+    enum ConState context_state = con_utils_state_from_char(context->state);
+    switch (context_state) {
+        case (STATE_EMPTY):
+            context->state = con_utils_state_to_char(STATE_COMPLETE);
+            break;
+        case (STATE_FIRST):
+            context->state = con_utils_state_to_char(STATE_LATER);
+            break;
+        case (STATE_LATER):
+            break;
+        case (STATE_COMPLETE):
+            assert(false);
+            break;
+        case (STATE_VALUE):
+            context->state = con_utils_state_to_char(STATE_LATER);
+            break;
+        default:
+            assert(false);
+            return CON_ERROR_STATE_UNKNOWN;
+    }
+
     return CON_ERROR_OK;
 }
 
