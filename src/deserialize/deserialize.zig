@@ -877,3 +877,298 @@ test "dict close reader fail" {
     const err = context.dictClose();
     try testing.expectError(error.Reader, err);
 }
+
+// Section: Dict key -----------------------------------------------------------
+
+test "dict key" {
+    const data = "{\"k\":";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", &buffer);
+    }
+}
+
+test "dict key multiple" {
+    const data = "{\"k\":null,\"m\":";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        try context.null();
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("m", buffer[1..2]);
+    }
+}
+
+test "dict key reader fail" {
+    const data = "{\"k";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        const err = context.dictKey(writer.interface());
+        try testing.expectError(error.Reader, err);
+        try testing.expectEqualStrings("k", &buffer);
+    }
+}
+
+test "dict key colon reader fail" {
+    const data = "{\"k\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        const err = context.dictKey(writer.interface());
+        try testing.expectError(error.Reader, err);
+        try testing.expectEqualStrings("k", &buffer);
+    }
+}
+
+test "dict key outside dict" {
+    const data = "\"k\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [1]u8 = undefined;
+    var writer = try zcon.WriterString.init(&buffer);
+
+    const err = context.dictKey(writer.interface());
+    try testing.expectError(error.Type, err);
+    try testing.expectEqual(0, writer.inner.current);
+}
+
+test "dict key in array" {
+    const data = "[\"k\":";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        const err = context.dictKey(writer.interface());
+        try testing.expectError(error.Type, err);
+        try testing.expectEqual(0, writer.inner.current);
+    }
+}
+
+test "dict key twice" {
+    const data = "{\"k\":\"m\":";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        const err = context.dictKey(writer.interface());
+        try testing.expectError(error.Type, err);
+    }
+}
+
+test "dict number key missing" {
+    const data = "{3";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        const err = context.number(writer.interface());
+        try testing.expectError(error.Key, err);
+        try testing.expectEqual(0, writer.inner.current);
+    }
+}
+
+test "dict number second key missing" {
+    const data = "{\"k\":3,4";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        try context.number(writer.interface());
+        try testing.expectEqualStrings("3", buffer[1..2]);
+
+        const err = context.number(writer.interface());
+        try testing.expectError(error.Key, err);
+        try testing.expectEqual(2, writer.inner.current);
+    }
+}
+
+test "dict string key missing" {
+    const data = "{\"k\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        const err = context.string(writer.interface());
+        try testing.expectError(error.Key, err);
+        try testing.expectEqual(0, writer.inner.current);
+    }
+}
+
+test "dict string second key missing" {
+    const data = "{\"k\":\"a\",\"b\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        try context.string(writer.interface());
+        try testing.expectEqualStrings("a", buffer[1..2]);
+
+        const err = context.string(writer.interface());
+        try testing.expectError(error.Key, err);
+        try testing.expectEqual(2, writer.inner.current);
+    }
+}
+
+test "dict array key missing" {
+    const data = "{[";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        const err = context.arrayOpen();
+        try testing.expectError(error.Key, err);
+    }
+}
+
+test "dict array second key missing" {
+    const data = "{\"k\":[],[";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", &buffer);
+
+        try context.arrayOpen();
+        try context.arrayClose();
+
+        const err = context.arrayOpen();
+        try testing.expectError(error.Key, err);
+    }
+}
+
+test "dict dict key missing" {
+    const data = "{{";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        const err = context.dictOpen();
+        try testing.expectError(error.Key, err);
+    }
+}
+
+test "dict dict second key missing" {
+    const data = "{\"k\":{},{";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", &buffer);
+
+        try context.dictOpen();
+        try context.dictClose();
+
+        const err = context.dictOpen();
+        try testing.expectError(error.Key, err);
+    }
+}
