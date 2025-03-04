@@ -62,6 +62,9 @@ enum ConError con_deserialize_array_open(struct ConDeserialize *context) {
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth >= (size_t) context->depth_buffer_size) { return CON_ERROR_TOO_DEEP; }
 
+    enum ConError state_err = con_deserialize_internal_state_value(context);
+    if (state_err) { return state_err; }
+
     assert(context->depth_buffer != NULL);
     context->depth_buffer[context->depth] = con_utils_container_to_char(CONTAINER_ARRAY);
     context->depth += 1;
@@ -114,6 +117,9 @@ enum ConError con_deserialize_dict_open(struct ConDeserialize *context) {
     assert(context->depth_buffer_size >= 0);
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth >= (size_t) context->depth_buffer_size) { return CON_ERROR_TOO_DEEP; }
+
+    enum ConError state_err = con_deserialize_internal_state_value(context);
+    if (state_err) { return state_err; }
 
     assert(context->depth_buffer != NULL);
     context->depth_buffer[context->depth] = con_utils_container_to_char(CONTAINER_DICT);
