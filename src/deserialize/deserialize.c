@@ -440,7 +440,7 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
     }
 
     if (!context->found_comma && context->state == STATE_LATER) {
-        return CON_ERROR_INVALID_JSON;  // missing comma
+        return CON_ERROR_MISSING_COMMA;  // missing comma
     }
 
     *c = (char) context->buffer_char;
