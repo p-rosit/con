@@ -1220,3 +1220,68 @@ test "array number single" {
 
     try context.arrayClose();
 }
+
+test "array number multiple" {
+    const data = "[2,3]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.number(writer.interface());
+        try testing.expectEqualStrings("2", buffer[0..1]);
+
+        try context.number(writer.interface());
+        try testing.expectEqualStrings("3", buffer[1..2]);
+    }
+
+    try context.arrayClose();
+}
+
+test "array number comma missing" {
+    const data = "[2 3";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.number(writer.interface());
+        try testing.expectEqualStrings("2", buffer[0..1]);
+
+        const err = context.number(writer.interface());
+        try testing.expectError(error.MissingComma, err);
+    }
+}
+
+test "array number comma reader fail" {
+    const data = "[2";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.number(writer.interface());
+        try testing.expectEqualStrings("2", buffer[0..1]);
+
+        const err = context.number(writer.interface());
+        try testing.expectError(error.Reader, err);
+    }
+}
