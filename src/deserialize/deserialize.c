@@ -472,15 +472,16 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
 }
 
 static inline enum ConError con_deserialize_internal_state_value(struct ConDeserialize *context) {
+    enum ConContainer current = con_deserialize_current_container(context);
     enum ConState context_state = con_utils_state_from_char(context->state);
     switch (context_state) {
         case (STATE_EMPTY):
             context->state = con_utils_state_to_char(STATE_COMPLETE);
             break;
         case (STATE_FIRST):
-            context->state = con_utils_state_to_char(STATE_LATER);
-            break;
         case (STATE_LATER):
+            if (current == CONTAINER_DICT) { return CON_ERROR_KEY; }
+            context->state = con_utils_state_to_char(STATE_LATER);
             break;
         case (STATE_COMPLETE):
             assert(false);
