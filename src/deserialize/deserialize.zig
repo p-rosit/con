@@ -1172,3 +1172,31 @@ test "dict dict second key missing" {
         try testing.expectError(error.Key, err);
     }
 }
+
+// Section: Combinations of containers -----------------------------------------
+
+test "array open -> dict close" {
+    const data = "[}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    const err = context.dictClose();
+    try testing.expectError(error.NotDict, err);
+}
+
+test "dict open -> array close" {
+    const data = "{]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    const err = context.arrayClose();
+    try testing.expectError(error.NotArray, err);
+}
