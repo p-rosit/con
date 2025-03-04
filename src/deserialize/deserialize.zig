@@ -328,6 +328,77 @@ test "next dict close" {
     try testing.expectEqual(.dict_close, etype2);
 }
 
+test "next dict key" {
+    const data = "{\"k\":";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        const etype1 = try context.next();
+        try testing.expectEqual(.dict_key, etype1);
+
+        const etype2 = try context.next();
+        try testing.expectEqual(.dict_key, etype2);
+    }
+}
+
+test "next dict first" {
+    const data = "{\"k\":\"a\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", &buffer);
+
+        const etype1 = try context.next();
+        try testing.expectEqual(.string, etype1);
+
+        const etype2 = try context.next();
+        try testing.expectEqual(.string, etype2);
+    }
+}
+
+test "next dict second" {
+    const data = "{\"k\":\"a\",\"m\":\"b\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [3]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        try context.string(writer.interface());
+        try testing.expectEqualStrings("a", buffer[1..2]);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("m", buffer[2..3]);
+
+        const etype1 = try context.next();
+        try testing.expectEqual(.string, etype1);
+
+        const etype2 = try context.next();
+        try testing.expectEqual(.string, etype2);
+    }
+}
+
 // Section: Values -------------------------------------------------------------
 
 test "number int-like" {

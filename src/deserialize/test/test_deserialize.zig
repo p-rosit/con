@@ -425,6 +425,123 @@ test "next dict close" {
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_CLOSE), etype);
 }
 
+test "next dict key" {
+    const data = "{\"k\":";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(
+        &context,
+        lib.con_reader_string_interface(&reader),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    var etype: lib.ConDeserializeType = undefined;
+    const err1 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_KEY), etype);
+
+    const err2 = lib.con_deserialize_next(&context, &etype);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
+    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_KEY), etype);
+}
+
+test "next dict first" {
+    const data = "{\"k\":\"a\"";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(
+        &context,
+        lib.con_reader_string_interface(&reader),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
+        try testing.expectEqualStrings("k", &buffer);
+
+        var etype: lib.ConDeserializeType = undefined;
+        const err1 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_STRING), etype);
+
+        const err2 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_STRING), etype);
+    }
+}
+
+test "next dict second" {
+    const data = "{\"k\":\"a\",\"m\":\"b\"";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(
+        &context,
+        lib.con_reader_string_interface(&reader),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [3]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const key1_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        const str_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
+        try testing.expectEqualStrings("a", buffer[1..2]);
+
+        const key2_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key2_err);
+        try testing.expectEqualStrings("m", buffer[2..3]);
+
+        var etype: lib.ConDeserializeType = undefined;
+        const err1 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_STRING), etype);
+
+        const err2 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_STRING), etype);
+    }
+}
+
 // Section: Values -------------------------------------------------------------
 
 test "number int-like" {
