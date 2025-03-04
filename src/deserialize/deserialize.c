@@ -463,11 +463,11 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
         }
     }
 
+    *c = (char) context->buffer_char;
+
     if (!context->found_comma && context->state == STATE_LATER) {
         return CON_ERROR_MISSING_COMMA;  // missing comma
     }
-
-    *c = (char) context->buffer_char;
     return CON_ERROR_OK;
 }
 
