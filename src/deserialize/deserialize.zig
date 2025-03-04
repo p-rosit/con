@@ -1200,3 +1200,23 @@ test "dict open -> array close" {
     const err = context.arrayClose();
     try testing.expectError(error.NotArray, err);
 }
+
+test "array number single" {
+    const data = "[2]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.number(writer.interface());
+        try testing.expectEqualStrings("2", &buffer);
+    }
+
+    try context.arrayClose();
+}

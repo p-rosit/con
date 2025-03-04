@@ -81,12 +81,22 @@ enum ConError con_deserialize_array_close(struct ConDeserialize *context) {
 
     enum ConDeserializeType next;
     enum ConError next_err = con_deserialize_next(context, &next);
-    if (next_err) { return next_err; }
+
+    enum ConState current_state = con_utils_state_from_char(context->state);
+    assert(current_state == STATE_EMPTY || current_state == STATE_FIRST || current_state == STATE_LATER);
+    if (current_state == STATE_FIRST && next_err != CON_ERROR_OK) {
+        assert(next_err != CON_ERROR_MISSING_COMMA);
+        return next_err;
+    } else if (current_state == STATE_LATER && next_err != CON_ERROR_MISSING_COMMA) {
+        assert(next_err != CON_ERROR_OK);
+        return next_err;
+    }
     if (next != CON_DESERIALIZE_TYPE_ARRAY_CLOSE) { return CON_ERROR_TYPE; }
 
     assert(context->depth_buffer_size >= 0);
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth <= 0) { return CON_ERROR_CLOSED_TOO_MANY; }
+    assert(current_state != STATE_EMPTY);
 
     enum ConContainer current = con_deserialize_current_container(context);
     if (current != CONTAINER_ARRAY) {
@@ -232,7 +242,7 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
 
         if (err == CON_ERROR_READER && con_deserialize_state_number_terminal(state)) {
             break;  // number may be done
-        } else if (err) {
+        } else if (err != CON_ERROR_OK && err != CON_ERROR_MISSING_COMMA) {
             return err;
         } else if (!same_token) {
             break;  // number done
@@ -242,6 +252,8 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
             if (state != NUMBER_ERROR) {
                 amount_written = con_writer_write(writer, &c, 1);
                 if (amount_written != 1) { return CON_ERROR_WRITER; }
+            } else if (c == ',' || c == ']' || c == '}') {
+                return CON_ERROR_OK;
             } else {
                 return CON_ERROR_INVALID_JSON;
             }
@@ -380,7 +392,7 @@ enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum
 
     char next;
     enum ConError next_err = con_deserialize_internal_next_character(context, &next, same_token);
-    if (next_err) { return next_err; }
+    if (next_err != CON_ERROR_OK && next_err != CON_ERROR_MISSING_COMMA) { return next_err; }
 
     enum ConState state = con_utils_state_from_char(context->state);
     enum ConContainer container = con_deserialize_current_container(context);
@@ -410,7 +422,7 @@ enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum
         return CON_ERROR_INVALID_JSON;
     }
 
-    return CON_ERROR_OK;
+    return next_err;
 }
 
 static inline enum ConError con_deserialize_internal_next_character(struct ConDeserialize *context, char *c, bool *same_token) {
