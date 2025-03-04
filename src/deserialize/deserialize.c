@@ -162,6 +162,45 @@ enum ConError con_deserialize_dict_close(struct ConDeserialize *context) {
     return CON_ERROR_OK;
 }
 
+enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
+    assert(context != NULL);
+
+    enum ConDeserializeType next;
+    enum ConError next_err = con_deserialize_next(context, &next);
+    if (next_err) { return next_err; }
+    if (next != CON_DESERIALIZE_TYPE_DICT_KEY) { return CON_ERROR_TYPE; }
+
+    enum ConContainer current = con_deserialize_current_container(context);
+    if (current != CONTAINER_DICT) {
+        return CON_ERROR_NOT_DICT;
+    }
+
+    enum ConState state = con_utils_state_from_char(context->state);
+    if (state != STATE_FIRST && state != STATE_LATER) {
+        return CON_ERROR_VALUE;
+    }
+
+    enum ConError err = con_deserialize_string_get(context, writer);
+    if (err) { return err; }
+
+    {
+        char c = '*';
+        bool same_token;
+        context->buffer_char = EOF;
+        enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
+        if (err != CON_ERROR_OK && err != CON_ERROR_MISSING_COMMA) {
+            return err;
+        } else if (c != ':') {
+            return CON_ERROR_INVALID_JSON;  // Missing ':'
+        }
+
+        context->buffer_char = -1;
+    }
+
+    context->state = con_utils_state_to_char(STATE_VALUE);
+    return CON_ERROR_OK;
+}
+
 enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
     assert(context != NULL);
 

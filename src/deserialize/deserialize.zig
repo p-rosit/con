@@ -74,6 +74,11 @@ pub const Deserialize = struct {
         return internal.enumToError(err);
     }
 
+    pub fn dictKey(self: *Deserialize, writer: zcon.InterfaceWriter) !void {
+        const err = lib.con_deserialize_dict_key(&self.inner, writer.writer);
+        return internal.enumToError(err);
+    }
+
     pub fn number(self: *Deserialize, writer: zcon.InterfaceWriter) !void {
         const err = lib.con_deserialize_number(&self.inner, writer.writer);
         return internal.enumToError(err);
