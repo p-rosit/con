@@ -364,7 +364,7 @@ enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum
     if (isdigit((unsigned char) next) || next == '.' || next == '-') {
         *type = CON_DESERIALIZE_TYPE_NUMBER;
     } else if (next == '"' && expect_key) {
-        *type = CON_DESERIALIZE_TYPE_KEY;
+        *type = CON_DESERIALIZE_TYPE_DICT_KEY;
     } else if (next == '"') {
         *type = CON_DESERIALIZE_TYPE_STRING;
     } else if (next == 't' || next == 'f') {

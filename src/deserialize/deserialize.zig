@@ -12,7 +12,7 @@ pub const Type = enum {
     array_close,
     dict_open,
     dict_close,
-    key,
+    dict_key,
 };
 
 pub const Deserialize = struct {
@@ -49,7 +49,7 @@ pub const Deserialize = struct {
             lib.CON_DESERIALIZE_TYPE_ARRAY_CLOSE => .array_close,
             lib.CON_DESERIALIZE_TYPE_DICT_OPEN => .dict_open,
             lib.CON_DESERIALIZE_TYPE_DICT_CLOSE => .dict_close,
-            lib.CON_DESERIALIZE_TYPE_KEY => .key,
+            lib.CON_DESERIALIZE_TYPE_DICT_KEY => .dict_key,
             else => error.Unknown,
         };
     }
