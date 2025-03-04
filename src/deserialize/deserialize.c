@@ -26,6 +26,7 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
 static inline enum ConError con_deserialize_internal_state_value(struct ConDeserialize *context);
 static inline enum StateNumber con_deserialize_state_number_next(enum StateNumber state, char c);
 static inline bool con_deserialize_state_number_terminal(enum StateNumber state);
+static inline enum ConError con_deserialize_string_get(struct ConDeserialize *context, struct ConInterfaceWriter writer);
 static inline enum ConError con_deserialize_string_next(struct ConDeserialize *context, bool escaped, char *c, bool *is_u);
 
 enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInterfaceReader reader, char *depth_buffer, int depth_buffer_size) {
@@ -215,33 +216,11 @@ enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConI
     enum ConDeserializeType next;
     enum ConError next_err = con_deserialize_next(context, &next);
     if (next_err) { return next_err; }
-    if (next != CON_DESERIALIZE_TYPE_STRING) { return CON_ERROR_TYPE; }
 
     enum ConError state_err = con_deserialize_internal_state_value(context);
     if (state_err) { return state_err; }
 
-    assert(context->buffer_char == '"');
-    context->buffer_char = EOF;
-
-    bool escaped = false;
-    while (true) {
-        bool is_u;
-        char c[2];
-        enum ConError err = con_deserialize_string_next(context, escaped, c, &is_u);
-        if (err) { return err; }
-
-        if (*c == '"' && !escaped) {
-            break;  // string done
-        } else if (*c == '\\' && !escaped) {
-            escaped = true;
-        } else {
-            escaped = false;
-            size_t amount_written = con_writer_write(writer, c, 1 + is_u);
-            if (amount_written != 1 + is_u) { return CON_ERROR_WRITER; }
-        }
-    }
-
-    return CON_ERROR_OK;
+    return con_deserialize_string_get(context, writer);
 }
 
 enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value) {
@@ -561,6 +540,34 @@ static inline enum StateNumber con_deserialize_state_number_next(enum StateNumbe
     }
 
     assert(false);
+}
+
+static inline enum ConError con_deserialize_string_get(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
+    assert(context != NULL);
+
+    assert(context->buffer_char != -1);
+    assert(context->buffer_char == '"');
+    context->buffer_char = EOF;
+
+    bool escaped = false;
+    while (true) {
+        bool is_u;
+        char c[2];
+        enum ConError err = con_deserialize_string_next(context, escaped, c, &is_u);
+        if (err) { return err; }
+
+        if (*c == '"' && !escaped) {
+            break;  // string done
+        } else if (*c == '\\' && !escaped) {
+            escaped = true;
+        } else {
+            escaped = false;
+            size_t amount_written = con_writer_write(writer, c, 1 + is_u);
+            if (amount_written != 1 + is_u) { return CON_ERROR_WRITER; }
+        }
+    }
+
+    return CON_ERROR_OK;
 }
 
 static inline enum ConError con_deserialize_string_next(struct ConDeserialize *context, bool escaped, char *c, bool *is_u) {
