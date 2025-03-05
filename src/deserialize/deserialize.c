@@ -85,7 +85,8 @@ enum ConError con_deserialize_array_close(struct ConDeserialize *context) {
     enum ConState current_state = con_utils_state_from_char(context->state);
     assert(current_state == STATE_EMPTY || current_state == STATE_FIRST || current_state == STATE_LATER);
     if (current_state == STATE_FIRST && next_err != CON_ERROR_OK) {
-        assert(next_err != CON_ERROR_MISSING_COMMA);
+        assert(next_err != CON_ERROR_COMMA_MISSING);
+        if (next_err == CON_ERROR_COMMA_UNEXPECTED) { return CON_ERROR_COMMA_TRAILING; }
         return next_err;
     } else if (current_state == STATE_LATER && next_err != CON_ERROR_COMMA_MISSING) {
         assert(next_err != CON_ERROR_OK);
@@ -151,7 +152,8 @@ enum ConError con_deserialize_dict_close(struct ConDeserialize *context) {
     enum ConState current_state = con_utils_state_from_char(context->state);
     assert(current_state == STATE_EMPTY || current_state == STATE_FIRST || current_state == STATE_LATER);
     if (current_state == STATE_FIRST && next_err != CON_ERROR_OK) {
-        assert(next_err != CON_ERROR_MISSING_COMMA);
+        assert(next_err != CON_ERROR_COMMA_MISSING);
+        if (next_err == CON_ERROR_COMMA_UNEXPECTED) { return CON_ERROR_COMMA_TRAILING; }
         return next_err;
     } else if (current_state == STATE_LATER && next_err != CON_ERROR_COMMA_MISSING) {
         assert(next_err != CON_ERROR_OK);
