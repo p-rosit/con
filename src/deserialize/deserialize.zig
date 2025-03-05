@@ -1541,3 +1541,76 @@ test "array null comma reader fail" {
         try testing.expectError(error.Reader, err);
     }
 }
+
+test "array array single" {
+    const data = "[[]]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        try context.arrayOpen();
+        try context.arrayClose();
+    }
+
+    try context.arrayClose();
+}
+
+test "array array multiple" {
+    const data = "[[], []]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        try context.arrayOpen();
+        try context.arrayClose();
+
+        try context.arrayOpen();
+        try context.arrayClose();
+    }
+
+    try context.arrayClose();
+}
+
+test "array array comma missing" {
+    const data = "[[] [";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        try context.arrayOpen();
+        try context.arrayClose();
+
+        const err = context.arrayOpen();
+        try testing.expectError(error.CommaMissing, err);
+    }
+}
+
+test "array array comma reader fail" {
+    const data = "[[]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        try context.arrayOpen();
+        try context.arrayClose();
+
+        const err = context.arrayOpen();
+        try testing.expectError(error.Reader, err);
+    }
+}
