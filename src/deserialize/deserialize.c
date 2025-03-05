@@ -367,7 +367,7 @@ enum ConError con_deserialize_null(struct ConDeserialize *context) {
         context->buffer_char = EOF;
         enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
 
-        if (err) {
+        if (err != CON_ERROR_OK && err != CON_ERROR_COMMA_MISSING) {
             return err;
         } else if (!same_token) {
             return CON_ERROR_INVALID_JSON;
@@ -387,7 +387,7 @@ enum ConError con_deserialize_null(struct ConDeserialize *context) {
     enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
     if (err == CON_ERROR_READER) {
         return CON_ERROR_OK;
-    } else if (err) {
+    } else if (err != CON_ERROR_OK && err != CON_ERROR_COMMA_MISSING) {
         return err;
     } else if (same_token) {
         return CON_ERROR_INVALID_JSON;

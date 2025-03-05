@@ -2134,3 +2134,98 @@ test "array bool comma reader fail" {
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), bool2_err);
     }
 }
+
+test "array null single" {
+    const data = "[null]";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        const null_err = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null_err);
+    }
+
+    const close_err = lib.con_deserialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
+}
+
+test "array null multiple" {
+    const data = "[null, null]";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        const null1_err = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null1_err);
+
+        const null2_err = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null2_err);
+    }
+
+    const close_err = lib.con_deserialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
+}
+
+test "array null comma missing" {
+    const data = "[null null";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        const null1_err = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null1_err);
+
+        const null2_err = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMMA_MISSING), null2_err);
+    }
+}
+
+test "array null comma reader fail" {
+    const data = "[null";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        const null1_err = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null1_err);
+
+        const null2_err = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), null2_err);
+    }
+}
