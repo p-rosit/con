@@ -1318,3 +1318,88 @@ test "array number comma reader fail" {
         try testing.expectError(error.Reader, err);
     }
 }
+
+test "array string single" {
+    const data = "[\"a\"]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.string(writer.interface());
+        try testing.expectEqualStrings("a", &buffer);
+    }
+
+    try context.arrayClose();
+}
+
+test "array string multiple" {
+    const data = "[\"a\",\"b\"]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.string(writer.interface());
+        try testing.expectEqualStrings("a", buffer[0..1]);
+
+        try context.string(writer.interface());
+        try testing.expectEqualStrings("b", buffer[1..2]);
+    }
+
+    try context.arrayClose();
+}
+
+test "array string comma missing" {
+    const data = "[\"a\" \"b\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.string(writer.interface());
+        try testing.expectEqualStrings("a", &buffer);
+
+        const err = context.string(writer.interface());
+        try testing.expectError(error.CommaMissing, err);
+    }
+}
+
+test "array string comma reader fail" {
+    const data = "[\"a\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.string(writer.interface());
+        try testing.expectEqualStrings("a", &buffer);
+
+        const err = context.string(writer.interface());
+        try testing.expectError(error.Reader, err);
+    }
+}

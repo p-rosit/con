@@ -1907,3 +1907,123 @@ test "array number comma reader fail" {
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), num2_err);
     }
 }
+
+test "array string single" {
+    const data = "[\"a\"]";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const str_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
+        try testing.expectEqualStrings("a", &buffer);
+    }
+
+    const close_err = lib.con_deserialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
+}
+
+test "array string multiple" {
+    const data = "[\"a\",\"b\"]";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const str1_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str1_err);
+        try testing.expectEqualStrings("a", buffer[0..1]);
+
+        const str2_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str2_err);
+        try testing.expectEqualStrings("b", buffer[1..2]);
+    }
+
+    const close_err = lib.con_deserialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
+}
+
+test "array string comma missing" {
+    const data = "[\"a\" \"b\"";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const str1_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str1_err);
+        try testing.expectEqualStrings("a", buffer[0..1]);
+
+        const str2_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMMA_MISSING), str2_err);
+    }
+}
+
+test "array string comma reader fail" {
+    const data = "[\"a\"";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const str1_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str1_err);
+        try testing.expectEqualStrings("a", buffer[0..1]);
+
+        const str2_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), str2_err);
+    }
+}
