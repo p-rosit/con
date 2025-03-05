@@ -300,6 +300,9 @@ enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value) 
     if (next_err) { return next_err; }
     if (next != CON_DESERIALIZE_TYPE_BOOL) { return CON_ERROR_TYPE; }
 
+    enum ConError state_err = con_deserialize_internal_state_value(context);
+    if (state_err) { return state_err; }
+
     assert(context->buffer_char == 't' || context->buffer_char == 'f');
     bool is_true = context->buffer_char == 't';
 
@@ -320,7 +323,7 @@ enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value) 
         context->buffer_char = EOF;
         enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
 
-        if (err) {
+        if (err != CON_ERROR_OK && err != CON_ERROR_COMMA_MISSING) {
             return err;
         } else if (!same_token) {
             return CON_ERROR_INVALID_JSON;
@@ -333,18 +336,15 @@ enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value) 
 
     *value = is_true;
 
-    enum ConError state_err = con_deserialize_internal_state_value(context);
-    if (state_err) { return state_err; }
-
     char c;
     bool same_token;
     context->buffer_char = EOF;
     enum ConError err = con_deserialize_internal_next_character(context, &c, &same_token);
     if (err == CON_ERROR_READER) {
         return CON_ERROR_OK;
-    } else if (err) {
+    } else if (err != CON_ERROR_OK && err != CON_ERROR_COMMA_MISSING) {
         return err;
-    } else if (same_token) {
+    } else if (same_token && c != ',' && c != ']' && c != '}') {
         return CON_ERROR_INVALID_JSON;
     }
 

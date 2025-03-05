@@ -1403,3 +1403,76 @@ test "array string comma reader fail" {
         try testing.expectError(error.Reader, err);
     }
 }
+
+test "array bool single" {
+    const data = "[true]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        const r = try context.bool();
+        try testing.expectEqual(true, r);
+    }
+
+    try context.arrayClose();
+}
+
+test "array bool multiple" {
+    const data = "[false, true]";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        const r1 = try context.bool();
+        try testing.expectEqual(false, r1);
+
+        const r2 = try context.bool();
+        try testing.expectEqual(true, r2);
+    }
+
+    try context.arrayClose();
+}
+
+test "array bool comma missing" {
+    const data = "[false true";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        const r1 = try context.bool();
+        try testing.expectEqual(false, r1);
+
+        const err = context.bool();
+        try testing.expectError(error.CommaMissing, err);
+    }
+}
+
+test "array bool comma reader fail" {
+    const data = "[false";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        const r1 = try context.bool();
+        try testing.expectEqual(false, r1);
+
+        const err = context.bool();
+        try testing.expectError(error.Reader, err);
+    }
+}
