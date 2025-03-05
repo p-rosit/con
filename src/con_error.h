@@ -16,10 +16,12 @@ enum ConError {
     CON_ERROR_NOT_DICT          = 11,
     CON_ERROR_NOT_NUMBER        = 12,
     CON_ERROR_INVALID_JSON      = 13,
-    CON_ERROR_TRAILING_COMMA    = 14,
-    CON_ERROR_MISSING_COMMA     = 15,
-    CON_ERROR_TYPE              = 16,
-    CON_ERROR_STATE_UNKNOWN     = 17,
+    CON_ERROR_COMMA_MISSING     = 14,
+    CON_ERROR_COMMA_MULTIPLE    = 15,
+    CON_ERROR_COMMA_TRAILING    = 16,
+    CON_ERROR_COMMA_UNEXPECTED  = 17,
+    CON_ERROR_TYPE              = 18,
+    CON_ERROR_STATE_UNKNOWN     = 19,
 };
 
 #endif

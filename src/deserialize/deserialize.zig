@@ -662,7 +662,7 @@ test "bool invalid" {
     reader = try zcon.ReaderString.init(data5);
     context = try Deserialize.init(reader.interface(), &depth);
     const err5 = context.bool();
-    try testing.expectError(error.InvalidJson, err5);
+    try testing.expectError(error.CommaUnexpected, err5);
 
     const data6 = "truet";
     reader = try zcon.ReaderString.init(data6);
@@ -1261,7 +1261,7 @@ test "array number comma missing" {
         try testing.expectEqualStrings("2", buffer[0..1]);
 
         const err = context.number(writer.interface());
-        try testing.expectError(error.MissingComma, err);
+        try testing.expectError(error.CommaMissing, err);
     }
 }
 

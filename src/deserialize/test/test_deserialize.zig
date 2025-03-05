@@ -909,7 +909,7 @@ test "bool invalid" {
     const init5_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init5_err);
     const err5 = lib.con_deserialize_bool(&context, &value);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err5);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMMA_UNEXPECTED), err5);
 
     const data6 = "truet";
     const i6_err = lib.con_reader_string_init(&reader, data6, data6.len);
@@ -1828,7 +1828,7 @@ test "array number comma missing" {
         try testing.expectEqualStrings("2", buffer[0..1]);
 
         const num2_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
-        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_MISSING_COMMA), num2_err);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMMA_MISSING), num2_err);
     }
 }
 
