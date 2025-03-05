@@ -264,8 +264,6 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
             if (state != NUMBER_ERROR) {
                 amount_written = con_writer_write(writer, &c, 1);
                 if (amount_written != 1) { return CON_ERROR_WRITER; }
-            } else if (c == ',' || c == ']' || c == '}') {
-                return CON_ERROR_OK;
             } else {
                 return CON_ERROR_INVALID_JSON;
             }
@@ -344,7 +342,7 @@ enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value) 
         return CON_ERROR_OK;
     } else if (err != CON_ERROR_OK && err != CON_ERROR_COMMA_MISSING) {
         return err;
-    } else if (same_token && c != ',' && c != ']' && c != '}') {
+    } else if (same_token) {
         return CON_ERROR_INVALID_JSON;
     }
 
@@ -475,6 +473,10 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
                 if (result.error) { return CON_ERROR_READER; }
                 continue;
             } else {
+                if (context->buffer_char == ',' || context->buffer_char == ']' || context->buffer_char == '}') {
+                    *same_token = false;
+                }
+
                 if (result.error) { return CON_ERROR_READER; }
                 break;
             }
