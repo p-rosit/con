@@ -473,7 +473,7 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
                 if (result.error) { return CON_ERROR_READER; }
                 continue;
             } else {
-                if (context->buffer_char == ',' || context->buffer_char == ']' || context->buffer_char == '}') {
+                if (context->buffer_char == ',' || context->buffer_char == ']' || context->buffer_char == '}' || context->buffer_char == '"') {
                     *same_token = false;
                 }
 
