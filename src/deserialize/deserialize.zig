@@ -1731,3 +1731,140 @@ test "array dict comma reader fail" {
         try testing.expectError(error.Reader, err);
     }
 }
+
+test "dict number single" {
+    const data = "{\"k\":1}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        try context.number(writer.interface());
+        try testing.expectEqualStrings("1", buffer[1..2]);
+    }
+
+    try context.dictClose();
+}
+
+test "dict string single" {
+    const data = "{\"k\":\"a\"}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        try context.string(writer.interface());
+        try testing.expectEqualStrings("a", buffer[1..2]);
+    }
+
+    try context.dictClose();
+}
+
+test "dict bool single" {
+    const data = "{\"k\":true}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", &buffer);
+
+        const r = try context.bool();
+        try testing.expectEqual(true, r);
+    }
+
+    try context.dictClose();
+}
+
+test "dict null single" {
+    const data = "{\"k\":null}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", &buffer);
+
+        try context.null();
+    }
+
+    try context.dictClose();
+}
+
+test "dict array single" {
+    const data = "{\"k\":[]}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", &buffer);
+
+        try context.arrayOpen();
+        try context.arrayClose();
+    }
+
+    try context.dictClose();
+}
+
+test "dict dict single" {
+    const data = "{\"k\":{}}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [2]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", &buffer);
+
+        try context.dictOpen();
+        try context.dictClose();
+    }
+
+    try context.dictClose();
+}

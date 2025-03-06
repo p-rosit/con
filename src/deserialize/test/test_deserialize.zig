@@ -2523,3 +2523,205 @@ test "array dict comma reader fail" {
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), open3_err);
     }
 }
+
+test "dict number single" {
+    const data = "{\"k\":1}";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        const num_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
+        try testing.expectEqualStrings("1", buffer[1..2]);
+    }
+
+    const close_err = lib.con_deserialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
+}
+
+test "dict string single" {
+    const data = "{\"k\":\"a\"}";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [2]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
+        try testing.expectEqualStrings("k", buffer[0..1]);
+
+        const str_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
+        try testing.expectEqualStrings("a", buffer[1..2]);
+    }
+
+    const close_err = lib.con_deserialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
+}
+
+test "dict bool single" {
+    const data = "{\"k\":true}";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
+        try testing.expectEqualStrings("k", &buffer);
+
+        var r: bool = undefined;
+        const bool_err = lib.con_deserialize_bool(&context, &r);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), bool_err);
+        try testing.expectEqual(true, r);
+    }
+
+    const close_err = lib.con_deserialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
+}
+
+test "dict null single" {
+    const data = "{\"k\":null}";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
+        try testing.expectEqualStrings("k", &buffer);
+
+        const null_err = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null_err);
+    }
+
+    const close_err = lib.con_deserialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
+}
+
+test "dict array single" {
+    const data = "{\"k\":[]}";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [2]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open1_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open1_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
+        try testing.expectEqualStrings("k", &buffer);
+
+        const open2_err = lib.con_deserialize_array_open(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open2_err);
+
+        const close2_err = lib.con_deserialize_array_close(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close2_err);
+    }
+
+    const close1_err = lib.con_deserialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close1_err);
+}
+
+test "dict dict single" {
+    const data = "{\"k\":{}}";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [2]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open1_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open1_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
+        try testing.expectEqualStrings("k", &buffer);
+
+        const open2_err = lib.con_deserialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open2_err);
+
+        const close2_err = lib.con_deserialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close2_err);
+    }
+
+    const close1_err = lib.con_deserialize_dict_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close1_err);
+}
