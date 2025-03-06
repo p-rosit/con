@@ -1868,3 +1868,100 @@ test "dict dict single" {
 
     try context.dictClose();
 }
+
+// Section: Completed ----------------------------------------------------------
+
+test "number complete" {
+    const data = "[] 1";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [1]u8 = undefined;
+    var writer = try zcon.WriterString.init(&buffer);
+
+    try context.arrayOpen();
+    try context.arrayClose();
+
+    const err = context.number(writer.interface());
+    try testing.expectError(error.Complete, err);
+}
+
+test "string complete" {
+    const data = "{} \"a\"";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [1]u8 = undefined;
+    var writer = try zcon.WriterString.init(&buffer);
+
+    try context.dictOpen();
+    try context.dictClose();
+
+    const err = context.string(writer.interface());
+    try testing.expectError(error.Complete, err);
+}
+
+test "bool complete" {
+    const data = "1 true";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [1]u8 = undefined;
+    var writer = try zcon.WriterString.init(&buffer);
+
+    try context.number(writer.interface());
+    try testing.expectEqualStrings("1", &buffer);
+
+    const err = context.bool();
+    try testing.expectError(error.Complete, err);
+}
+
+test "null complete" {
+    const data = "\"a\" null";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [1]u8 = undefined;
+    var writer = try zcon.WriterString.init(&buffer);
+
+    try context.string(writer.interface());
+    try testing.expectEqualStrings("a", &buffer);
+
+    const err = context.null();
+    try testing.expectError(error.Complete, err);
+}
+
+test "array complete" {
+    const data = "true []";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    const r = try context.bool();
+    try testing.expectEqual(true, r);
+
+    const err = context.arrayOpen();
+    try testing.expectError(error.Complete, err);
+}
+
+test "dict complete" {
+    const data = "null {}";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.null();
+
+    const err = context.dictOpen();
+    try testing.expectError(error.Complete, err);
+}

@@ -510,8 +510,7 @@ static inline enum ConError con_deserialize_internal_state_value(struct ConDeser
             context->state = con_utils_state_to_char(STATE_LATER);
             break;
         case (STATE_COMPLETE):
-            assert(false);
-            break;
+            return CON_ERROR_COMPLETE;
         case (STATE_VALUE):
             context->state = con_utils_state_to_char(STATE_LATER);
             break;
