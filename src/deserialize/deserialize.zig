@@ -1965,3 +1965,80 @@ test "dict complete" {
     const err = context.dictOpen();
     try testing.expectError(error.Complete, err);
 }
+
+// Section: Integration test ---------------------------------------------------
+
+test "nested structures" {
+    const data =
+        \\{
+        \\  "a": [
+        \\      "hello",
+        \\      {
+        \\          "a.a": null,
+        \\          "a.b": true
+        \\      }
+        \\  ],
+        \\  "b": [
+        \\      234,
+        \\      false
+        \\  ]
+        \\}
+    ;
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [3]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    var buffer: [5]u8 = undefined;
+    var writer: zcon.WriterString = undefined;
+
+    try context.dictOpen();
+
+    {
+        writer = try zcon.WriterString.init(&buffer);
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("a", buffer[0..1]);
+
+        try context.arrayOpen();
+        {
+            writer = try zcon.WriterString.init(&buffer);
+            try context.string(writer.interface());
+            try testing.expectEqualStrings("hello", buffer[0..5]);
+
+            try context.dictOpen();
+            {
+                writer = try zcon.WriterString.init(&buffer);
+                try context.dictKey(writer.interface());
+                try testing.expectEqualStrings("a.a", buffer[0..3]);
+
+                try context.null();
+
+                writer = try zcon.WriterString.init(&buffer);
+                try context.dictKey(writer.interface());
+                try testing.expectEqualStrings("a.b", buffer[0..3]);
+
+                const r = try context.bool();
+                try testing.expectEqual(true, r);
+            }
+            try context.dictClose();
+        }
+        try context.arrayClose();
+
+        writer = try zcon.WriterString.init(&buffer);
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("b", buffer[0..1]);
+
+        try context.arrayOpen();
+        {
+            writer = try zcon.WriterString.init(&buffer);
+            try context.number(writer.interface());
+            try testing.expectEqualStrings("234", buffer[0..3]);
+
+            const r = try context.bool();
+            try testing.expectEqual(false, r);
+        }
+        try context.arrayClose();
+    }
+
+    try context.dictClose();
+}
