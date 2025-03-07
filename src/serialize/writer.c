@@ -218,3 +218,25 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
 
     return length;
 }
+
+enum ConError con_writer_empty_init(struct ConWriterEmpty *context) {
+    assert(context != NULL);
+    context->amount_written = 0;
+    return CON_ERROR_OK;
+}
+
+size_t con_writer_empty_write(void const *void_context, char const *data, size_t data_size) {
+    (void)(data);
+    struct ConWriterEmpty *context = (struct ConWriterEmpty*) void_context;
+
+    if (context->amount_written > SIZE_MAX - 1) {
+        return 0;
+    }
+    context->amount_written += 1;
+
+    return data_size;
+}
+
+struct ConInterfaceWriter con_writer_empty_interface(struct ConWriterEmpty *context) {
+    return (struct ConInterfaceWriter) { .context=context, .write=con_writer_empty_write };
+}

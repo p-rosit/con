@@ -50,6 +50,85 @@ enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeser
     return con_deserialize_internal_next(context, type, &same_token);
 }
 
+enum ConError con_deserialize_skip_next(struct ConDeserialize *context) {
+    enum ConDeserializeType next;
+    enum ConError next_err = con_deserialize_next(context, &next);
+    if (next_err) { return next_err; }
+
+    if (next == CON_DESERIALIZE_TYPE_ARRAY_CLOSE || next == CON_DESERIALIZE_TYPE_DICT_CLOSE) {
+        return CON_ERROR_OK;
+    }
+
+    size_t current_depth = context->depth;
+    bool is_container = (
+        (next == CON_DESERIALIZE_TYPE_ARRAY_OPEN)
+        || (next == CON_DESERIALIZE_TYPE_DICT_OPEN)
+    );
+
+    struct ConWriterEmpty writer;
+    enum ConError init_err = con_writer_empty_init(&writer);
+    assert(init_err == CON_ERROR_OK);
+
+    struct ConInterfaceWriter interface = con_writer_empty_interface(&writer);
+
+    do {
+        switch (next) {
+            case (CON_DESERIALIZE_TYPE_NUMBER): {
+                enum ConError err = con_deserialize_number(context, interface);
+                if (err) { return err; }
+                continue;
+            }
+            case (CON_DESERIALIZE_TYPE_STRING): {
+                enum ConError err = con_deserialize_string(context, interface);
+                if (err) { return err; }
+                continue;
+            }
+            case (CON_DESERIALIZE_TYPE_BOOL): {
+                bool value;
+                enum ConError err = con_deserialize_bool(context, &value);
+                if (err) { return err; }
+                continue;
+            }
+            case (CON_DESERIALIZE_TYPE_NULL): {
+                enum ConError err = con_deserialize_null(context);
+                if (err) { return err; }
+                continue;
+            }
+            case (CON_DESERIALIZE_TYPE_ARRAY_OPEN): {
+                enum ConError err = con_deserialize_array_open(context);
+                if (err) { return err; }
+                continue;
+            }
+            case (CON_DESERIALIZE_TYPE_ARRAY_CLOSE): {
+                enum ConError err = con_deserialize_array_close(context);
+                if (err) { return err; }
+                continue;
+            }
+            case (CON_DESERIALIZE_TYPE_DICT_OPEN): {
+                enum ConError err = con_deserialize_dict_open(context);
+                if (err) { return err; }
+                continue;
+            }
+            case (CON_DESERIALIZE_TYPE_DICT_CLOSE): {
+                enum ConError err = con_deserialize_dict_close(context);
+                if (err) { return err; }
+                continue;
+            }
+            case (CON_DESERIALIZE_TYPE_DICT_KEY): {
+                enum ConError err = con_deserialize_dict_key(context, interface);
+                if (err) { return err; }
+                continue;
+            }
+            case (CON_DESERIALIZE_TYPE_UNKNOWN):
+            case (CON_DESERIALIZE_TYPE_MAX):
+                assert(false);
+        }
+        assert(false);
+    } while (is_container && context->depth > current_depth);
+
+    return CON_ERROR_OK;
+}
+
 enum ConError con_deserialize_array_open(struct ConDeserialize *context) {
     assert(context != NULL);
 

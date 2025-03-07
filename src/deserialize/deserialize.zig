@@ -54,6 +54,11 @@ pub const Deserialize = struct {
         };
     }
 
+    pub fn skip_next(self: *Deserialize) !void {
+        const err = lib.con_deserialize_skip_next(&self.inner);
+        return internal.enumToError(err);
+    }
+
     pub fn arrayOpen(self: *Deserialize) !void {
         const err = lib.con_deserialize_array_open(&self.inner);
         return internal.enumToError(err);
@@ -2041,4 +2046,16 @@ test "nested structures" {
     }
 
     try context.dictClose();
+}
+
+// Section: Skip ---------------------------------------------------------------
+
+test "skip number" {
+    const data = "12.0e5";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [0]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.skip_next();
 }

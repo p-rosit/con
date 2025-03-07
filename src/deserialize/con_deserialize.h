@@ -35,10 +35,8 @@ enum ConError con_deserialize_init(
     int depth_buffer_size
 );
 
-enum ConError con_deserialize_next(
-    struct ConDeserialize *context,
-    enum ConDeserializeType *type
-);
+enum ConError con_deserialize_next(struct ConDeserialize *context, enum ConDeserializeType *type);
+enum ConError con_deserialize_skip_next(struct ConDeserialize *context);
 
 enum ConError con_deserialize_array_open(struct ConDeserialize *context);
 enum ConError con_deserialize_array_close(struct ConDeserialize *context);
