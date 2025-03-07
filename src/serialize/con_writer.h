@@ -120,11 +120,4 @@ enum ConError con_writer_indent_init(
 // the returned writer owns the passed in `context`.
 struct ConInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *context);
 
-struct ConWriterEmpty {
-    size_t amount_written;
-};
-
-enum ConError con_writer_empty_init(struct ConWriterEmpty *context);
-struct ConInterfaceWriter con_writer_empty_interface(struct ConWriterEmpty *context);
-
 #endif
