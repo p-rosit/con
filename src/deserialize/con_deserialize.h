@@ -96,7 +96,7 @@ enum ConError con_deserialize_init(
 //  CON_ERROR_COMMA_TRAILING:   Trailing comma found at end of container.
 //  CON_ERROR_COMMA_UNEXPECTED: Returned in the following situations:
 //      1. comma found before the first element in a container.
-//      2. comma found outside a dictionary.
+//      2. comma found outside a container.
 enum ConError con_deserialize_next(
     struct ConDeserialize *context,
     enum ConDeserializeType *type
