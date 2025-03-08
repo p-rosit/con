@@ -152,7 +152,7 @@ enum ConError con_deserialize_dict_open(struct ConDeserialize *context);
 //  CON_ERROR_OK:               Call succeded.
 //  CON_ERROR_READER:           Failed to read data.
 //  CON_ERROR_CLOSED_TOO_MANY:  Closed too many containers.
-//  CON_ERROR_NOT_ARRAY:        Current container is not an array.
+//  CON_ERROR_NOT_DICT:         Current container is not a dict.
 //  CON_ERROR_COMPLETE:         JSON already complete.
 //  CON_ERROR_INVALID_JSON:     Could not recognize start of next token.
 //  CON_ERROR_COMMA_MISSING:    Missing comma.
