@@ -86,6 +86,17 @@ enum ConError con_deserialize_init(
     int depth_buffer_size
 );
 
+// Return:
+//  CON_ERROR_OK:               Call succeded.
+//  CON_ERROR_NULL:             `type` is null.
+//  CON_ERROR_READER:           Failed to read data.
+//  CON_ERROR_INVALID_JSON:     Could not recognize start of next token.
+//  CON_ERROR_COMMA_MISSING:    Missing comma.
+//  CON_ERROR_COMMA_MULTIPLE:   Multiple commas found.
+//  CON_ERROR_COMMA_TRAILING:   Trailing comma found at end of container.
+//  CON_ERROR_COMMA_UNEXPECTED: Returned in the following situations:
+//      1. comma found before the first element in a container.
+//      2. comma found outside a dictionary.
 enum ConError con_deserialize_next(
     struct ConDeserialize *context,
     enum ConDeserializeType *type
