@@ -957,6 +957,26 @@ test "dict key colon reader fail" {
     }
 }
 
+test "dict key comma extra" {
+    const data = "{\"k\":,null";
+    var reader = try zcon.ReaderString.init(data);
+
+    var depth: [1]u8 = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer = try zcon.WriterString.init(&buffer);
+        try context.dictKey(writer.interface());
+        try testing.expectEqualStrings("k", &buffer);
+
+        const err = context.null();
+        try testing.expectError(error.CommaUnexpected, err);
+    }
+}
+
 test "dict key comma missing" {
     const data = "{\"k\":null\"m\":";
     var reader = try zcon.ReaderString.init(data);

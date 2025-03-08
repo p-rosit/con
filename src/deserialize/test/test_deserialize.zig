@@ -1350,6 +1350,40 @@ test "dict key colon reader fail" {
     }
 }
 
+test "dict key comma extra" {
+    const data = "{\"k\":,null";
+    var reader: lib.ConReaderString = undefined;
+    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]u8 = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(
+        &context,
+        lib.con_reader_string_interface(&reader),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var buffer: [1]u8 = undefined;
+        var writer: lib.ConWriterString = undefined;
+        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
+
+        const key1_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
+        try testing.expectEqualStrings("k", &buffer);
+
+        const null_err = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMMA_UNEXPECTED), null_err);
+    }
+}
+
 test "dict key comma missing" {
     const data = "{\"k\":null\"m\":";
     var reader: lib.ConReaderString = undefined;
