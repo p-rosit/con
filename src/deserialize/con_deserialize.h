@@ -59,6 +59,26 @@ struct ConDeserialize {
     bool found_comma;
 };
 
+// Initializes a deserialization context which can then be used to read JSON
+// with `con_deserialize_array_open`, `con_deserialize_number` and similar.
+//
+// Params:
+//  context:            Valid pointer to single item.
+//  reader:             A reader, see `con_reader.h`. If call succeeds the
+//                      context this reader came from is owned by this `context`
+//  depth_buffer:       May be null if `depth_buffer_size` is 0, must otherwise
+//                      be valid pointer to as many items (or more) as specified.
+//                      by `depth_buffer_size`. If call succeeds this pointer
+//                      is owned by `context`.
+//  depth_buffer_size:  must be equal to or smaller than actual length
+//                      of passed in parameter `depth_buffer`.
+//
+// Return:
+//  CON_ERROR_OK:       Call succeeded.
+//  CON_ERROR_NULL:     Returned in the following situations:
+//      1. `context` is null.
+//      2. `depth_buffer` is null.
+//  CON_ERROR_BUFFER:   `depth_buffer_size` is negative.
 enum ConError con_deserialize_init(
     struct ConDeserialize *context,
     struct ConInterfaceReader reader,
