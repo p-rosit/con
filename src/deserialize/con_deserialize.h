@@ -23,8 +23,8 @@ struct ConDeserialize {
     size_t depth;
     char *depth_buffer;
     int depth_buffer_size;
-    char state;
     int buffer_char;
+    char state;
     bool found_comma;
 };
 
