@@ -226,6 +226,20 @@ enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConI
 //                              container.
 //  CON_ERROR_TYPE:             Next token is not a bool.
 enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value);
+
+// Return:
+//  CON_ERROR_OK:               Call succeded.
+//  CON_ERROR_READER:           Failed to read data.
+//  CON_ERROR_COMPLETE:         JSON already complete.
+//  CON_ERROR_KEY:              Missing dictionary key before this element.
+//  CON_ERROR_INVALID_JSON:     Returned in the following situations:
+//      1. could not recognize start of next token.
+//      2. token was not `null`.
+//  CON_ERROR_COMMA_MISSING:    Missing comma.
+//  CON_ERROR_COMMA_MULTIPLE:   Multiple commas found.
+//  CON_ERROR_COMMA_UNEXPECTED: Comma found before the first element in a
+//                              container.
+//  CON_ERROR_TYPE:             Next token is not null.
 enum ConError con_deserialize_null(struct ConDeserialize *context);
 
 #endif
