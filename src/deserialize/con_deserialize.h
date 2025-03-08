@@ -179,6 +179,22 @@ enum ConError con_deserialize_dict_close(struct ConDeserialize *context);
 //  CON_ERROR_TYPE:             Next token is not a string.
 enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct ConInterfaceWriter writer);
 
+// Return:
+//  CON_ERROR_OK:               Call succeded.
+//  CON_ERROR_READER:           Failed to read data.
+//  CON_ERROR_COMPLETE:         JSON already complete.
+//  CON_ERROR_KEY:              Missing dictionary key before this element.
+//  CON_ERROR_NOT_NUMBER:       Number did not end correctly, for example `0.`
+//  CON_ERROR_INVALID_JSON:     Returned in the following situations:
+//      1. could not recognize start of next token.
+//      2. number was not valid, see JSON spec for valid number.
+//  CON_ERROR_COMMA_MISSING:    Missing comma.
+//  CON_ERROR_COMMA_MULTIPLE:   Multiple commas found.
+//  CON_ERROR_COMMA_TRAILING:   Trailing comma found at end of container.
+//  CON_ERROR_COMMA_UNEXPECTED: Returned in the following situations:
+//      1. comma found before the first element in a container.
+//      2. comma found outside a container.
+//  CON_ERROR_TYPE:             Next token is not a number.
 enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConInterfaceWriter writer);
 enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConInterfaceWriter writer);
 enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value);
