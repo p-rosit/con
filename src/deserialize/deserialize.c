@@ -216,7 +216,7 @@ enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct Co
             return CON_ERROR_INVALID_JSON;  // Missing ':'
         }
 
-        context->buffer_char = -1;
+        context->buffer_char = EOF;
     }
 
     context->state = con_utils_state_to_char(STATE_VALUE);
@@ -616,7 +616,7 @@ static inline enum StateNumber con_deserialize_state_number_next(enum StateNumbe
 static inline enum ConError con_deserialize_string_get(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
     assert(context != NULL);
 
-    assert(context->buffer_char != -1);
+    assert(context->buffer_char != EOF);
     assert(context->buffer_char == '"');
     context->buffer_char = EOF;
 
