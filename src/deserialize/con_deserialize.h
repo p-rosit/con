@@ -102,6 +102,19 @@ enum ConError con_deserialize_next(
     enum ConDeserializeType *type
 );
 
+// Return:
+//  CON_ERROR_OK:               Call succeded.
+//  CON_ERROR_READER:           Failed to read data.
+//  CON_ERROR_TOO_DEEP:         Opened too many containers.
+//  CON_ERROR_COMPLETE:         JSON already complete.
+//  CON_ERROR_KEY:              Missing dictionary key before this element.
+//  CON_ERROR_INVALID_JSON:     Could not recognize start of next token.
+//  CON_ERROR_COMMA_MISSING:    Missing comma.
+//  CON_ERROR_COMMA_MULTIPLE:   Multiple commas found.
+//  CON_ERROR_COMMA_UNEXPECTED: Returned in the following situations:
+//      1. comma found before the first element in a container.
+//      2. comma found outside a container.
+//  CON_ERROR_TYPE:             Next token is not `[`.
 enum ConError con_deserialize_array_open(struct ConDeserialize *context);
 enum ConError con_deserialize_array_close(struct ConDeserialize *context);
 
