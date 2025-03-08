@@ -238,10 +238,8 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
 
     assert(context->buffer_char != EOF);
     state = con_deserialize_state_number_next(state, (char) context->buffer_char);
+    assert(state != NUMBER_ERROR);
 
-    if (state == NUMBER_ERROR) {
-        return CON_ERROR_NOT_NUMBER;  // unexpected char
-    }
     size_t amount_written = con_writer_write(writer, (char*) &context->buffer_char, 1);
     if (amount_written != 1) { return CON_ERROR_WRITER; }
 
