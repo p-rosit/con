@@ -123,7 +123,6 @@ enum ConError con_deserialize_array_open(struct ConDeserialize *context);
 //  CON_ERROR_CLOSED_TOO_MANY:  Closed too many containers.
 //  CON_ERROR_NOT_ARRAY:        Current container is not an array.
 //  CON_ERROR_COMPLETE:         JSON already complete.
-//  CON_ERROR_KEY:              Missing dictionary key before this element.
 //  CON_ERROR_INVALID_JSON:     Could not recognize start of next token.
 //  CON_ERROR_COMMA_MISSING:    Missing comma.
 //  CON_ERROR_COMMA_MULTIPLE:   Multiple commas found.
