@@ -1,22 +1,7 @@
 #ifndef CON_UTILS_H
 #define CON_UTILS_H
 #include <stdbool.h>
-
-enum ConContainer {
-    CONTAINER_NONE  = 0,
-    CONTAINER_DICT  = 1,
-    CONTAINER_ARRAY = 2,
-};
-
-enum ConState {
-    STATE_UNKNOWN   = 0,
-    STATE_EMPTY     = 1,
-    STATE_FIRST     = 2,
-    STATE_LATER     = 3,
-    STATE_COMPLETE  = 4,
-    STATE_VALUE     = 5,
-    STATE_MAX,
-};
+#include "con_error.h"
 
 enum ConJsonState {
     JSON_STATE_UNKNOWN      = 0,

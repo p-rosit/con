@@ -24,4 +24,20 @@ enum ConError {
     CON_ERROR_STATE_UNKNOWN     = 19,
 };
 
+enum ConState {
+    STATE_UNKNOWN   = 0,
+    STATE_EMPTY     = 1,
+    STATE_FIRST     = 2,
+    STATE_LATER     = 3,
+    STATE_COMPLETE  = 4,
+    STATE_VALUE     = 5,
+    STATE_MAX,
+};
+
+enum ConContainer {
+    CONTAINER_NONE  = 0,
+    CONTAINER_DICT  = 1,
+    CONTAINER_ARRAY = 2,
+};
+
 #endif
