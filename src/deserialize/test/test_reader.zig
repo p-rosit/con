@@ -32,15 +32,12 @@ test "fail fails" {
     const reader = lib.con_reader_fail_interface(&context);
 
     var buffer: [1]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(1, result.length);
+    const length1 = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(1, length1);
     try testing.expectEqualStrings("1", buffer[0..1]);
 
-    const err = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(err.@"error");
-    try testing.expectEqual(1, err.length);
-    try testing.expectEqualStrings("2", buffer[0..1]);
+    const length2 = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(0, length2);
 }
 
 test "file init" {
@@ -78,14 +75,12 @@ test "file read" {
     const reader = lib.con_reader_file_interface(&context);
 
     var buffer: [1]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(1, result.length);
+    const length1 = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(1, length1);
     try testing.expectEqualStrings("1", &buffer);
 
-    const empty = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!empty.@"error");
-    try testing.expectEqual(0, empty.length);
+    const length2 = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(0, length2);
 }
 
 test "string init" {
@@ -116,9 +111,8 @@ test "string read" {
     const reader = lib.con_reader_string_interface(&context);
 
     var buffer: [3]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(3, result.length);
+    const length = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(3, length);
     try testing.expectEqualStrings("zig", &buffer);
 }
 
@@ -130,14 +124,12 @@ test "string read overflow" {
     const reader = lib.con_reader_string_interface(&context);
 
     var buffer: [2]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(1, result.length);
+    const length1 = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(1, length1);
     try testing.expectEqualStrings("z", buffer[0..1]);
 
-    const empty = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!empty.@"error");
-    try testing.expectEqual(0, empty.length);
+    const length2 = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(0, length2);
 }
 
 test "buffer init" {
@@ -208,9 +200,8 @@ test "buffer read" {
     const reader = lib.con_reader_buffer_interface(&context);
 
     var result_buffer: [2]u8 = undefined;
-    const result = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(2, result.length);
+    const length = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expectEqual(2, length);
     try testing.expectEqualStrings("da", result_buffer[0..2]);
 }
 
@@ -232,9 +223,8 @@ test "buffer read buffer twice" {
     const reader = lib.con_reader_buffer_interface(&context);
 
     var result_buffer: [5]u8 = undefined;
-    const result = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(4, result.length);
+    const length = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expectEqual(4, length);
     try testing.expectEqualStrings("data", result_buffer[0..4]);
 }
 
@@ -256,9 +246,8 @@ test "buffer internal reader empty" {
     const reader = lib.con_reader_buffer_interface(&context);
 
     var result_buffer: [2]u8 = undefined;
-    const result = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(0, result.length);
+    const length = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expectEqual(0, length);
 }
 
 test "buffer internal reader fail" {
@@ -282,10 +271,8 @@ test "buffer internal reader fail" {
     const reader = lib.con_reader_buffer_interface(&context);
 
     var result_buffer: [2]u8 = undefined;
-    const err = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
-    try testing.expect(err.@"error");
-    try testing.expectEqual(1, err.length);
-    try testing.expectEqualStrings("1", result_buffer[0..1]);
+    const length = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expectEqual(0, length);
 }
 
 test "buffer internal reader large fail" {
@@ -309,10 +296,8 @@ test "buffer internal reader large fail" {
     const reader = lib.con_reader_buffer_interface(&context);
 
     var result_buffer: [10]u8 = undefined;
-    const err = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
-    try testing.expect(err.@"error");
-    try testing.expectEqual(1, err.length);
-    try testing.expectEqualStrings("1", result_buffer[0..1]);
+    const length = lib.con_reader_read(reader, &result_buffer, result_buffer.len);
+    try testing.expectEqual(0, length);
 }
 
 test "comment init" {
@@ -346,9 +331,8 @@ test "comment read" {
     const reader = lib.con_reader_comment_interface(&context);
 
     var buffer: [2]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(2, result.length);
+    const length = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(2, length);
     try testing.expectEqualStrings("12", &buffer);
 }
 
@@ -367,9 +351,8 @@ test "comment read comment" {
     const reader = lib.con_reader_comment_interface(&context);
 
     var buffer: [17]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(17, result.length);
+    const length = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(17, length);
     try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
 }
 
@@ -389,9 +372,8 @@ test "comment read comment one char at a time" {
 
     var buffer: [17]u8 = undefined;
     for (0..17) |i| {
-        const result = lib.con_reader_read(reader, buffer[i .. i + 1].ptr, 1);
-        try testing.expect(!result.@"error");
-        try testing.expectEqual(1, result.length);
+        const length = lib.con_reader_read(reader, buffer[i .. i + 1].ptr, 1);
+        try testing.expectEqual(1, length);
     }
 
     try testing.expectEqualStrings("[  \n \"k //:)\",1/]", &buffer);
@@ -412,9 +394,8 @@ test "comment inner reader empty" {
     const reader = lib.con_reader_comment_interface(&context);
 
     var buffer: [1]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(0, result.length);
+    const length = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(0, length);
 }
 
 test "comment inner reader empty comment" {
@@ -432,9 +413,8 @@ test "comment inner reader empty comment" {
     const reader = lib.con_reader_comment_interface(&context);
 
     var buffer: [1]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(1, result.length);
+    const length = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(1, length);
     try testing.expectEqualStrings("/", &buffer);
 }
 
@@ -461,10 +441,8 @@ test "comment inner reader fail" {
     const reader = lib.con_reader_comment_interface(&context);
 
     var buffer: [1]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(result.@"error");
-    try testing.expectEqual(1, result.length);
-    try testing.expectEqualStrings("1", &buffer);
+    const length = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(0, length);
 }
 
 test "comment inner reader fail comment" {
@@ -490,9 +468,8 @@ test "comment inner reader fail comment" {
     const reader = lib.con_reader_comment_interface(&context);
 
     var buffer: [1]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(result.@"error");
-    try testing.expectEqual(1, result.length);
+    const length = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(1, length);
     try testing.expectEqualStrings("/", &buffer);
 }
 
@@ -511,7 +488,6 @@ test "comment read only comment" {
     const reader = lib.con_reader_comment_interface(&context);
 
     var buffer: [3]u8 = undefined;
-    const result = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expect(!result.@"error");
-    try testing.expectEqual(0, result.length);
+    const length = lib.con_reader_read(reader, &buffer, buffer.len);
+    try testing.expectEqual(0, length);
 }

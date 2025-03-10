@@ -9,7 +9,6 @@ struct ConReaderFail {
     struct ConInterfaceReader reader;
     size_t reads_before_fail;
     size_t amount_of_reads;
-    bool final_read;
 };
 
 enum ConError con_reader_fail_init(struct ConReaderFail *context, struct ConInterfaceReader reader, size_t reads_before_fail);

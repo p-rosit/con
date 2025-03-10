@@ -3,11 +3,11 @@
 #include <utils.h>
 #include "con_reader.h"
 
-struct ConReadResult con_reader_fail_read(void const *context, char *buffer, size_t buffer_size);
-struct ConReadResult con_reader_file_read(void const *context, char *buffer, size_t buffer_size);
-struct ConReadResult con_reader_string_read(void const *context, char *buffer, size_t buffer_size);
-struct ConReadResult con_reader_buffer_read(void const *context, char *buffer, size_t buffer_size);
-struct ConReadResult con_reader_comment_read(void const *context, char *buffer, size_t buffer_size);
+size_t con_reader_fail_read(void const *context, char *buffer, size_t buffer_size);
+size_t con_reader_file_read(void const *context, char *buffer, size_t buffer_size);
+size_t con_reader_string_read(void const *context, char *buffer, size_t buffer_size);
+size_t con_reader_buffer_read(void const *context, char *buffer, size_t buffer_size);
+size_t con_reader_comment_read(void const *context, char *buffer, size_t buffer_size);
 
 enum ConError con_reader_fail_init(struct ConReaderFail *context, struct ConInterfaceReader reader, size_t reads_before_fail) {
     if (context == NULL) { return CON_ERROR_NULL; }
@@ -15,7 +15,6 @@ enum ConError con_reader_fail_init(struct ConReaderFail *context, struct ConInte
     context->reader = reader;
     context->reads_before_fail = reads_before_fail;
     context->amount_of_reads = 0;
-    context->final_read = false;
 
     return CON_ERROR_OK;
 }
@@ -24,25 +23,21 @@ struct ConInterfaceReader con_reader_fail_interface(struct ConReaderFail *contex
     return (struct ConInterfaceReader) { .context = context, .read = con_reader_fail_read };
 }
 
-struct ConReadResult con_reader_fail_read(void const *void_context, char *buffer, size_t buffer_size) {
+size_t con_reader_fail_read(void const *void_context, char *buffer, size_t buffer_size) {
     assert(void_context != NULL);
     struct ConReaderFail *context = (struct ConReaderFail*) void_context;
 
-    struct ConReadResult result = {
-        .error = context->amount_of_reads >= context->reads_before_fail,
-        .length = 0,
-    };
+    bool error = context->amount_of_reads >= context->reads_before_fail;
+    size_t length = 0;
 
-    if (!result.error || !context->final_read) {
+    if (!error) {
         context->amount_of_reads += 1;
 
-        struct ConReadResult r = con_reader_read(context->reader, buffer, buffer_size);
-        assert(!r.error);
-        result.length = r.length;
+        length = con_reader_read(context->reader, buffer, buffer_size);
+        assert(length >= 0 || buffer_size == 0);
     }
 
-    context->final_read = result.error;
-    return result;
+    return length;
 }
 
 enum ConError con_reader_file_init(struct ConReaderFile *context, FILE *file) {
@@ -58,16 +53,15 @@ struct ConInterfaceReader con_reader_file_interface(struct ConReaderFile *contex
     return (struct ConInterfaceReader) { .context = context, .read = con_reader_file_read };
 }
 
-struct ConReadResult con_reader_file_read(void const *void_context, char *buffer, size_t buffer_size) {
+size_t con_reader_file_read(void const *void_context, char *buffer, size_t buffer_size) {
     assert(void_context != NULL);
     struct ConReaderFile *context = (struct ConReaderFile*) void_context;
 
     assert(buffer != NULL);
     size_t read_length = fread(buffer, sizeof(char), buffer_size, context->file);
 
-    bool is_error = ferror(context->file) != 0;
     assert(read_length <= buffer_size);
-    return (struct ConReadResult) { .error = is_error, .length = read_length };
+    return read_length;
 }
 
 enum ConError con_reader_string_init(struct ConReaderString *context, char const *buffer, size_t buffer_size) {
@@ -88,13 +82,13 @@ struct ConInterfaceReader con_reader_string_interface(struct ConReaderString *co
     return (struct ConInterfaceReader) { .context = context, .read = con_reader_string_read };
 }
 
-struct ConReadResult con_reader_string_read(void const *void_context, char *buffer, size_t buffer_size) {
+size_t con_reader_string_read(void const *void_context, char *buffer, size_t buffer_size) {
     assert(void_context != NULL);
     struct ConReaderString *context = (struct ConReaderString*) void_context;
 
     assert(0 <= context->current && context->current <= context->buffer_size);
     if (context->current >= context->buffer_size) {
-        return (struct ConReadResult) { .error = false, .length = 0 };
+        return 0;
     }
 
     size_t read_length = context->buffer_size - context->current;
@@ -106,7 +100,7 @@ struct ConReadResult con_reader_string_read(void const *void_context, char *buff
     context->current += read_length;
 
     assert(read_length <= buffer_size);
-    return (struct ConReadResult) { .error = false, .length = read_length };
+    return read_length;
 }
 
 enum ConError con_reader_buffer_init(
@@ -132,7 +126,7 @@ struct ConInterfaceReader con_reader_buffer_interface(struct ConReaderBuffer *co
     return (struct ConInterfaceReader) { .context = context, .read = con_reader_buffer_read };
 }
 
-struct ConReadResult con_reader_buffer_read(void const *void_context, char *buffer, size_t buffer_size) {
+size_t con_reader_buffer_read(void const *void_context, char *buffer, size_t buffer_size) {
     assert(void_context != NULL);
 
     struct ConReaderBuffer *context = (struct ConReaderBuffer*) void_context;
@@ -148,31 +142,39 @@ struct ConReadResult con_reader_buffer_read(void const *void_context, char *buff
     memcpy(buffer, context->buffer + context->current, read_length);
     context->current += read_length;
 
-    bool error = false;
     if (context->current >= context->length_read) {
         assert(read_length <= buffer_size);
         size_t length_left = buffer_size - read_length;
 
         if (buffer_size - read_length >= context->buffer_size) {
-            struct ConReadResult result = con_reader_read(context->reader, buffer + read_length, length_left);
-            error = result.error;
-            read_length += result.length;
+            size_t length = con_reader_read(context->reader, buffer + read_length, length_left);
+            if (length == 0) {
+                context->current -= read_length;
+                read_length = 0;
+            } else {
+                read_length += length;
+            }
         } else {
-            struct ConReadResult result = con_reader_read(context->reader, context->buffer, context->buffer_size);
-            context->length_read = result.length;
+            size_t length = con_reader_read(context->reader, context->buffer, context->buffer_size);
+            if (length == 0) {
+                // if there was an error we rely on the buffer being untouched
+                context->current -= read_length;
+                read_length = 0;
+            } else {
+                context->length_read = length;
 
-            size_t next_length = context->length_read > length_left ? length_left : context->length_read;
+                size_t next_length = context->length_read > length_left ? length_left : context->length_read;
 
-            memcpy(buffer + read_length, context->buffer, next_length);
-            context->current = next_length;
+                memcpy(buffer + read_length, context->buffer, next_length);
+                context->current = next_length;
 
-            error = result.error;
-            read_length += next_length;
+                read_length += next_length;
+            }
         }
     }
 
     assert(read_length <= buffer_size);
-    return (struct ConReadResult) { .error = error, .length = read_length };
+    return read_length;
 }
 
 enum ConError con_reader_comment_init(struct ConReaderComment *context, struct ConInterfaceReader reader) {
@@ -188,7 +190,7 @@ struct ConInterfaceReader con_reader_comment_interface(struct ConReaderComment *
     return (struct ConInterfaceReader) { .context = context, .read = con_reader_comment_read };
 }
 
-struct ConReadResult con_reader_comment_read(void const *void_context, char *buffer, size_t buffer_size) {
+size_t con_reader_comment_read(void const *void_context, char *buffer, size_t buffer_size) {
     assert(void_context != NULL);
     struct ConReaderComment *context = (struct ConReaderComment*) void_context;
 
@@ -204,27 +206,25 @@ struct ConReadResult con_reader_comment_read(void const *void_context, char *buf
             length = 1;
             any_read = true;
         } else {
-            return (struct ConReadResult) { .error = false, .length = 0 };
+            return 0;
         }
     }
 
-    bool error = false;
-    while (length < buffer_size && !error) {
+    while (length < buffer_size) {
         enum ConJsonState state = con_utils_json_from_char(context->state);
         char c;
 
-        struct ConReadResult result = con_reader_read(context->reader, &c, 1);
-        assert(result.length == 0 || result.length == 1);
-        error = result.error;
-        if (result.length != 1) { break; }
+        size_t l = con_reader_read(context->reader, &c, 1);
+        assert(l == 0 || l == 1);
+        if (l != 1) { break; }
 
         if (!context->in_comment && !con_utils_json_is_string(state) && c == '/') {
-            result = con_reader_read(context->reader, &c, 1);
-            assert(result.length == 0 || result.length == 1);
-            error = result.error;
+            l = con_reader_read(context->reader, &c, 1);
+            assert(l == 0 || l == 1);
 
-            if (result.length != 1) {
+            if (l != 1) {
                 buffer[length++] = '/';
+                break;
             } else if (c == '/') {
                 context->in_comment = true;
             } else {
@@ -238,7 +238,6 @@ struct ConReadResult con_reader_comment_read(void const *void_context, char *buf
                 buffer[length++] = c;
             }
 
-            if (error) { break; }
         } else if (context->in_comment && c == '\n') {
             context->in_comment = false;
             buffer[length++] = '\n';
@@ -248,10 +247,8 @@ struct ConReadResult con_reader_comment_read(void const *void_context, char *buf
 
         context->state = con_utils_json_to_char(con_utils_json_next(state, c));
         any_read = true;
-
-        if (error) { break; }
     }
 
     assert(length <= buffer_size);
-    return (struct ConReadResult) { .error = error, .length = length };
+    return length;
 }

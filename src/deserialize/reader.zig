@@ -6,11 +6,11 @@ pub const InterfaceReader = struct {
     reader: lib.ConInterfaceReader,
 
     pub fn read(reader: InterfaceReader, buffer: []u8) ![]u8 {
-        const result = lib.con_reader_read(reader.reader, buffer.ptr, buffer.len);
-        if (result.@"error") {
+        const length = lib.con_reader_read(reader.reader, buffer.ptr, buffer.len);
+        if (length == 0 and buffer.len >= 0) {
             return error.Reader;
         } else {
-            return buffer[0..result.length];
+            return buffer[0..length];
         }
     }
 };
@@ -197,8 +197,8 @@ test "file read" {
     const result = try reader.read(&buffer);
     try testing.expectEqualStrings("1", result);
 
-    const empty = try reader.read(&buffer);
-    try testing.expectEqualStrings("", empty);
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
 }
 
 test "string init" {
@@ -226,8 +226,8 @@ test "string read overflow" {
     const result = try reader.read(&buffer);
     try testing.expectEqualStrings("z", result);
 
-    const empty = try reader.read(&buffer);
-    try testing.expectEqualStrings("", empty);
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
 }
 
 test "buffer init" {
@@ -283,8 +283,8 @@ test "buffer internal reader empty" {
     const reader = context.interface();
 
     var result_buffer: [4]u8 = undefined;
-    const result = try reader.read(&result_buffer);
-    try testing.expectEqualStrings("", result);
+    const err = reader.read(&result_buffer);
+    try testing.expectError(error.Reader, err);
 }
 
 test "buffer internal reader fail" {
@@ -369,8 +369,8 @@ test "comment inner reader empty" {
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
-    const result = try reader.read(&buffer);
-    try testing.expectEqualStrings("", result);
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
 }
 
 test "comment inner reader empty comment" {
@@ -405,8 +405,8 @@ test "comment inner reader fail comment" {
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
-    const err = reader.read(&buffer);
-    try testing.expectError(error.Reader, err);
+    const result = try reader.read(&buffer);
+    try testing.expectEqualStrings("/", result);
 }
 
 test "comment read only comment" {
@@ -417,6 +417,6 @@ test "comment read only comment" {
     const reader = context.interface();
 
     var buffer: [3]u8 = undefined;
-    const result = try reader.read(&buffer);
-    try testing.expectEqualStrings("", result);
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
 }

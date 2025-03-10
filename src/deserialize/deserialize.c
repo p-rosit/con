@@ -446,36 +446,30 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
             context->buffer_char = EOF;
 
             char next;
-            struct ConReadResult result = con_reader_read(context->reader, &next, 1);
-            if (result.error || result.length != 1) {
+            size_t length = con_reader_read(context->reader, &next, 1);
+            if (length != 1) {
                 return CON_ERROR_READER;
             }
             context->buffer_char = next;
 
             if (context->buffer_char == ',') {
                 if (context->found_comma) {
-                    if (result.error) { return CON_ERROR_READER; }
                     return CON_ERROR_COMMA_MULTIPLE;
                 }
 
                 context->found_comma = true;
                 *same_token = false;
 
-                if (result.error) { return CON_ERROR_READER; }
                 if (context->state != STATE_LATER) {
                     return CON_ERROR_COMMA_UNEXPECTED;
                 }
             } else if (isspace((unsigned char) next)) {
                 *same_token = false;
-
-                if (result.error) { return CON_ERROR_READER; }
                 continue;
             } else {
                 if (context->buffer_char == ',' || context->buffer_char == ']' || context->buffer_char == '}' || context->buffer_char == '"') {
                     *same_token = false;
                 }
-
-                if (result.error) { return CON_ERROR_READER; }
                 break;
             }
         }
@@ -640,8 +634,8 @@ static inline enum ConError con_deserialize_string_get(struct ConDeserialize *co
 }
 
 static inline enum ConError con_deserialize_string_next(struct ConDeserialize *context, bool escaped, char *c, bool *is_u) {
-    struct ConReadResult result = con_reader_read(context->reader, c, 1);
-    if (result.error || result.length != 1) { return CON_ERROR_READER; }
+    size_t length = con_reader_read(context->reader, c, 1);
+    if (length != 1) { return CON_ERROR_READER; }
     *is_u = false;
 
     if (escaped) {
@@ -673,8 +667,8 @@ static inline enum ConError con_deserialize_string_next(struct ConDeserialize *c
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 2; j++) {
                         char d;
-                        struct ConReadResult r = con_reader_read(context->reader, &d, 1);
-                        if (r.error || r.length != 1) { return CON_ERROR_READER; }
+                        size_t length = con_reader_read(context->reader, &d, 1);
+                        if (length != 1) { return CON_ERROR_READER; }
                         if (!isxdigit((unsigned char) d)) { return CON_ERROR_INVALID_JSON; }
 
                         // Here we convert a hex digit to a number in a complicated way:
