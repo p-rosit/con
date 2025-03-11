@@ -117,7 +117,30 @@ enum ConError con_reader_buffer_init(
 
     context->reader = reader;
     context->buffer = buffer;
+    context->next_read = buffer;
     context->buffer_size = buffer_size;
+    context->current = 0;
+    context->length_read = 0;
+
+    return CON_ERROR_OK;
+}
+
+enum ConError con_reader_double_buffer_init(
+    struct ConReaderBuffer *context,
+    struct ConInterfaceReader reader,
+    char *buffer,
+    size_t buffer_size
+) {
+    if (context == NULL) { return CON_ERROR_NULL; }
+    if (buffer == NULL) { return CON_ERROR_NULL; }
+
+    size_t half_size = buffer_size / 2;
+    if (half_size <= 1 || buffer_size % 2 != 0) { return CON_ERROR_BUFFER; }
+
+    context->reader = reader;
+    context->buffer = buffer;
+    context->next_read = buffer + half_size;
+    context->buffer_size = half_size;
     context->current = 0;
     context->length_read = 0;
 
@@ -157,12 +180,16 @@ size_t con_reader_buffer_read(void const *void_context, char *buffer, size_t buf
                 read_length += length;
             }
         } else {
-            size_t length = con_reader_read(context->reader, context->buffer, context->buffer_size);
+            size_t length = con_reader_read(context->reader, context->next_read, context->buffer_size);
             if (length == 0) {
                 // if there was an error we rely on the buffer being untouched
                 context->current -= read_length;
                 read_length = 0;
             } else {
+                char *temp = context->buffer;
+                context->buffer = context->next_read;
+                context->next_read = temp;
+
                 context->length_read = length;
 
                 size_t next_length = context->length_read > length_left ? length_left : context->length_read;

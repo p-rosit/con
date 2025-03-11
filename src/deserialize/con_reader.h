@@ -39,12 +39,19 @@ struct ConInterfaceReader con_reader_string_interface(struct ConReaderString *co
 struct ConReaderBuffer {
     struct ConInterfaceReader reader;
     char *buffer;
+    char *next_read;
     size_t buffer_size;
     size_t current;
     size_t length_read;
 };
 
 enum ConError con_reader_buffer_init(
+    struct ConReaderBuffer *context,
+    struct ConInterfaceReader reader,
+    char *buffer,
+    size_t buffer_size
+);
+enum ConError con_reader_double_buffer_init(
     struct ConReaderBuffer *context,
     struct ConInterfaceReader reader,
     char *buffer,

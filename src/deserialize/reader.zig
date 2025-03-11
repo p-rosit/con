@@ -112,6 +112,18 @@ pub const Buffer = struct {
         return self;
     }
 
+    pub fn double(reader: InterfaceReader, buffer: []u8) !Buffer {
+        var self: Buffer = undefined;
+        const err = lib.con_reader_double_buffer_init(
+            &self.inner,
+            reader.reader,
+            buffer.ptr,
+            buffer.len,
+        );
+        try internal.enumToError(err);
+        return self;
+    }
+
     pub fn interface(self: *Buffer) InterfaceReader {
         return .{ .reader = lib.con_reader_buffer_interface(&self.inner) };
     }
@@ -361,6 +373,31 @@ test "buffer clear error large" {
     const r2 = try reader.read(&buffer2);
     try testing.expectEqualStrings("222", r2);
     try testing.expectEqual(4, c1.inner.current);
+}
+
+test "double buffer clear error" {
+    var c1 = try String.init("122");
+    var c2 = try Fail.init(c1.interface(), 1);
+
+    var b: [4]u8 = undefined;
+    var context = try Buffer.double(c2.interface(), &b);
+    const reader = context.interface();
+
+    var buffer1: [1]u8 = undefined;
+    const r1 = try reader.read(&buffer1);
+    try testing.expectEqualStrings("1", r1);
+    try testing.expectEqual(2, c1.inner.current);
+
+    var buffer2: [2]u8 = undefined;
+    const err = reader.read(&buffer2);
+    try testing.expectError(error.Reader, err);
+    try testing.expectEqual(2, c1.inner.current);
+
+    c2.inner.amount_of_reads = 0; // Clear error
+
+    const r2 = try reader.read(&buffer2);
+    try testing.expectEqualStrings("22", r2);
+    try testing.expectEqual(3, c1.inner.current);
 }
 
 test "comment init" {
