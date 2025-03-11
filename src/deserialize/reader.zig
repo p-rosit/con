@@ -377,6 +377,33 @@ test "buffer clear error large" {
     try testing.expectEqual(2, c1.inner.current);
 }
 
+test "double buffer init" {
+    const d = "";
+    var c = try String.init(d);
+
+    var buffer: [4]u8 = undefined;
+    var context = try Buffer.double(c.interface(), &buffer);
+    _ = context.interface();
+}
+
+test "double buffer init small" {
+    const d = "";
+    var c = try String.init(d);
+
+    var buffer: [2]u8 = undefined;
+    const err = Buffer.double(c.interface(), &buffer);
+    try testing.expectError(error.Buffer, err);
+}
+
+test "double buffer init odd" {
+    const d = "";
+    var c = try String.init(d);
+
+    var buffer: [5]u8 = undefined;
+    const err = Buffer.double(c.interface(), &buffer);
+    try testing.expectError(error.Buffer, err);
+}
+
 test "double buffer clear error" {
     var c1 = try String.init("122");
     var c2 = try Fail.init(c1.interface(), 1);

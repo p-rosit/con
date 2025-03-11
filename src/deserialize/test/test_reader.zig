@@ -372,6 +372,90 @@ test "buffer clear error large" {
     try testing.expectEqual(2, c1.current);
 }
 
+test "double buffer init" {
+    const data = "";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [4]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_double_buffer_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+    _ = lib.con_reader_buffer_interface(&context);
+}
+
+test "double buffer init null" {
+    const data = "";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [4]u8 = undefined;
+    const init_err = lib.con_reader_double_buffer_init(
+        null,
+        lib.con_reader_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
+}
+
+test "double buffer init null buffer" {
+    const data = "";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_double_buffer_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+        null,
+        10,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), init_err);
+}
+
+test "double buffer init small" {
+    const data = "";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [2]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_double_buffer_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), init_err);
+}
+
+test "double buffer init odd" {
+    const data = "";
+    var c: lib.ConReaderString = undefined;
+    const i_err = lib.con_reader_string_init(&c, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var buffer: [5]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_double_buffer_init(
+        &context,
+        lib.con_reader_string_interface(&c),
+        &buffer,
+        buffer.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), init_err);
+}
+
 test "double buffer clear error" {
     const data = "122";
     var c1: lib.ConReaderString = undefined;
