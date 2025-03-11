@@ -14,17 +14,17 @@ enum ConContainer con_utils_container_from_char(char container) {
 }
 
 enum ConState con_utils_state_init(void) {
-    return STATE_EMPTY;
+    return CON_STATE_EMPTY;
 }
 
 char con_utils_state_to_char(enum ConState state) {
     assert(0 < state && state < CHAR_MAX);
-    assert(0 < state && state < STATE_MAX);
+    assert(0 < state && state < CON_STATE_MAX);
     return (char) state;
 }
 
 enum ConState con_utils_state_from_char(char state) {
-    assert(0 < state && state < STATE_MAX);
+    assert(0 < state && state < CON_STATE_MAX);
     return (enum ConState) state;
 }
 

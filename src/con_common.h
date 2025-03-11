@@ -25,13 +25,13 @@ enum ConError {
 };
 
 enum ConState {
-    STATE_UNKNOWN   = 0,
-    STATE_EMPTY     = 1,
-    STATE_FIRST     = 2,
-    STATE_LATER     = 3,
-    STATE_COMPLETE  = 4,
-    STATE_VALUE     = 5,
-    STATE_MAX,
+    CON_STATE_UNKNOWN   = 0,
+    CON_STATE_EMPTY     = 1,
+    CON_STATE_FIRST     = 2,
+    CON_STATE_LATER     = 3,
+    CON_STATE_COMPLETE  = 4,
+    CON_STATE_VALUE     = 5,
+    CON_STATE_MAX,
 };
 
 enum ConContainer {
