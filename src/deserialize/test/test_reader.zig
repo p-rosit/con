@@ -366,9 +366,8 @@ test "buffer clear error large" {
     c2.amount_of_reads = 0; // Clear error
 
     const length3 = lib.con_reader_read(reader, &buffer2, buffer2.len);
-    try testing.expectEqual(3, length3);
-    try testing.expectEqualStrings("222", &buffer2);
-    try testing.expectEqual(4, c1.current);
+    try testing.expectEqual(0, length3);
+    try testing.expectEqual(2, c1.current);
 }
 
 test "double buffer clear error" {
@@ -405,6 +404,42 @@ test "double buffer clear error" {
     try testing.expectEqual(2, length3);
     try testing.expectEqualStrings("22", &buffer2);
     try testing.expectEqual(3, c1.current);
+}
+
+test "double buffer clear error large" {
+    const data = "1222";
+    var c1: lib.ConReaderString = undefined;
+    const i1_err = lib.con_reader_string_init(&c1, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i1_err);
+
+    var c2: lib.ConReaderFail = undefined;
+    const i2_err = lib.con_reader_fail_init(&c2, lib.con_reader_string_interface(&c1), 1);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
+
+    var b: [4]u8 = undefined;
+    var context: lib.ConReaderBuffer = undefined;
+    const init_err = lib.con_reader_double_buffer_init(&context, lib.con_reader_fail_interface(&c2), &b, b.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const reader = lib.con_reader_buffer_interface(&context);
+
+    var buffer1: [1]u8 = undefined;
+    const length1 = lib.con_reader_read(reader, &buffer1, buffer1.len);
+    try testing.expectEqual(1, length1);
+    try testing.expectEqualStrings("1", &buffer1);
+    try testing.expectEqual(2, c1.current);
+
+    var buffer2: [3]u8 = undefined;
+    const length2 = lib.con_reader_read(reader, &buffer2, buffer2.len);
+    try testing.expectEqual(0, length2);
+    try testing.expectEqual(2, c1.current);
+
+    c2.amount_of_reads = 0; // Clear error
+
+    const length3 = lib.con_reader_read(reader, &buffer2, buffer2.len);
+    try testing.expectEqual(3, length3);
+    try testing.expectEqualStrings("222", &buffer2);
+    try testing.expectEqual(4, c1.current);
 }
 
 test "comment init" {

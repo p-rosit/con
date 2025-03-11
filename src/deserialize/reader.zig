@@ -364,15 +364,15 @@ test "buffer clear error large" {
     try testing.expectEqual(2, c1.inner.current);
 
     var buffer2: [3]u8 = undefined;
-    const err = reader.read(&buffer2);
-    try testing.expectError(error.Reader, err);
+    const err1 = reader.read(&buffer2);
+    try testing.expectError(error.Reader, err1);
     try testing.expectEqual(2, c1.inner.current);
 
     c2.inner.amount_of_reads = 0; // Clear error
 
-    const r2 = try reader.read(&buffer2);
-    try testing.expectEqualStrings("222", r2);
-    try testing.expectEqual(4, c1.inner.current);
+    const err2 = reader.read(&buffer2);
+    try testing.expectError(error.Reader, err2);
+    try testing.expectEqual(2, c1.inner.current);
 }
 
 test "double buffer clear error" {
@@ -398,6 +398,31 @@ test "double buffer clear error" {
     const r2 = try reader.read(&buffer2);
     try testing.expectEqualStrings("22", r2);
     try testing.expectEqual(3, c1.inner.current);
+}
+
+test "double buffer clear error large" {
+    var c1 = try String.init("1222");
+    var c2 = try Fail.init(c1.interface(), 1);
+
+    var b: [4]u8 = undefined;
+    var context = try Buffer.double(c2.interface(), &b);
+    const reader = context.interface();
+
+    var buffer1: [1]u8 = undefined;
+    const r1 = try reader.read(&buffer1);
+    try testing.expectEqualStrings("1", r1);
+    try testing.expectEqual(2, c1.inner.current);
+
+    var buffer2: [3]u8 = undefined;
+    const err = reader.read(&buffer2);
+    try testing.expectError(error.Reader, err);
+    try testing.expectEqual(2, c1.inner.current);
+
+    c2.inner.amount_of_reads = 0; // Clear error
+
+    const r2 = try reader.read(&buffer2);
+    try testing.expectEqualStrings("222", r2);
+    try testing.expectEqual(4, c1.inner.current);
 }
 
 test "comment init" {

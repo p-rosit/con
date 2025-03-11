@@ -178,6 +178,9 @@ size_t con_reader_buffer_read(void const *void_context, char *buffer, size_t buf
         if (buffer_size - read_length >= context->buffer_size) {
             size_t length = con_reader_read(context->reader, buffer + read_length, length_left);
             if (length == 0) {
+                if (context->buffer == context->next_read) {
+                    context->next_read = NULL;
+                }
                 context->current -= read_length;
                 read_length = 0;
             } else {
