@@ -345,6 +345,7 @@ test "buffer clear error" {
 
     c2.inner.amount_of_reads = 0; // Clear error
 
+    // Single buffered reader never recovers
     const err2 = reader.read(&buffer2);
     try testing.expectError(error.Reader, err2);
     try testing.expectEqual(2, c1.inner.current);
@@ -370,6 +371,7 @@ test "buffer clear error large" {
 
     c2.inner.amount_of_reads = 0; // Clear error
 
+    // Single buffered reader never recovers
     const err2 = reader.read(&buffer2);
     try testing.expectError(error.Reader, err2);
     try testing.expectEqual(2, c1.inner.current);
