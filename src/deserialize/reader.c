@@ -35,6 +35,8 @@ size_t con_reader_fail_read(void const *void_context, char *buffer, size_t buffe
 
         length = con_reader_read(context->reader, buffer, buffer_size);
         assert(length >= 0 || buffer_size == 0);
+    } else {
+        memset(buffer, 0, buffer_size);
     }
 
     return length;

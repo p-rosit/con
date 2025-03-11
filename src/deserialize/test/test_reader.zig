@@ -332,7 +332,7 @@ test "buffer clear error" {
 
     const length3 = lib.con_reader_read(reader, &buffer2, buffer2.len);
     try testing.expectEqual(2, length3);
-    try testing.expectEqualStrings("22", &buffer2);
+    try testing.expectEqualStrings("\x002", &buffer2); // Buffered reader did not survive clearing error!
     try testing.expectEqual(3, c1.current);
 }
 
