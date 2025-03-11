@@ -183,6 +183,7 @@ size_t con_reader_buffer_read(void const *void_context, char *buffer, size_t buf
             size_t length = con_reader_read(context->reader, context->next_read, context->buffer_size);
             if (length == 0) {
                 // if there was an error we rely on the buffer being untouched
+                assert(read_length <= context->current);
                 context->current -= read_length;
                 read_length = 0;
             } else {
