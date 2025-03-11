@@ -331,9 +331,8 @@ test "buffer clear error" {
     c2.amount_of_reads = 0; // Clear error
 
     const length3 = lib.con_reader_read(reader, &buffer2, buffer2.len);
-    try testing.expectEqual(2, length3);
-    try testing.expectEqualStrings("\x002", &buffer2); // Buffered reader did not survive clearing error!
-    try testing.expectEqual(3, c1.current);
+    try testing.expectEqual(0, length3);
+    try testing.expectEqual(2, c1.current);
 }
 
 test "buffer clear error large" {

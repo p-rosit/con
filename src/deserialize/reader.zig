@@ -339,15 +339,15 @@ test "buffer clear error" {
     try testing.expectEqual(2, c1.inner.current);
 
     var buffer2: [2]u8 = undefined;
-    const err = reader.read(&buffer2);
-    try testing.expectError(error.Reader, err);
+    const err1 = reader.read(&buffer2);
+    try testing.expectError(error.Reader, err1);
     try testing.expectEqual(2, c1.inner.current);
 
     c2.inner.amount_of_reads = 0; // Clear error
 
-    const r2 = try reader.read(&buffer2);
-    try testing.expectEqualStrings("\x002", r2); // Buffered reader did not survive clearing error!
-    try testing.expectEqual(3, c1.inner.current);
+    const err2 = reader.read(&buffer2);
+    try testing.expectError(error.Reader, err2);
+    try testing.expectEqual(2, c1.inner.current);
 }
 
 test "buffer clear error large" {
