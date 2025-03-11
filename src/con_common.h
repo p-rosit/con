@@ -35,9 +35,9 @@ enum ConState {
 };
 
 enum ConContainer {
-    CONTAINER_NONE  = 0,
-    CONTAINER_DICT  = 1,
-    CONTAINER_ARRAY = 2,
+    CON_CONTAINER_NONE  = 0,
+    CON_CONTAINER_DICT  = 1,
+    CON_CONTAINER_ARRAY = 2,
 };
 
 #endif

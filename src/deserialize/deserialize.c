@@ -66,7 +66,7 @@ enum ConError con_deserialize_array_open(struct ConDeserialize *context) {
     if (state_err) { return state_err; }
 
     assert(context->depth_buffer != NULL);
-    context->depth_buffer[context->depth] = con_utils_container_to_char(CONTAINER_ARRAY);
+    context->depth_buffer[context->depth] = con_utils_container_to_char(CON_CONTAINER_ARRAY);
     context->depth += 1;
 
     assert(context->buffer_char == '[');
@@ -100,7 +100,7 @@ enum ConError con_deserialize_array_close(struct ConDeserialize *context) {
     assert(current_state != CON_STATE_EMPTY);
 
     enum ConContainer current = con_deserialize_current_container(context);
-    if (current != CONTAINER_ARRAY) {
+    if (current != CON_CONTAINER_ARRAY) {
         return CON_ERROR_NOT_ARRAY;
     }
 
@@ -133,7 +133,7 @@ enum ConError con_deserialize_dict_open(struct ConDeserialize *context) {
     if (state_err) { return state_err; }
 
     assert(context->depth_buffer != NULL);
-    context->depth_buffer[context->depth] = con_utils_container_to_char(CONTAINER_DICT);
+    context->depth_buffer[context->depth] = con_utils_container_to_char(CON_CONTAINER_DICT);
     context->depth += 1;
 
     assert(context->buffer_char == '{');
@@ -167,7 +167,7 @@ enum ConError con_deserialize_dict_close(struct ConDeserialize *context) {
     assert(current_state != CON_STATE_EMPTY);
 
     enum ConContainer current = con_deserialize_current_container(context);
-    if (current != CONTAINER_DICT) {
+    if (current != CON_CONTAINER_DICT) {
         return CON_ERROR_NOT_DICT;
     }
 
@@ -193,7 +193,7 @@ enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct Co
     if (next != CON_DESERIALIZE_TYPE_DICT_KEY) { return CON_ERROR_TYPE; }
 
     enum ConContainer current = con_deserialize_current_container(context);
-    if (current != CONTAINER_DICT) {
+    if (current != CON_CONTAINER_DICT) {
         return CON_ERROR_NOT_DICT;
     }
 
@@ -404,7 +404,7 @@ enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum
 
     enum ConState state = con_utils_state_from_char(context->state);
     enum ConContainer container = con_deserialize_current_container(context);
-    bool expect_key = container == CONTAINER_DICT && (state == CON_STATE_FIRST || state == CON_STATE_LATER);
+    bool expect_key = container == CON_CONTAINER_DICT && (state == CON_STATE_FIRST || state == CON_STATE_LATER);
     if (isdigit((unsigned char) next) || next == '.' || next == '-') {
         *type = CON_DESERIALIZE_TYPE_NUMBER;
     } else if (next == '"' && expect_key) {
@@ -498,7 +498,7 @@ static inline enum ConError con_deserialize_internal_state_value(struct ConDeser
             break;
         case (CON_STATE_FIRST):
         case (CON_STATE_LATER):
-            if (current == CONTAINER_DICT) { return CON_ERROR_KEY; }
+            if (current == CON_CONTAINER_DICT) { return CON_ERROR_KEY; }
             context->state = con_utils_state_to_char(CON_STATE_LATER);
             break;
         case (CON_STATE_COMPLETE):
@@ -735,7 +735,7 @@ static inline enum ConContainer con_deserialize_current_container(struct ConDese
     assert(context != NULL);
 
     if (context->depth <= 0) {
-        return CONTAINER_NONE;
+        return CON_CONTAINER_NONE;
     }
 
     assert(context->depth_buffer_size >= 0);
@@ -743,6 +743,6 @@ static inline enum ConContainer con_deserialize_current_container(struct ConDese
     char container_char = context->depth_buffer[context->depth - 1];
     enum ConContainer container = con_utils_container_from_char(container_char);
 
-    assert(container == CONTAINER_ARRAY || container == CONTAINER_DICT);
+    assert(container == CON_CONTAINER_ARRAY || container == CON_CONTAINER_DICT);
     return (enum ConContainer) container;
 }

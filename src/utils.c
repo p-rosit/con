@@ -4,12 +4,12 @@
 #include "utils.h"
 
 char con_utils_container_to_char(enum ConContainer container) {
-    assert(container == CONTAINER_NONE || container == CONTAINER_DICT || container == CONTAINER_ARRAY);
+    assert(container == CON_CONTAINER_NONE || container == CON_CONTAINER_DICT || container == CON_CONTAINER_ARRAY);
     return (char) container;
 }
 
 enum ConContainer con_utils_container_from_char(char container) {
-    assert(container == CONTAINER_NONE || container == CONTAINER_DICT || container == CONTAINER_ARRAY);
+    assert(container == CON_CONTAINER_NONE || container == CON_CONTAINER_DICT || container == CON_CONTAINER_ARRAY);
     return (enum ConContainer) container;
 }
 
