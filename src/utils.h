@@ -1,7 +1,7 @@
 #ifndef CON_UTILS_H
 #define CON_UTILS_H
 #include <stdbool.h>
-#include "con_error.h"
+#include "con_common.h"
 
 enum ConJsonState {
     JSON_STATE_UNKNOWN      = 0,

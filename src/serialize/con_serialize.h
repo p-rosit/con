@@ -2,7 +2,7 @@
 #define CON_SERIALIZE_H
 #include <stddef.h>
 #include <stdbool.h>
-#include <con_error.h>
+#include <con_common.h>
 #include <con_interface_writer.h>
 
 // Context struct representing a single JSON element. Any items are written

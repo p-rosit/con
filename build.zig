@@ -28,7 +28,7 @@ pub fn build(b: *std.Build) void {
         .headers = &.{ "con_serialize.h", "con_interface_writer.h", "con_writer.h" },
     });
     serialize.linkLibrary(utils);
-    serialize.installHeader(b.path("src/con_error.h"), "con_error.h");
+    serialize.installHeader(b.path("src/con_common.h"), "con_common.h");
 
     const deserialize = buildCLib(b, allocator, .{
         .target = target,
@@ -39,7 +39,7 @@ pub fn build(b: *std.Build) void {
         .headers = &.{ "con_deserialize.h", "con_reader.h", "con_interface_reader.h" },
     });
     serialize.linkLibrary(utils);
-    deserialize.installHeader(b.path("src/con_error.h"), "con_error.h");
+    deserialize.installHeader(b.path("src/con_common.h"), "con_common.h");
 
     const con = b.addModule("con", .{
         .root_source_file = b.path("src/con.zig"),

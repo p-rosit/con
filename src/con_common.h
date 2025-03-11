@@ -1,5 +1,5 @@
-#ifndef CON_ERROR_H
-#define CON_ERROR_H
+#ifndef CON_COMMON_H
+#define CON_COMMON_H
 
 enum ConError {
     CON_ERROR_OK                = 0,

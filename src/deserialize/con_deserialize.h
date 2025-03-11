@@ -1,6 +1,6 @@
 #ifndef CON_DESERIALIZE_H
 #define CON_DESERIALIZE_H
-#include <con_error.h>
+#include <con_common.h>
 #include <con_interface_writer.h>
 #include <con_interface_reader.h>
 

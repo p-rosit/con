@@ -2,7 +2,7 @@
 #define CON_READER_H
 #include <stdbool.h>
 #include <stdio.h>
-#include <con_error.h>
+#include <con_common.h>
 #include <con_interface_reader.h>
 
 struct ConReaderFail {

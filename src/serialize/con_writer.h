@@ -2,7 +2,7 @@
 #define CON_WRITER_H
 #include <stdbool.h>
 #include <stdio.h>
-#include <con_error.h>
+#include <con_common.h>
 #include <con_interface_writer.h>
 
 // A writer that writes to a file, use `con_writer_file` to initialize.

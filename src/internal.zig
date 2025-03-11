@@ -5,7 +5,7 @@ pub const lib = @cImport({
     @cInclude("con_deserialize.h");
     @cInclude("con_interface_reader.h");
     @cInclude("con_reader.h");
-    @cInclude("con_error.h");
+    @cInclude("con_common.h");
 });
 
 pub fn enumToError(err: lib.ConError) !void {
