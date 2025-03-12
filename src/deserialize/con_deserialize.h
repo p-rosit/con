@@ -55,7 +55,7 @@ struct ConDeserialize {
     enum ConContainer *depth_buffer;
     int depth_buffer_size;
     int buffer_char;
-    char state;
+    enum ConState state;
     bool found_comma;
 };
 

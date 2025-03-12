@@ -4,6 +4,7 @@ const writer = @import("serialize/writer.zig");
 const deserialize = @import("deserialize/deserialize.zig");
 const reader = @import("deserialize/reader.zig");
 
+pub const State = lib.ConState;
 pub const Container = lib.ConContainer;
 
 pub const InterfaceWriter = writer.InterfaceWriter;

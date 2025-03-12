@@ -36,7 +36,7 @@ struct ConSerialize {
     size_t depth;
     enum ConContainer *depth_buffer;
     int depth_buffer_size;
-    char state;
+    enum ConState state;
 };
 
 // Initializes a serialization context which can then be used to write JSON

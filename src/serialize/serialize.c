@@ -20,7 +20,7 @@ enum ConError con_serialize_init(
     context->depth = 0;
     context->depth_buffer = depth_buffer;
     context->depth_buffer_size = depth_buffer_size;
-    context->state = con_utils_state_to_char(CON_STATE_EMPTY);
+    context->state = CON_STATE_EMPTY;
 
     return CON_ERROR_OK;
 }
@@ -42,7 +42,7 @@ enum ConError con_serialize_array_open(struct ConSerialize *context) {
     size_t result = con_writer_write(context->writer, "[", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 
-    context->state = con_utils_state_to_char(CON_STATE_FIRST);
+    context->state = CON_STATE_FIRST;
     return CON_ERROR_OK;
 }
 
@@ -65,9 +65,9 @@ enum ConError con_serialize_array_close(struct ConSerialize *context) {
     context->depth -= 1;
 
     if (context->depth == 0) {
-        context->state = con_utils_state_to_char(CON_STATE_COMPLETE);
+        context->state = CON_STATE_COMPLETE;
     } else {
-        context->state = con_utils_state_to_char(CON_STATE_LATER);
+        context->state = CON_STATE_LATER;
     }
     return CON_ERROR_OK;
 }
@@ -89,7 +89,7 @@ enum ConError con_serialize_dict_open(struct ConSerialize *context) {
     size_t result = con_writer_write(context->writer, "{", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 
-    context->state = con_utils_state_to_char(CON_STATE_FIRST);
+    context->state = CON_STATE_FIRST;
     return CON_ERROR_OK;
 }
 
@@ -112,9 +112,9 @@ enum ConError con_serialize_dict_close(struct ConSerialize *context) {
     context->depth -= 1;
 
     if (context->depth == 0) {
-        context->state = con_utils_state_to_char(CON_STATE_COMPLETE);
+        context->state = CON_STATE_COMPLETE;
     } else {
-        context->state = con_utils_state_to_char(CON_STATE_LATER);
+        context->state = CON_STATE_LATER;
     }
     return CON_ERROR_OK;
 }
@@ -129,7 +129,7 @@ enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *k
         return CON_ERROR_NOT_DICT;
     }
 
-    enum ConState state = con_utils_state_from_char(context->state);
+    enum ConState state = context->state;
     if (state != CON_STATE_FIRST && state != CON_STATE_LATER) {
         return CON_ERROR_VALUE;
     }
@@ -146,7 +146,7 @@ enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *k
     result = con_writer_write(context->writer, "\":", 2);
     if (result != 2) { return CON_ERROR_WRITER; }
 
-    context->state = con_utils_state_to_char(CON_STATE_VALUE);
+    context->state = CON_STATE_VALUE;
     return CON_ERROR_OK;
 }
 
@@ -217,13 +217,13 @@ static inline enum ConError con_serialize_value_prefix(struct ConSerialize *cont
     enum ConError key_err = con_serialize_requires_key(context);
     if (key_err) { return key_err; }
 
-    enum ConState state = con_utils_state_from_char(context->state);
+    enum ConState state = context->state;
     switch (state) {
         case (CON_STATE_EMPTY):
-            context->state = con_utils_state_to_char(CON_STATE_COMPLETE);
+            context->state = CON_STATE_COMPLETE;
             break;
         case (CON_STATE_FIRST):
-            context->state = con_utils_state_to_char(CON_STATE_LATER);
+            context->state = CON_STATE_LATER;
             break;
         case (CON_STATE_LATER): {
             size_t result = con_writer_write(context->writer, ",", 1);
@@ -233,7 +233,7 @@ static inline enum ConError con_serialize_value_prefix(struct ConSerialize *cont
         case (CON_STATE_COMPLETE):
             return CON_ERROR_COMPLETE;
         case (CON_STATE_VALUE):
-            context->state = con_utils_state_to_char(CON_STATE_LATER);
+            context->state = CON_STATE_LATER;
             break;
         default:
             assert(0);  // State is unknown
@@ -250,7 +250,7 @@ static inline enum ConError con_serialize_requires_key(struct ConSerialize *cont
     if (context->depth > 0) {
         assert(context->depth_buffer_size >= 0);
         enum ConContainer current = con_utils_container_current(context->depth_buffer, (size_t) context->depth_buffer_size, context->depth);
-        enum ConState state = con_utils_state_from_char(context->state);
+        enum ConState state = context->state;
 
         if (current == CON_CONTAINER_DICT && (state == CON_STATE_FIRST || state == CON_STATE_LATER)) {
             return CON_ERROR_KEY;
