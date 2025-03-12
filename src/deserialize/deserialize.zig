@@ -18,7 +18,7 @@ pub const Type = enum {
 pub const Deserialize = struct {
     inner: lib.ConDeserialize,
 
-    pub fn init(reader: zcon.InterfaceReader, depth: []u8) !Deserialize {
+    pub fn init(reader: zcon.InterfaceReader, depth: []zcon.Container) !Deserialize {
         if (depth.len > std.math.maxInt(c_int)) {
             return error.Overflow;
         }
@@ -108,7 +108,7 @@ test "context init" {
     const data = "";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     _ = try Deserialize.init(reader.interface(), &depth);
 }
 
@@ -116,7 +116,7 @@ test "context init depth buffer overflow" {
     const data = "";
     var reader = try zcon.ReaderString.init(data);
 
-    var fake_large_depth = try testing.allocator.alloc(u8, 2);
+    var fake_large_depth = try testing.allocator.alloc(zcon.Container, 2);
     fake_large_depth.len = @as(usize, std.math.maxInt(c_int)) + 1;
     defer {
         fake_large_depth.len = 2;
@@ -133,7 +133,7 @@ test "next empty" {
     const data = "  \n\t ";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err1 = context.next();
@@ -148,7 +148,7 @@ test "next error" {
     var r = try zcon.ReaderString.init(data);
     var reader = try zcon.ReaderFail.init(r.interface(), 0);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err1 = context.next();
@@ -162,7 +162,7 @@ test "next number" {
     const data = " 1";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const etype1 = try context.next();
@@ -176,7 +176,7 @@ test "next string" {
     const data = " \"abc\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const etype1 = try context.next();
@@ -190,7 +190,7 @@ test "next bool true" {
     const data = "  true";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const etype1 = try context.next();
@@ -204,7 +204,7 @@ test "next bool false" {
     const data = "\tfalse";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const etype1 = try context.next();
@@ -218,7 +218,7 @@ test "next null" {
     const data = "null";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const etype1 = try context.next();
@@ -232,7 +232,7 @@ test "next array open" {
     const data = "[";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const etype1 = try context.next();
@@ -246,7 +246,7 @@ test "next array close" {
     const data = "[]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -264,7 +264,7 @@ test "next array first" {
     const data = "[true]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -282,7 +282,7 @@ test "next array second" {
     const data = "[null, 0.0]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -302,7 +302,7 @@ test "next dict open" {
     const data = "{";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const etype1 = try context.next();
@@ -316,7 +316,7 @@ test "next dict close" {
     const data = "{}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -332,7 +332,7 @@ test "next dict key" {
     const data = "{\"k\":";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -350,7 +350,7 @@ test "next dict first" {
     const data = "{\"k\":\"a\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -373,7 +373,7 @@ test "next dict second" {
     const data = "{\"k\":\"a\",\"m\":\"b\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -405,7 +405,7 @@ test "number int-like" {
     const data = "-6";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [4]u8 = undefined;
@@ -419,7 +419,7 @@ test "number float-like" {
     const data = "0.3";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [5]u8 = undefined;
@@ -433,7 +433,7 @@ test "number scientific-like" {
     const data = "2e+4";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [5]u8 = undefined;
@@ -447,7 +447,7 @@ test "number small" {
     const data = "";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [0]u8 = undefined;
@@ -462,7 +462,7 @@ test "number reader fail" {
     var buffer: [5]u8 = undefined;
     var writer: zcon.WriterString = undefined;
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context: Deserialize = undefined;
 
     const data1 = "2.";
@@ -507,7 +507,7 @@ test "number invalid" {
     var buffer: [5]u8 = undefined;
     var writer: zcon.WriterString = undefined;
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const data1 = "+";
@@ -531,7 +531,7 @@ test "string" {
     const data = "\"a b\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [5]u8 = undefined;
@@ -545,7 +545,7 @@ test "string escaped" {
     const data = "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u12f4\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [16]u8 = undefined;
@@ -560,7 +560,7 @@ test "string invalid" {
     var buffer: [5]u8 = undefined;
     var writer: zcon.WriterString = undefined;
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const data1 = "ab\"";
@@ -611,7 +611,7 @@ test "bool true" {
     const data = "true";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const val = try context.bool();
@@ -622,7 +622,7 @@ test "bool false" {
     const data = "false";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const val = try context.bool();
@@ -630,7 +630,7 @@ test "bool false" {
 }
 
 test "bool invalid" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var reader: zcon.ReaderString = undefined;
     var context: Deserialize = undefined;
 
@@ -675,14 +675,14 @@ test "null" {
     const data = "null";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.null();
 }
 
 test "null invalid" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var reader: zcon.ReaderString = undefined;
     var context: Deserialize = undefined;
 
@@ -711,7 +711,7 @@ test "array open" {
     const data = "[";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -721,7 +721,7 @@ test "array open too many" {
     const data = "[";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err = context.arrayOpen();
@@ -732,7 +732,7 @@ test "array nested open too many" {
     const data = "[1,[";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -751,7 +751,7 @@ test "array open reader fail" {
     const data = "";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err = context.arrayOpen();
@@ -762,7 +762,7 @@ test "array close" {
     const data = "[]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -773,7 +773,7 @@ test "array close too many" {
     const data = "]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err = context.arrayClose();
@@ -784,7 +784,7 @@ test "array close reader fail" {
     const data = "[";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -796,7 +796,7 @@ test "dict open" {
     const data = "{";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -806,7 +806,7 @@ test "dict open too many" {
     const data = "{";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err = context.dictOpen();
@@ -817,7 +817,7 @@ test "dict nested open too many" {
     const data = "[1,{";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -836,7 +836,7 @@ test "dict open reader fail" {
     const data = "";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err = context.dictOpen();
@@ -847,7 +847,7 @@ test "dict close" {
     const data = "{}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -858,7 +858,7 @@ test "dict close too many" {
     const data = "}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const err = context.dictClose();
@@ -869,7 +869,7 @@ test "dict close reader fail" {
     const data = "{";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -884,7 +884,7 @@ test "dict key" {
     const data = "{\"k\":";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -901,7 +901,7 @@ test "dict key multiple" {
     const data = "{\"k\":null,\"m\":";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -923,7 +923,7 @@ test "dict key reader fail" {
     const data = "{\"k";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -942,7 +942,7 @@ test "dict key colon reader fail" {
     const data = "{\"k\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -961,7 +961,7 @@ test "dict key comma extra" {
     const data = "{\"k\":,null";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -981,7 +981,7 @@ test "dict key comma missing" {
     const data = "{\"k\":null\"m\":";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1003,7 +1003,7 @@ test "dict key comma reader fail" {
     const data = "{\"k\":null";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1025,7 +1025,7 @@ test "dict key outside dict" {
     const data = "\"k\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [1]u8 = undefined;
@@ -1040,7 +1040,7 @@ test "dict key in array" {
     const data = "[\"k\":";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1059,7 +1059,7 @@ test "dict key twice" {
     const data = "{\"k\":\"m\":";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1079,7 +1079,7 @@ test "dict number key missing" {
     const data = "{3";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1097,7 +1097,7 @@ test "dict number second key missing" {
     const data = "{\"k\":3,4";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1122,7 +1122,7 @@ test "dict string key missing" {
     const data = "{\"k\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1140,7 +1140,7 @@ test "dict string second key missing" {
     const data = "{\"k\":\"a\",\"b\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1165,7 +1165,7 @@ test "dict array key missing" {
     const data = "{[";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1180,7 +1180,7 @@ test "dict array second key missing" {
     const data = "{\"k\":[],[";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1203,7 +1203,7 @@ test "dict dict key missing" {
     const data = "{{";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1218,7 +1218,7 @@ test "dict dict second key missing" {
     const data = "{\"k\":{},{";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1243,7 +1243,7 @@ test "array open -> dict close" {
     const data = "[}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1256,7 +1256,7 @@ test "dict open -> array close" {
     const data = "{]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1269,7 +1269,7 @@ test "array first trailing comma" {
     const data = "[,]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1281,7 +1281,7 @@ test "array later trailing comma" {
     const data = "[1,]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1302,7 +1302,7 @@ test "array number single" {
     const data = "[2]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1322,7 +1322,7 @@ test "array number multiple" {
     const data = "[2,3]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1345,7 +1345,7 @@ test "array number comma missing" {
     const data = "[2 3";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1366,7 +1366,7 @@ test "array number comma reader fail" {
     const data = "[2";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1387,7 +1387,7 @@ test "array string single" {
     const data = "[\"a\"]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1407,7 +1407,7 @@ test "array string multiple" {
     const data = "[\"a\",\"b\"]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1430,7 +1430,7 @@ test "array string comma missing" {
     const data = "[\"a\" \"b\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1451,7 +1451,7 @@ test "array string comma reader fail" {
     const data = "[\"a\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1472,7 +1472,7 @@ test "array bool single" {
     const data = "[true]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1489,7 +1489,7 @@ test "array bool multiple" {
     const data = "[false, true]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1509,7 +1509,7 @@ test "array bool comma missing" {
     const data = "[false true";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1527,7 +1527,7 @@ test "array bool comma reader fail" {
     const data = "[false";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1545,7 +1545,7 @@ test "array null single" {
     const data = "[null]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1561,7 +1561,7 @@ test "array null multiple" {
     const data = "[null, null]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1578,7 +1578,7 @@ test "array null comma missing" {
     const data = "[null null";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1594,7 +1594,7 @@ test "array null comma reader fail" {
     const data = "[null";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1610,7 +1610,7 @@ test "array array single" {
     const data = "[[]]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1627,7 +1627,7 @@ test "array array multiple" {
     const data = "[[], []]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1647,7 +1647,7 @@ test "array array comma missing" {
     const data = "[[] [";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1665,7 +1665,7 @@ test "array array comma reader fail" {
     const data = "[[]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1683,7 +1683,7 @@ test "array dict single" {
     const data = "[{}]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1700,7 +1700,7 @@ test "array dict multiple" {
     const data = "[{}, {}]";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1720,7 +1720,7 @@ test "array dict comma missing" {
     const data = "[{} {";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1738,7 +1738,7 @@ test "array dict comma reader fail" {
     const data = "[{}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.arrayOpen();
@@ -1756,7 +1756,7 @@ test "dict number single" {
     const data = "{\"k\":1}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1779,7 +1779,7 @@ test "dict string single" {
     const data = "{\"k\":\"a\"}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1802,7 +1802,7 @@ test "dict bool single" {
     const data = "{\"k\":true}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1825,7 +1825,7 @@ test "dict null single" {
     const data = "{\"k\":null}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1847,7 +1847,7 @@ test "dict array single" {
     const data = "{\"k\":[]}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1870,7 +1870,7 @@ test "dict dict single" {
     const data = "{\"k\":{}}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.dictOpen();
@@ -1895,7 +1895,7 @@ test "number complete" {
     const data = "[] 1";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [1]u8 = undefined;
@@ -1912,7 +1912,7 @@ test "string complete" {
     const data = "{} \"a\"";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [1]u8 = undefined;
@@ -1929,7 +1929,7 @@ test "bool complete" {
     const data = "1 true";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [1]u8 = undefined;
@@ -1946,7 +1946,7 @@ test "null complete" {
     const data = "\"a\" null";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [1]u8 = undefined;
@@ -1963,7 +1963,7 @@ test "array complete" {
     const data = "true []";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     const r = try context.bool();
@@ -1977,7 +1977,7 @@ test "dict complete" {
     const data = "null {}";
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     try context.null();
@@ -2006,7 +2006,7 @@ test "nested structures" {
     ;
     var reader = try zcon.ReaderString.init(data);
 
-    var depth: [3]u8 = undefined;
+    var depth: [3]zcon.Container = undefined;
     var context = try Deserialize.init(reader.interface(), &depth);
 
     var buffer: [5]u8 = undefined;

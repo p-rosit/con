@@ -3,7 +3,7 @@ const lib = @import("../../internal.zig").lib;
 
 test "context init" {
     var reader: lib.ConReaderString = undefined;
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -16,7 +16,7 @@ test "context init" {
 
 test "context init null" {
     var reader: lib.ConReaderString = undefined;
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     const init_err = lib.con_deserialize_init(
         null,
         lib.con_reader_string_interface(&reader),
@@ -51,7 +51,7 @@ test "context depth null, length zero" {
 
 test "context depth negative" {
     var reader: lib.ConReaderString = undefined;
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -70,7 +70,7 @@ test "next empty" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -102,7 +102,7 @@ test "next error" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -126,7 +126,7 @@ test "next number" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -152,7 +152,7 @@ test "next string" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -178,7 +178,7 @@ test "next bool true" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -204,7 +204,7 @@ test "next bool false" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -230,7 +230,7 @@ test "next null" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -256,7 +256,7 @@ test "next array open" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -282,7 +282,7 @@ test "next array close" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -311,7 +311,7 @@ test "next array first" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -342,7 +342,7 @@ test "next array second" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -376,7 +376,7 @@ test "next dict open" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -402,7 +402,7 @@ test "next dict close" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -431,7 +431,7 @@ test "next dict key" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -460,7 +460,7 @@ test "next dict first" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -500,7 +500,7 @@ test "next dict second" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -550,7 +550,7 @@ test "number int-like" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -572,7 +572,7 @@ test "number float-like" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -594,7 +594,7 @@ test "number scientific-like" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -616,7 +616,7 @@ test "number small" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -635,7 +635,7 @@ test "number reader fail" {
     var buffer: [6]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
 
     const data1 = "2.";
@@ -692,7 +692,7 @@ test "number invalid" {
     var buffer: [6]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
 
     const data1 = "+";
@@ -725,7 +725,7 @@ test "string" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -747,7 +747,7 @@ test "string escaped" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -768,7 +768,7 @@ test "string invalid" {
     var buffer: [6]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
 
     const data1 = "ab\"";
@@ -837,7 +837,7 @@ test "bool true" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -854,7 +854,7 @@ test "bool false" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -866,7 +866,7 @@ test "bool false" {
 }
 
 test "bool invalid" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var reader: lib.ConReaderString = undefined;
     var context: lib.ConDeserialize = undefined;
     var value: bool = undefined;
@@ -926,7 +926,7 @@ test "null" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -936,7 +936,7 @@ test "null" {
 }
 
 test "null invalid" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var reader: lib.ConReaderString = undefined;
     var context: lib.ConDeserialize = undefined;
 
@@ -973,7 +973,7 @@ test "array open" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -988,7 +988,7 @@ test "array open too many" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1003,7 +1003,7 @@ test "array nested open too many" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1031,7 +1031,7 @@ test "array open reader fail" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1046,7 +1046,7 @@ test "array close" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1064,7 +1064,7 @@ test "array close too many" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1079,7 +1079,7 @@ test "array close reader fail" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1097,7 +1097,7 @@ test "dict open" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1112,7 +1112,7 @@ test "dict open too many" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1127,7 +1127,7 @@ test "dict nested open too many" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1155,7 +1155,7 @@ test "dict open reader fail" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1170,7 +1170,7 @@ test "dict close" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1188,7 +1188,7 @@ test "dict close too many" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1203,7 +1203,7 @@ test "dict close reader fail" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1223,7 +1223,7 @@ test "dict key" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1254,7 +1254,7 @@ test "dict key multiple" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1292,7 +1292,7 @@ test "dict key reader fail" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1324,7 +1324,7 @@ test "dict key colon reader fail" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1356,7 +1356,7 @@ test "dict key comma extra" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1390,7 +1390,7 @@ test "dict key comma missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1427,7 +1427,7 @@ test "dict key comma reader fail" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1464,7 +1464,7 @@ test "dict key outside dict" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1490,7 +1490,7 @@ test "dict key in array" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1520,7 +1520,7 @@ test "dict key twice" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1555,7 +1555,7 @@ test "dict number key missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1585,7 +1585,7 @@ test "dict number second key missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1623,7 +1623,7 @@ test "dict string key missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1653,7 +1653,7 @@ test "dict string second key missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1691,7 +1691,7 @@ test "dict array key missing" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1716,7 +1716,7 @@ test "dict array second key missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1754,7 +1754,7 @@ test "dict dict key missing" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1779,7 +1779,7 @@ test "dict dict second key missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
@@ -1819,7 +1819,7 @@ test "array open -> dict close" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1837,7 +1837,7 @@ test "dict open -> array close" {
     const i_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1855,7 +1855,7 @@ test "array first trailing comma" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1873,7 +1873,7 @@ test "array later trailing comma" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1902,7 +1902,7 @@ test "array number single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1931,7 +1931,7 @@ test "array number multiple" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1964,7 +1964,7 @@ test "array number comma missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -1993,7 +1993,7 @@ test "array number comma reader fail" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2022,7 +2022,7 @@ test "array string single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2051,7 +2051,7 @@ test "array string multiple" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2084,7 +2084,7 @@ test "array string comma missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2113,7 +2113,7 @@ test "array string comma reader fail" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2142,7 +2142,7 @@ test "array bool single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2167,7 +2167,7 @@ test "array bool multiple" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2197,7 +2197,7 @@ test "array bool comma missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2223,7 +2223,7 @@ test "array bool comma reader fail" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2249,7 +2249,7 @@ test "array null single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2272,7 +2272,7 @@ test "array null multiple" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2298,7 +2298,7 @@ test "array null comma missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2321,7 +2321,7 @@ test "array null comma reader fail" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2344,7 +2344,7 @@ test "array array single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2370,7 +2370,7 @@ test "array array multiple" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2402,7 +2402,7 @@ test "array array comma missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2428,7 +2428,7 @@ test "array array comma reader fail" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2454,7 +2454,7 @@ test "array dict single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2480,7 +2480,7 @@ test "array dict multiple" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2512,7 +2512,7 @@ test "array dict comma missing" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2538,7 +2538,7 @@ test "array dict comma reader fail" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2564,7 +2564,7 @@ test "dict number single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2597,7 +2597,7 @@ test "dict string single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2630,7 +2630,7 @@ test "dict bool single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2664,7 +2664,7 @@ test "dict null single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2696,7 +2696,7 @@ test "dict array single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2731,7 +2731,7 @@ test "dict dict single" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2768,7 +2768,7 @@ test "number complete" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2793,7 +2793,7 @@ test "string complete" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2818,7 +2818,7 @@ test "bool complete" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2843,7 +2843,7 @@ test "null complete" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2867,7 +2867,7 @@ test "array complete" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2887,7 +2887,7 @@ test "dict complete" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
@@ -2921,7 +2921,7 @@ test "nested structures" {
     const ir_err = lib.con_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
-    var depth: [3]u8 = undefined;
+    var depth: [3]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);

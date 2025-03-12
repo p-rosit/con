@@ -3,7 +3,7 @@ const lib = @import("../../internal.zig").lib;
 
 test "context init" {
     var writer: lib.ConWriterString = undefined;
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -16,7 +16,7 @@ test "context init" {
 
 test "context init null" {
     var writer: lib.ConWriterString = undefined;
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
 
     const init_err = lib.con_serialize_init(
         null,
@@ -57,7 +57,7 @@ test "context depth negative" {
     const init_err = lib.con_serialize_init(
         &context,
         lib.con_writer_string_interface(&writer),
-        @ptrFromInt(1),
+        @ptrFromInt(256),
         -1,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_BUFFER), init_err);
@@ -71,7 +71,7 @@ test "number int-like" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -91,7 +91,7 @@ test "number float-like" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -111,7 +111,7 @@ test "number scientific-like" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -131,7 +131,7 @@ test "number null" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -151,7 +151,7 @@ test "number writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -171,7 +171,7 @@ test "number empty" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -191,7 +191,7 @@ test "string" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -211,7 +211,7 @@ test "string null" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -231,7 +231,7 @@ test "string first quote writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -251,7 +251,7 @@ test "string body writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -272,7 +272,7 @@ test "string second quote writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -293,7 +293,7 @@ test "bool true" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -315,7 +315,7 @@ test "bool true writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -335,7 +335,7 @@ test "bool false" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -357,7 +357,7 @@ test "bool false writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -378,7 +378,7 @@ test "null" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
     var context: lib.ConSerialize = undefined;
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     const init_err = lib.con_serialize_init(
         &context,
         lib.con_writer_string_interface(&writer),
@@ -399,7 +399,7 @@ test "null writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -421,7 +421,7 @@ test "array open" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -443,7 +443,7 @@ test "array open too many" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -463,7 +463,7 @@ test "array nested open too many" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -492,7 +492,7 @@ test "array open writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -512,7 +512,7 @@ test "array close" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -537,7 +537,7 @@ test "array close too many" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -557,7 +557,7 @@ test "array close writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -581,7 +581,7 @@ test "dict open" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -603,7 +603,7 @@ test "dict open too many" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -623,7 +623,7 @@ test "dict nested open too many" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -652,7 +652,7 @@ test "dict open writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -672,7 +672,7 @@ test "dict close" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -697,7 +697,7 @@ test "dict close too many" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -717,7 +717,7 @@ test "dict close writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -743,7 +743,7 @@ test "dict key" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -770,7 +770,7 @@ test "dict key multiple" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -803,7 +803,7 @@ test "dict key null" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -829,7 +829,7 @@ test "dict key first quote writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -855,7 +855,7 @@ test "dict key body writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -881,7 +881,7 @@ test "dict key second quote writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -907,7 +907,7 @@ test "dict key colon writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -933,7 +933,7 @@ test "dict key comma writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -964,7 +964,7 @@ test "dict key outside dict" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -984,7 +984,7 @@ test "dict key in array" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1009,7 +1009,7 @@ test "dict key twice" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1037,7 +1037,7 @@ test "dict number key missing" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1062,7 +1062,7 @@ test "dict number second key missing" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1092,7 +1092,7 @@ test "dict string key missing" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1117,7 +1117,7 @@ test "dict string second key missing" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1147,7 +1147,7 @@ test "dict array key missing" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1172,7 +1172,7 @@ test "dict array second key missing" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1202,7 +1202,7 @@ test "dict dict key missing" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1227,7 +1227,7 @@ test "dict dict second key missing" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1259,7 +1259,7 @@ test "array open -> dict close" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1282,7 +1282,7 @@ test "dict open -> array close" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1305,7 +1305,7 @@ test "array number single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1335,7 +1335,7 @@ test "array number multiple" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1368,7 +1368,7 @@ test "array number comma writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1397,7 +1397,7 @@ test "array string single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1427,7 +1427,7 @@ test "array string multiple" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1460,7 +1460,7 @@ test "array string comma writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1489,7 +1489,7 @@ test "array bool single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1519,7 +1519,7 @@ test "array bool multiple" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1552,7 +1552,7 @@ test "array bool comma writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1581,7 +1581,7 @@ test "array null single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1611,7 +1611,7 @@ test "array null multiple" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1644,7 +1644,7 @@ test "array null comma writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1673,7 +1673,7 @@ test "array array single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1704,7 +1704,7 @@ test "array array multiple" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1740,7 +1740,7 @@ test "array array comma writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1772,7 +1772,7 @@ test "array dict single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1803,7 +1803,7 @@ test "array dict multiple" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1839,7 +1839,7 @@ test "array dict comma writer fail" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1871,7 +1871,7 @@ test "dict number single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1903,7 +1903,7 @@ test "dict string single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1935,7 +1935,7 @@ test "dict bool true single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1967,7 +1967,7 @@ test "dict bool false single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -1999,7 +1999,7 @@ test "dict null single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2031,7 +2031,7 @@ test "dict array single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2066,7 +2066,7 @@ test "dict dict single" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [2]u8 = undefined;
+    var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2103,7 +2103,7 @@ test "number complete" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2130,7 +2130,7 @@ test "string complete" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2157,7 +2157,7 @@ test "bool complete" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2182,7 +2182,7 @@ test "null complete" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [0]u8 = undefined;
+    var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2207,7 +2207,7 @@ test "array complete" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2232,7 +2232,7 @@ test "dict complete" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2259,7 +2259,7 @@ test "nested structures" {
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
 
-    var depth: [3]u8 = undefined;
+    var depth: [3]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,
@@ -2334,7 +2334,7 @@ test "indent writer" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), indent_err);
 
-    var depth: [3]u8 = undefined;
+    var depth: [3]lib.ConContainer = undefined;
     var context: lib.ConSerialize = undefined;
     const init_err = lib.con_serialize_init(
         &context,

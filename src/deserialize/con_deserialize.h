@@ -52,7 +52,7 @@ enum ConDeserializeType {
 struct ConDeserialize {
     struct ConInterfaceReader reader;
     size_t depth;
-    char *depth_buffer;
+    enum ConContainer *depth_buffer;
     int depth_buffer_size;
     int buffer_char;
     char state;
@@ -82,7 +82,7 @@ struct ConDeserialize {
 enum ConError con_deserialize_init(
     struct ConDeserialize *context,
     struct ConInterfaceReader reader,
-    char *depth_buffer,
+    enum ConContainer *depth_buffer,
     int depth_buffer_size
 );
 

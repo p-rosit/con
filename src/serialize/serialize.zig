@@ -6,7 +6,7 @@ const lib = internal.lib;
 pub const Serialize = struct {
     inner: lib.ConSerialize,
 
-    pub fn init(writer: zcon.InterfaceWriter, depth: []u8) !Serialize {
+    pub fn init(writer: zcon.InterfaceWriter, depth: []lib.ConContainer) !Serialize {
         if (depth.len > std.math.maxInt(c_int)) {
             return error.Overflow;
         }
@@ -82,7 +82,7 @@ test "context init" {
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
 
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     const context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 }
@@ -92,7 +92,7 @@ test "context init depth buffer overflow" {
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
 
-    var fake_large_depth = try testing.allocator.alloc(u8, 2);
+    var fake_large_depth = try testing.allocator.alloc(zcon.Container, 2);
     fake_large_depth.len = @as(usize, std.math.maxInt(c_int)) + 1;
     defer {
         fake_large_depth.len = 2;
@@ -106,7 +106,7 @@ test "context init depth buffer overflow" {
 // Section: Values -------------------------------------------------------------
 
 test "number int-like" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -118,7 +118,7 @@ test "number int-like" {
 }
 
 test "number float-like" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -130,7 +130,7 @@ test "number float-like" {
 }
 
 test "number scientific-like" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -142,7 +142,7 @@ test "number scientific-like" {
 }
 
 test "number writer fail" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -154,7 +154,7 @@ test "number writer fail" {
 }
 
 test "number empty" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -166,7 +166,7 @@ test "number empty" {
 }
 
 test "string" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -178,7 +178,7 @@ test "string" {
 }
 
 test "string first quote writer fail" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -190,7 +190,7 @@ test "string first quote writer fail" {
 }
 
 test "string body writer fail" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -203,7 +203,7 @@ test "string body writer fail" {
 }
 
 test "string second quote writer fail" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -216,7 +216,7 @@ test "string second quote writer fail" {
 }
 
 test "bool true" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -228,7 +228,7 @@ test "bool true" {
 }
 
 test "bool true writer fail" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -240,7 +240,7 @@ test "bool true writer fail" {
 }
 
 test "bool false" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -252,7 +252,7 @@ test "bool false" {
 }
 
 test "bool false writer fail" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -264,7 +264,7 @@ test "bool false writer fail" {
 }
 
 test "null" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -276,7 +276,7 @@ test "null" {
 }
 
 test "null writer fail" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -290,7 +290,7 @@ test "null writer fail" {
 // Section: Containers ---------------------------------------------------------
 
 test "array open" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -302,7 +302,7 @@ test "array open" {
 }
 
 test "array open too many" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -314,7 +314,7 @@ test "array open too many" {
 }
 
 test "array nested open too many" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -333,7 +333,7 @@ test "array nested open too many" {
 }
 
 test "array open writer fail" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -345,7 +345,7 @@ test "array open writer fail" {
 }
 
 test "array close" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -358,7 +358,7 @@ test "array close" {
 }
 
 test "array close too many" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -370,7 +370,7 @@ test "array close too many" {
 }
 
 test "array close writer fail" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -385,7 +385,7 @@ test "array close writer fail" {
 }
 
 test "dict open" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -397,7 +397,7 @@ test "dict open" {
 }
 
 test "dict open too many" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -409,7 +409,7 @@ test "dict open too many" {
 }
 
 test "dict nested open too many" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -428,7 +428,7 @@ test "dict nested open too many" {
 }
 
 test "dict open writer fail" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -440,7 +440,7 @@ test "dict open writer fail" {
 }
 
 test "dict close" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -453,7 +453,7 @@ test "dict close" {
 }
 
 test "dict close too many" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -465,7 +465,7 @@ test "dict close too many" {
 }
 
 test "dict close writer fail" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -482,7 +482,7 @@ test "dict close writer fail" {
 // Section: Dict key -----------------------------------------------------------
 
 test "dict key" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -498,7 +498,7 @@ test "dict key" {
 }
 
 test "dict key multiple" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [13]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -517,7 +517,7 @@ test "dict key multiple" {
 }
 
 test "dict key comma writer fail" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -537,7 +537,7 @@ test "dict key comma writer fail" {
 }
 
 test "dict key outside dict" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -549,7 +549,7 @@ test "dict key outside dict" {
 }
 
 test "dict key in array" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -565,7 +565,7 @@ test "dict key in array" {
 }
 
 test "dict key twice" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -583,7 +583,7 @@ test "dict key twice" {
 }
 
 test "dict number key missing" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -599,7 +599,7 @@ test "dict number key missing" {
 }
 
 test "dict number second key missing" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -619,7 +619,7 @@ test "dict number second key missing" {
 }
 
 test "dict string key missing" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -635,7 +635,7 @@ test "dict string key missing" {
 }
 
 test "dict string second key missing" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [8]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -655,7 +655,7 @@ test "dict string second key missing" {
 }
 
 test "dict array key missing" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -671,7 +671,7 @@ test "dict array key missing" {
 }
 
 test "dict array second key missing" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -691,7 +691,7 @@ test "dict array second key missing" {
 }
 
 test "dict dict key missing" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -707,7 +707,7 @@ test "dict dict key missing" {
 }
 
 test "dict dict second key missing" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -729,7 +729,7 @@ test "dict dict second key missing" {
 // Section: Combinations of containers -----------------------------------------
 
 test "array open -> dict close" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -743,7 +743,7 @@ test "array open -> dict close" {
 }
 
 test "dict open -> array close" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -757,7 +757,7 @@ test "dict open -> array close" {
 }
 
 test "array number single" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -776,7 +776,7 @@ test "array number single" {
 }
 
 test "array number multiple" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -796,7 +796,7 @@ test "array number multiple" {
 }
 
 test "array number comma writer fail" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -815,7 +815,7 @@ test "array number comma writer fail" {
 }
 
 test "array string single" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -834,7 +834,7 @@ test "array string single" {
 }
 
 test "array string multiple" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [9]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -854,7 +854,7 @@ test "array string multiple" {
 }
 
 test "array string comma writer fail" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -873,7 +873,7 @@ test "array string comma writer fail" {
 }
 
 test "array bool single" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -892,7 +892,7 @@ test "array bool single" {
 }
 
 test "array bool multiple" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [12]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -912,7 +912,7 @@ test "array bool multiple" {
 }
 
 test "array bool comma writer fail" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -931,7 +931,7 @@ test "array bool comma writer fail" {
 }
 
 test "array null single" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [6]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -950,7 +950,7 @@ test "array null single" {
 }
 
 test "array null multiple" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [11]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -970,7 +970,7 @@ test "array null multiple" {
 }
 
 test "array null comma writer fail" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [5]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -989,7 +989,7 @@ test "array null comma writer fail" {
 }
 
 test "array array single" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1009,7 +1009,7 @@ test "array array single" {
 }
 
 test "array array multiple" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1032,7 +1032,7 @@ test "array array multiple" {
 }
 
 test "array array comma writer fail" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1052,7 +1052,7 @@ test "array array comma writer fail" {
 }
 
 test "array dict single" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1072,7 +1072,7 @@ test "array dict single" {
 }
 
 test "array dict multiple" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1095,7 +1095,7 @@ test "array dict multiple" {
 }
 
 test "array dict comma writer fail" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1115,7 +1115,7 @@ test "array dict comma writer fail" {
 }
 
 test "dict number single" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [7]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1135,7 +1135,7 @@ test "dict number single" {
 }
 
 test "dict string single" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [9]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1155,7 +1155,7 @@ test "dict string single" {
 }
 
 test "dict bool single" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [10]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1175,7 +1175,7 @@ test "dict bool single" {
 }
 
 test "dict null single" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [10]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1195,7 +1195,7 @@ test "dict null single" {
 }
 
 test "dict array single" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [8]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1216,7 +1216,7 @@ test "dict array single" {
 }
 
 test "dict dict single" {
-    var depth: [2]u8 = undefined;
+    var depth: [2]zcon.Container = undefined;
     var buffer: [8]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1239,7 +1239,7 @@ test "dict dict single" {
 // Section: Completed ----------------------------------------------------------
 
 test "number complete" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1255,7 +1255,7 @@ test "number complete" {
 }
 
 test "string complete" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [2]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1271,7 +1271,7 @@ test "string complete" {
 }
 
 test "bool complete" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [1]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1286,7 +1286,7 @@ test "bool complete" {
 }
 
 test "null complete" {
-    var depth: [0]u8 = undefined;
+    var depth: [0]zcon.Container = undefined;
     var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1301,7 +1301,7 @@ test "null complete" {
 }
 
 test "array complete" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1316,7 +1316,7 @@ test "array complete" {
 }
 
 test "dict complete" {
-    var depth: [1]u8 = undefined;
+    var depth: [1]zcon.Container = undefined;
     var buffer: [4]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1333,7 +1333,7 @@ test "dict complete" {
 // Section: Integration test ---------------------------------------------------
 
 test "nested structures" {
-    var depth: [3]u8 = undefined;
+    var depth: [3]zcon.Container = undefined;
     var buffer: [55]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
@@ -1374,7 +1374,7 @@ test "nested structures" {
 }
 
 test "indent writer" {
-    var depth: [3]u8 = undefined;
+    var depth: [3]zcon.Container = undefined;
     var buffer: [119]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var c = ConFifo.init(&fifo.writer());

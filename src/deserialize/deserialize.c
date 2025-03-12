@@ -29,7 +29,7 @@ static inline bool con_deserialize_state_number_terminal(enum StateNumber state)
 static inline enum ConError con_deserialize_string_get(struct ConDeserialize *context, struct ConInterfaceWriter writer);
 static inline enum ConError con_deserialize_string_next(struct ConDeserialize *context, bool escaped, char *c, bool *is_u);
 
-enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInterfaceReader reader, char *depth_buffer, int depth_buffer_size) {
+enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInterfaceReader reader, enum ConContainer *depth_buffer, int depth_buffer_size) {
     if (context == NULL) { return CON_ERROR_NULL; }
     if (depth_buffer == NULL && depth_buffer_size > 0) { return CON_ERROR_NULL; }
     if (depth_buffer_size < 0) { return CON_ERROR_BUFFER; }
@@ -66,7 +66,7 @@ enum ConError con_deserialize_array_open(struct ConDeserialize *context) {
     if (state_err) { return state_err; }
 
     assert(context->depth_buffer != NULL);
-    context->depth_buffer[context->depth] = con_utils_container_to_char(CON_CONTAINER_ARRAY);
+    context->depth_buffer[context->depth] = CON_CONTAINER_ARRAY;
     context->depth += 1;
 
     assert(context->buffer_char == '[');
@@ -133,7 +133,7 @@ enum ConError con_deserialize_dict_open(struct ConDeserialize *context) {
     if (state_err) { return state_err; }
 
     assert(context->depth_buffer != NULL);
-    context->depth_buffer[context->depth] = con_utils_container_to_char(CON_CONTAINER_DICT);
+    context->depth_buffer[context->depth] = CON_CONTAINER_DICT;
     context->depth += 1;
 
     assert(context->buffer_char == '{');
@@ -740,8 +740,7 @@ static inline enum ConContainer con_deserialize_current_container(struct ConDese
 
     assert(context->depth_buffer_size >= 0);
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
-    char container_char = context->depth_buffer[context->depth - 1];
-    enum ConContainer container = con_utils_container_from_char(container_char);
+    enum ConContainer container = context->depth_buffer[context->depth - 1];
 
     assert(container == CON_CONTAINER_ARRAY || container == CON_CONTAINER_DICT);
     return (enum ConContainer) container;

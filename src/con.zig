@@ -1,7 +1,10 @@
+const lib = @import("internal.zig").lib;
 const serialize = @import("serialize/serialize.zig");
 const writer = @import("serialize/writer.zig");
 const deserialize = @import("deserialize/deserialize.zig");
 const reader = @import("deserialize/reader.zig");
+
+pub const Container = lib.ConContainer;
 
 pub const InterfaceWriter = writer.InterfaceWriter;
 pub const Serialize = serialize.Serialize;
