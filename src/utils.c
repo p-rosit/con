@@ -3,6 +3,16 @@
 #include <ctype.h>
 #include "utils.h"
 
+enum ConContainer con_utils_container_current(enum ConContainer *containers, size_t size, size_t depth) {
+    assert(0 <= depth && depth <= size);
+    if (depth == 0) { return CON_CONTAINER_NONE; }
+
+    assert(containers != NULL);
+    enum ConContainer current = containers[depth - 1];
+    assert(current == CON_CONTAINER_ARRAY || current == CON_CONTAINER_DICT);
+    return current;
+}
+
 char con_utils_container_to_char(enum ConContainer container) {
     assert(container == CON_CONTAINER_NONE || container == CON_CONTAINER_DICT || container == CON_CONTAINER_ARRAY);
     return (char) container;

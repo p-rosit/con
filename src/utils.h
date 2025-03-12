@@ -1,7 +1,10 @@
 #ifndef CON_UTILS_H
 #define CON_UTILS_H
+#include <stddef.h>
 #include <stdbool.h>
 #include "con_common.h"
+
+enum ConContainer con_utils_container_current(enum ConContainer *containers, size_t size, size_t depth);
 
 enum ConJsonState {
     JSON_STATE_UNKNOWN      = 0,
