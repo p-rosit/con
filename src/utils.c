@@ -11,10 +11,12 @@ enum ConError con_utils_state_next(enum ConState *state, enum ConContainer curre
     assert(state != NULL);
     enum ConState s = *state;
 
+    assert(current == CON_CONTAINER_NONE || current == CON_CONTAINER_ARRAY || current == CON_CONTAINER_DICT);
     if (current == CON_CONTAINER_DICT && (s == CON_STATE_FIRST || s == CON_STATE_LATER)) {
         return CON_ERROR_KEY;
     }
 
+    assert(CON_STATE_UNKNOWN <= s && s <= CON_STATE_MAX);
     switch (s) {
         case (CON_STATE_EMPTY):
             *state = CON_STATE_COMPLETE;
@@ -41,18 +43,23 @@ enum ConError con_utils_state_open(enum ConState *state, enum ConContainer curre
     enum ConError err = con_utils_state_next(state, current);
     if (err) { return err; }
 
+    assert(CON_STATE_UNKNOWN <= *state && *state <= CON_STATE_MAX);
     *state = CON_STATE_FIRST;
     return CON_ERROR_OK;
 }
 
 enum ConError con_utils_state_close(enum ConState *state, enum ConContainer current) {
-    (void)(current);
+    assert(current == CON_CONTAINER_NONE || current == CON_CONTAINER_ARRAY || current == CON_CONTAINER_DICT);
+    assert(CON_STATE_UNKNOWN <= *state && *state <= CON_STATE_MAX);
     *state = CON_STATE_LATER;
     return CON_ERROR_OK;
 }
 
 enum ConError con_utils_state_key(enum ConState *state, enum ConContainer current) {
+    assert(current == CON_CONTAINER_NONE || current == CON_CONTAINER_ARRAY || current == CON_CONTAINER_DICT);
     if (current != CON_CONTAINER_DICT) { return CON_ERROR_VALUE; }
+
+    assert(CON_STATE_UNKNOWN <= *state && *state <= CON_STATE_MAX);
     if (*state == CON_STATE_VALUE) { return CON_ERROR_VALUE; }
     *state = CON_STATE_VALUE;
     return CON_ERROR_OK;
