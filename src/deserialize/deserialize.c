@@ -23,7 +23,6 @@ enum StateNumber {
 static inline enum ConContainer con_deserialize_container_current(struct ConDeserialize *context);
 static inline enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum ConDeserializeType *type, bool *same_token);
 static inline enum ConError con_deserialize_internal_next_character(struct ConDeserialize *context, char *c, bool *same_token);
-static inline enum ConError con_deserialize_internal_state_value(struct ConDeserialize *context);
 static inline enum StateNumber con_deserialize_state_number_next(enum StateNumber state, char c);
 static inline bool con_deserialize_state_number_terminal(enum StateNumber state);
 static inline enum ConError con_deserialize_string_get(struct ConDeserialize *context, struct ConInterfaceWriter writer);
@@ -39,7 +38,7 @@ enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInt
     context->depth_buffer = depth_buffer;
     context->depth_buffer_size = depth_buffer_size;
     context->buffer_char = EOF;
-    context->state = CON_STATE_EMPTY;
+    context->state = con_utils_state_init();
     context->found_comma = false;
 
     return CON_ERROR_OK;
@@ -62,7 +61,8 @@ enum ConError con_deserialize_array_open(struct ConDeserialize *context) {
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth >= (size_t) context->depth_buffer_size) { return CON_ERROR_TOO_DEEP; }
 
-    enum ConError state_err = con_deserialize_internal_state_value(context);
+    enum ConContainer current = con_deserialize_container_current(context);
+    enum ConError state_err = con_utils_state_open(&context->state, current);
     if (state_err) { return state_err; }
 
     assert(context->depth_buffer != NULL);
@@ -71,8 +71,6 @@ enum ConError con_deserialize_array_open(struct ConDeserialize *context) {
 
     assert(context->buffer_char == '[');
     context->buffer_char = EOF;
-
-    context->state = CON_STATE_FIRST;
     return CON_ERROR_OK;
 }
 
@@ -104,6 +102,9 @@ enum ConError con_deserialize_array_close(struct ConDeserialize *context) {
         return CON_ERROR_NOT_ARRAY;
     }
 
+    enum ConError state_err = con_utils_state_close(&context->state, current);
+    if (state_err) { return state_err; }
+
     assert(context->buffer_char == ']');
     context->buffer_char = EOF;
 
@@ -111,8 +112,6 @@ enum ConError con_deserialize_array_close(struct ConDeserialize *context) {
 
     if (context->depth == 0) {
         context->state = CON_STATE_COMPLETE;
-    } else {
-        context->state = CON_STATE_LATER;
     }
     return CON_ERROR_OK;
 }
@@ -129,7 +128,8 @@ enum ConError con_deserialize_dict_open(struct ConDeserialize *context) {
     assert(0 <= context->depth && context->depth <= (size_t) context->depth_buffer_size);
     if (context->depth >= (size_t) context->depth_buffer_size) { return CON_ERROR_TOO_DEEP; }
 
-    enum ConError state_err = con_deserialize_internal_state_value(context);
+    enum ConContainer current = con_deserialize_container_current(context);
+    enum ConError state_err = con_utils_state_open(&context->state, current);
     if (state_err) { return state_err; }
 
     assert(context->depth_buffer != NULL);
@@ -138,8 +138,6 @@ enum ConError con_deserialize_dict_open(struct ConDeserialize *context) {
 
     assert(context->buffer_char == '{');
     context->buffer_char = EOF;
-
-    context->state = CON_STATE_FIRST;
     return CON_ERROR_OK;
 }
 
@@ -171,6 +169,9 @@ enum ConError con_deserialize_dict_close(struct ConDeserialize *context) {
         return CON_ERROR_NOT_DICT;
     }
 
+    enum ConError state_err = con_utils_state_close(&context->state, current);
+    if (state_err) { return state_err; }
+
     assert(context->buffer_char == '}');
     context->buffer_char = EOF;
 
@@ -178,8 +179,6 @@ enum ConError con_deserialize_dict_close(struct ConDeserialize *context) {
 
     if (context->depth == 0) {
         context->state = CON_STATE_COMPLETE;
-    } else {
-        context->state = CON_STATE_LATER;
     }
     return CON_ERROR_OK;
 }
@@ -193,14 +192,8 @@ enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct Co
     if (next != CON_DESERIALIZE_TYPE_DICT_KEY) { return CON_ERROR_TYPE; }
 
     enum ConContainer current = con_deserialize_container_current(context);
-    if (current != CON_CONTAINER_DICT) {
-        return CON_ERROR_NOT_DICT;
-    }
-
-    enum ConState state = context->state;
-    if (state != CON_STATE_FIRST && state != CON_STATE_LATER) {
-        return CON_ERROR_VALUE;
-    }
+    enum ConError state_err = con_utils_state_key(&context->state, current);
+    if (state_err) { return state_err; }
 
     enum ConError err = con_deserialize_string_get(context, writer);
     if (err) { return err; }
@@ -218,8 +211,6 @@ enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct Co
 
         context->buffer_char = EOF;
     }
-
-    context->state = CON_STATE_VALUE;
     return CON_ERROR_OK;
 }
 
@@ -231,7 +222,8 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
     if (next_err) { return next_err; }
     if (next != CON_DESERIALIZE_TYPE_NUMBER) { return CON_ERROR_TYPE; }
 
-    enum ConError state_err = con_deserialize_internal_state_value(context);
+    enum ConContainer current = con_deserialize_container_current(context);
+    enum ConError state_err = con_utils_state_next(&context->state, current);
     if (state_err) { return state_err; }
 
     enum StateNumber state = NUMBER_START;
@@ -282,7 +274,8 @@ enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConI
     enum ConError next_err = con_deserialize_next(context, &next);
     if (next_err) { return next_err; }
 
-    enum ConError state_err = con_deserialize_internal_state_value(context);
+    enum ConContainer current = con_deserialize_container_current(context);
+    enum ConError state_err = con_utils_state_next(&context->state, current);
     if (state_err) { return state_err; }
 
     return con_deserialize_string_get(context, writer);
@@ -296,7 +289,8 @@ enum ConError con_deserialize_bool(struct ConDeserialize *context, bool *value) 
     if (next_err) { return next_err; }
     if (next != CON_DESERIALIZE_TYPE_BOOL) { return CON_ERROR_TYPE; }
 
-    enum ConError state_err = con_deserialize_internal_state_value(context);
+    enum ConContainer current = con_deserialize_container_current(context);
+    enum ConError state_err = con_utils_state_next(&context->state, current);
     if (state_err) { return state_err; }
 
     assert(context->buffer_char == 't' || context->buffer_char == 'f');
@@ -355,6 +349,10 @@ enum ConError con_deserialize_null(struct ConDeserialize *context) {
     if (next_err) { return next_err; }
     if (next != CON_DESERIALIZE_TYPE_NULL) { return CON_ERROR_TYPE; }
 
+    enum ConContainer current = con_deserialize_container_current(context);
+    enum ConError state_err = con_utils_state_next(&context->state, current);
+    if (state_err) { return state_err; }
+
     assert(context->buffer_char == 'n');
     size_t length = 3;
     char *expected = "ull";
@@ -375,9 +373,6 @@ enum ConError con_deserialize_null(struct ConDeserialize *context) {
             }
         }
     }
-
-    enum ConError state_err = con_deserialize_internal_state_value(context);
-    if (state_err) { return state_err; }
 
     char c;
     bool same_token;
@@ -486,32 +481,6 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
     if (!context->found_comma && context->state == CON_STATE_LATER) {
         return CON_ERROR_COMMA_MISSING;
     }
-    return CON_ERROR_OK;
-}
-
-static inline enum ConError con_deserialize_internal_state_value(struct ConDeserialize *context) {
-    assert(context != NULL);
-    enum ConContainer current = con_deserialize_container_current(context);
-    enum ConState context_state = context->state;
-    switch (context_state) {
-        case (CON_STATE_EMPTY):
-            context->state = CON_STATE_COMPLETE;
-            break;
-        case (CON_STATE_FIRST):
-        case (CON_STATE_LATER):
-            if (current == CON_CONTAINER_DICT) { return CON_ERROR_KEY; }
-            context->state = CON_STATE_LATER;
-            break;
-        case (CON_STATE_COMPLETE):
-            return CON_ERROR_COMPLETE;
-        case (CON_STATE_VALUE):
-            context->state = CON_STATE_LATER;
-            break;
-        default:
-            assert(false);
-            return CON_ERROR_STATE_UNKNOWN;
-    }
-
     return CON_ERROR_OK;
 }
 
