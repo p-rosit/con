@@ -12,6 +12,23 @@ enum ConError con_utils_state_key(enum ConState *state, enum ConContainer curren
 
 enum ConContainer con_utils_container_current(enum ConContainer *containers, size_t size, size_t depth);
 
+enum StateNumber {
+    NUMBER_ERROR,
+    NUMBER_START,
+    NUMBER_NEGATIVE,
+    NUMBER_ZERO,
+    NUMBER_WHOLE,
+    NUMBER_POINT,
+    NUMBER_FRACTION,
+    NUMBER_E,
+    NUMBER_EXPONENT_SIGN,
+    NUMBER_EXPONENT,
+    STATE_NUMBER_MAX,
+};
+
+enum StateNumber con_utils_state_number_next(enum StateNumber state, char c);
+bool con_utils_state_number_terminal(enum StateNumber state);
+
 enum ConJsonState {
     JSON_STATE_UNKNOWN      = 0,
     JSON_STATE_NORMAL       = 1,

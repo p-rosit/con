@@ -75,6 +75,97 @@ enum ConContainer con_utils_container_current(enum ConContainer *containers, siz
     return current;
 }
 
+bool con_utils_state_number_terminal(enum StateNumber state) {
+    assert(0 <= state && state <= STATE_NUMBER_MAX);
+    return (
+        state == NUMBER_ZERO
+        || state == NUMBER_WHOLE
+        || state == NUMBER_FRACTION
+        || state == NUMBER_EXPONENT
+    );
+}
+
+enum StateNumber con_utils_state_number_next(enum StateNumber state, char c) {
+    switch (state) {
+        case (NUMBER_START):
+            if (c == '-') {
+                return NUMBER_NEGATIVE;
+            } else if (c == '0') {
+                return NUMBER_ZERO;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_WHOLE;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_NEGATIVE):
+            if (c == '0') {
+                return NUMBER_ZERO;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_WHOLE;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_ZERO):
+            if (c == '.') {
+                return NUMBER_POINT;
+            } else if (c == 'e' || c == 'E') {
+                return NUMBER_E;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_WHOLE):
+            if (c == '.') {
+                return NUMBER_POINT;
+            } else if (c == 'e' || c == 'E') {
+                return NUMBER_E;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_WHOLE;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_POINT):
+            if (isdigit((unsigned char) c)) {
+                return NUMBER_FRACTION;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_FRACTION):
+            if (c == 'e' || c == 'E') {
+                return NUMBER_E;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_FRACTION;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_E):
+            if (c == '+' || c == '-') {
+                return NUMBER_EXPONENT_SIGN;
+            } else if (isdigit((unsigned char) c)) {
+                return NUMBER_EXPONENT;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_EXPONENT_SIGN):
+            if (isdigit((unsigned char) c)) {
+                return NUMBER_EXPONENT;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_EXPONENT):
+            if (isdigit((unsigned char) c)) {
+                return NUMBER_EXPONENT;
+            } else {
+                return NUMBER_ERROR;
+            }
+        case (NUMBER_ERROR):
+            return NUMBER_ERROR;
+        case (STATE_NUMBER_MAX):
+            assert(false);
+    }
+
+    assert(false);
+}
+
 enum ConJsonState con_utils_json_init(void) {
     return JSON_STATE_NORMAL;
 }
