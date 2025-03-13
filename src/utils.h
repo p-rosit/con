@@ -4,6 +4,12 @@
 #include <stdbool.h>
 #include "con_common.h"
 
+enum ConState con_utils_state_init(void);
+enum ConError con_utils_state_next(enum ConState *state, enum ConContainer current);
+enum ConError con_utils_state_open(enum ConState *state, enum ConContainer current);
+enum ConError con_utils_state_close(enum ConState *state, enum ConContainer current);
+enum ConError con_utils_state_key(enum ConState *state, enum ConContainer current);
+
 enum ConContainer con_utils_container_current(enum ConContainer *containers, size_t size, size_t depth);
 
 enum ConJsonState {
@@ -18,7 +24,6 @@ enum ConJsonState {
 char con_utils_container_to_char(enum ConContainer container);
 enum ConContainer con_utils_container_from_char(char container);
 
-enum ConState con_utils_state_init(void);
 char con_utils_state_to_char(enum ConState state);
 enum ConState con_utils_state_from_char(char state);
 

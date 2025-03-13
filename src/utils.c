@@ -3,6 +3,65 @@
 #include <ctype.h>
 #include "utils.h"
 
+enum ConState con_utils_state_init(void) {
+    return CON_STATE_EMPTY;
+}
+
+enum ConError con_utils_state_next(enum ConState *state, enum ConContainer current) {
+    assert(state != NULL);
+    enum ConState s = *state;
+
+    if (current == CON_CONTAINER_DICT && (s == CON_STATE_FIRST || s == CON_STATE_LATER)) {
+        return CON_ERROR_KEY;
+    }
+
+    switch (s) {
+        case (CON_STATE_EMPTY):
+            *state = CON_STATE_COMPLETE;
+            return CON_ERROR_OK;
+        case (CON_STATE_FIRST):
+        case (CON_STATE_LATER):
+            *state = CON_STATE_LATER;
+            return CON_ERROR_OK;
+        case (CON_STATE_COMPLETE):
+            return CON_ERROR_COMPLETE;
+        case (CON_STATE_VALUE):
+            *state = CON_STATE_LATER;
+            return CON_ERROR_OK;
+        case (CON_STATE_MAX):
+        case (CON_STATE_UNKNOWN):
+            break;
+    }
+
+    if (current == CON_CONTAINER_NONE) {
+        *state = CON_STATE_COMPLETE;
+    }
+
+    assert(0);
+    return CON_ERROR_STATE_UNKNOWN;
+}
+
+enum ConError con_utils_state_open(enum ConState *state, enum ConContainer current) {
+    enum ConError err = con_utils_state_next(state, current);
+    if (err) { return err; }
+
+    *state = CON_STATE_FIRST;
+    return CON_ERROR_OK;
+}
+
+enum ConError con_utils_state_close(enum ConState *state, enum ConContainer current) {
+    (void)(current);
+    *state = CON_STATE_LATER;
+    return CON_ERROR_OK;
+}
+
+enum ConError con_utils_state_key(enum ConState *state, enum ConContainer current) {
+    if (current != CON_CONTAINER_DICT) { return CON_ERROR_VALUE; }
+    if (*state == CON_STATE_VALUE) { return CON_ERROR_VALUE; }
+    *state = CON_STATE_VALUE;
+    return CON_ERROR_OK;
+}
+
 enum ConContainer con_utils_container_current(enum ConContainer *containers, size_t size, size_t depth) {
     assert(0 <= depth && depth <= size);
     if (depth == 0) { return CON_CONTAINER_NONE; }
@@ -23,9 +82,6 @@ enum ConContainer con_utils_container_from_char(char container) {
     return (enum ConContainer) container;
 }
 
-enum ConState con_utils_state_init(void) {
-    return CON_STATE_EMPTY;
-}
 
 char con_utils_state_to_char(enum ConState state) {
     assert(0 < state && state < CHAR_MAX);
