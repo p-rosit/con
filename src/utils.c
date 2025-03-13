@@ -75,28 +75,6 @@ enum ConContainer con_utils_container_current(enum ConContainer *containers, siz
     return current;
 }
 
-char con_utils_container_to_char(enum ConContainer container) {
-    assert(container == CON_CONTAINER_NONE || container == CON_CONTAINER_DICT || container == CON_CONTAINER_ARRAY);
-    return (char) container;
-}
-
-enum ConContainer con_utils_container_from_char(char container) {
-    assert(container == CON_CONTAINER_NONE || container == CON_CONTAINER_DICT || container == CON_CONTAINER_ARRAY);
-    return (enum ConContainer) container;
-}
-
-
-char con_utils_state_to_char(enum ConState state) {
-    assert(0 < state && state < CHAR_MAX);
-    assert(0 < state && state < CON_STATE_MAX);
-    return (char) state;
-}
-
-enum ConState con_utils_state_from_char(char state) {
-    assert(0 < state && state < CON_STATE_MAX);
-    return (enum ConState) state;
-}
-
 enum ConJsonState con_utils_json_init(void) {
     return JSON_STATE_NORMAL;
 }
