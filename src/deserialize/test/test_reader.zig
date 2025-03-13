@@ -642,8 +642,7 @@ test "comment inner reader empty comment" {
 
     var buffer: [1]u8 = undefined;
     const length = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("/", &buffer);
+    try testing.expectEqual(0, length);
 }
 
 test "comment inner reader fail" {
@@ -697,8 +696,7 @@ test "comment inner reader fail comment" {
 
     var buffer: [1]u8 = undefined;
     const length = lib.con_reader_read(reader, &buffer, buffer.len);
-    try testing.expectEqual(1, length);
-    try testing.expectEqualStrings("/", &buffer);
+    try testing.expectEqual(0, length);
 }
 
 test "comment read only comment" {

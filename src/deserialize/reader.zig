@@ -522,8 +522,8 @@ test "comment inner reader empty comment" {
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
-    const result = try reader.read(&buffer);
-    try testing.expectEqualStrings("/", result);
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
 }
 
 test "comment inner reader fail" {
@@ -546,8 +546,8 @@ test "comment inner reader fail comment" {
     const reader = context.interface();
 
     var buffer: [1]u8 = undefined;
-    const result = try reader.read(&buffer);
-    try testing.expectEqualStrings("/", result);
+    const err = reader.read(&buffer);
+    try testing.expectError(error.Reader, err);
 }
 
 test "comment read only comment" {

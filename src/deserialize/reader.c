@@ -263,7 +263,6 @@ size_t con_reader_comment_read(void const *void_context, char *buffer, size_t bu
             assert(l == 0 || l == 1);
 
             if (l != 1) {
-                buffer[length++] = '/';
                 break;
             } else if (c == '/') {
                 context->in_comment = true;
