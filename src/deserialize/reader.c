@@ -230,6 +230,34 @@ struct ConInterfaceReader con_reader_comment_interface(struct ConReaderComment *
     return (struct ConInterfaceReader) { .context = context, .read = con_reader_comment_read };
 }
 
+size_t con_reader_comment_comment_start(struct ConReaderComment *context, char *buffer, size_t buffer_size) {
+    assert(context != NULL);
+    size_t length = 0;
+
+    char c;
+    size_t l = con_reader_read(context->reader, &c, 1);
+    assert(l == 0 || l == 1);
+
+    if (l != 1) {
+        length = 0;
+    } else if (c == '/') {
+        length = 0;
+        context->buffer_char = EOF;
+        context->in_comment = true;
+    } else {
+        context->buffer_char = EOF;
+        buffer[length++] = '/';
+
+        if (length >= buffer_size) {
+            context->buffer_char = c;
+        } else {
+            buffer[length++] = c;
+        }
+    }
+
+    return length;
+}
+
 size_t con_reader_comment_read(void const *void_context, char *buffer, size_t buffer_size) {
     assert(void_context != NULL);
     struct ConReaderComment *context = (struct ConReaderComment*) void_context;
@@ -259,24 +287,13 @@ size_t con_reader_comment_read(void const *void_context, char *buffer, size_t bu
         if (l != 1) { break; }
 
         if (!context->in_comment && !con_utils_json_is_string(state) && c == '/') {
-            l = con_reader_read(context->reader, &c, 1);
-            assert(l == 0 || l == 1);
-
-            if (l != 1) {
+            l = con_reader_comment_comment_start(context, buffer + length, buffer_size - length);
+            if (l == 0 && !context->in_comment) {
+                context->buffer_char = '/';
                 break;
-            } else if (c == '/') {
-                context->in_comment = true;
-            } else {
-                buffer[length++] = '/';
-
-                if (length >= buffer_size) {
-                    context->buffer_char = c;
-                    break;
-                }
-
-                buffer[length++] = c;
             }
 
+            length += l;
         } else if (context->in_comment && c == '\n') {
             context->in_comment = false;
             buffer[length++] = '\n';
