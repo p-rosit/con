@@ -33,10 +33,6 @@ enum ConError con_utils_state_next(enum ConState *state, enum ConContainer curre
             break;
     }
 
-    if (current == CON_CONTAINER_NONE) {
-        *state = CON_STATE_COMPLETE;
-    }
-
     assert(0);
     return CON_ERROR_STATE_UNKNOWN;
 }
