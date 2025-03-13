@@ -702,6 +702,7 @@ static inline enum ConError con_deserialize_string_next(struct ConDeserialize *c
 }
 
 static inline enum ConContainer con_deserialize_container_current(struct ConDeserialize *context) {
+    assert(context != NULL);
     assert(context->depth_buffer_size >= 0);
     size_t size = (size_t) context->depth_buffer_size;
     return con_utils_container_current(context->depth_buffer, size, context->depth);

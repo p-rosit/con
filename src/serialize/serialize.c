@@ -228,6 +228,7 @@ enum ConError con_serialize_null(struct ConSerialize *context) {
 }
 
 static inline enum ConContainer con_serialize_container_current(struct ConSerialize *context) {
+    assert(context != NULL);
     assert(context->depth_buffer_size >= 0);
     size_t size = (size_t) context->depth_buffer_size;
     return con_utils_container_current(context->depth_buffer, size, context->depth);
@@ -238,6 +239,7 @@ static inline enum ConError con_serialize_comma(struct ConSerialize *context, en
         return CON_ERROR_OK;
     }
 
+    assert(context != NULL);
     size_t result = con_writer_write(context->writer, ",", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 
