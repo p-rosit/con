@@ -267,7 +267,12 @@ size_t con_reader_comment_read(void const *void_context, char *buffer, size_t bu
 
     assert(buffer != NULL);
     if (context->buffer_char != EOF) {
-        if (buffer_size >= 1) {
+        if (context->buffer_char == '/') {
+            assert(!context->in_comment);
+            size_t l = con_reader_comment_comment_start(context, buffer, buffer_size);
+            if (l == 0 && !context->in_comment) { return 0; }
+            length += l;
+        } else if (buffer_size >= 1) {
             buffer[0] = (char) context->buffer_char;
             context->buffer_char = EOF;
 
