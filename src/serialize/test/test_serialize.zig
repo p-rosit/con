@@ -188,6 +188,58 @@ test "number empty" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), num_err);
 }
 
+test "number not terminated" {
+    var buffer: [0]u8 = undefined;
+    var writer: lib.ConWriterString = undefined;
+    const i_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const interface = lib.con_writer_string_interface(&writer);
+
+    var depth: [0]lib.ConContainer = undefined;
+    var context: lib.ConSerialize = undefined;
+
+    const init1_err = lib.con_serialize_init(&context, interface, &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
+    const num1_err = lib.con_serialize_number(&context, "2.", 2);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), num1_err);
+
+    const init2_err = lib.con_serialize_init(&context, interface, &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
+    const num2_err = lib.con_serialize_number(&context, "2.5E", 4);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), num2_err);
+
+    const init3_err = lib.con_serialize_init(&context, interface, &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init3_err);
+    const num3_err = lib.con_serialize_number(&context, "-", 1);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), num3_err);
+
+    const init4_err = lib.con_serialize_init(&context, interface, &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init4_err);
+    const num4_err = lib.con_serialize_number(&context, "3.4e-", 5);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), num4_err);
+}
+
+test "number invalid" {
+    var buffer: [0]u8 = undefined;
+    var writer: lib.ConWriterString = undefined;
+    const i_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+    const interface = lib.con_writer_string_interface(&writer);
+
+    var depth: [0]lib.ConContainer = undefined;
+    var context: lib.ConSerialize = undefined;
+
+    const init1_err = lib.con_serialize_init(&context, interface, &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
+    const num1_err = lib.con_serialize_number(&context, "+", 1);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), num1_err);
+
+    const init2_err = lib.con_serialize_init(&context, interface, &depth, depth.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
+    const num2_err = lib.con_serialize_number(&context, "0f", 2);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), num2_err);
+}
+
 test "string" {
     var buffer: [3]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
