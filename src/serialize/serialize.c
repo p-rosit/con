@@ -151,6 +151,12 @@ enum ConError con_serialize_number(struct ConSerialize *context, char const *num
     if (number == NULL) { return CON_ERROR_NULL; }
     if (number[0] == '\0') { return CON_ERROR_NOT_NUMBER; }
 
+    enum StateNumber state = NUMBER_START;
+    for (size_t i = 0; i < number_size; i++) {
+        state = con_utils_state_number_next(state, number[i]);
+        if (state == NUMBER_ERROR) { return CON_ERROR_NOT_NUMBER; }
+    }
+
     enum ConState prev = context->state;
     enum ConContainer current = con_serialize_container_current(context);
     enum ConError state_err = con_utils_state_next(&context->state, current);
@@ -158,12 +164,6 @@ enum ConError con_serialize_number(struct ConSerialize *context, char const *num
 
     enum ConError comma_err = con_serialize_comma(context, prev);
     if (comma_err) { return comma_err; }
-
-    enum StateNumber state = NUMBER_START;
-    for (size_t i = 0; i < number_size; i++) {
-        state = con_utils_state_number_next(state, number[i]);
-        if (state == NUMBER_ERROR) { return CON_ERROR_NOT_NUMBER; }
-    }
 
     if (!con_utils_state_number_terminal(state)) {
         return CON_ERROR_NOT_NUMBER;
