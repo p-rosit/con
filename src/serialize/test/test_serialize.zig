@@ -83,6 +83,7 @@ test "number int-like" {
 
     const num_err = lib.con_serialize_number(&context, "2", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
+    try testing.expectEqualStrings("2", &buffer);
 }
 
 test "number float-like" {
@@ -103,6 +104,7 @@ test "number float-like" {
 
     const num_err = lib.con_serialize_number(&context, "0.3", 3);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
+    try testing.expectEqualStrings("0.3", &buffer);
 }
 
 test "number scientific-like" {
@@ -123,6 +125,7 @@ test "number scientific-like" {
 
     const num_err = lib.con_serialize_number(&context, "2e4", 3);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
+    try testing.expectEqualStrings("2e4", &buffer);
 }
 
 test "number null" {
@@ -203,6 +206,7 @@ test "string" {
 
     const str_err = lib.con_serialize_string(&context, "-", 1);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
+    try testing.expectEqualStrings("\"-\"", &buffer);
 }
 
 test "string null" {
