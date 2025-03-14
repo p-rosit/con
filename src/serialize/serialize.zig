@@ -217,6 +217,26 @@ test "string" {
     try testing.expectEqualStrings("\"a\"", &buffer);
 }
 
+test "string invalid escape" {
+    var depth: [0]zcon.Container = undefined;
+    var buffer: [0]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var writer = ConFifo.init(&fifo.writer());
+    var context: Serialize = undefined;
+
+    context = try Serialize.init(writer.interface(), &depth);
+    const err1 = context.string("1\\h");
+    try testing.expectError(error.InvalidJson, err1);
+
+    context = try Serialize.init(writer.interface(), &depth);
+    const err2 = context.string("\\u23g4");
+    try testing.expectError(error.InvalidJson, err2);
+
+    context = try Serialize.init(writer.interface(), &depth);
+    const err3 = context.string("\\uff");
+    try testing.expectError(error.InvalidJson, err3);
+}
+
 test "string first quote writer fail" {
     var depth: [0]zcon.Container = undefined;
     var buffer: [0]u8 = undefined;

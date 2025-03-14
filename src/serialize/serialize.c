@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <ctype.h>
 #include <utils.h>
 #include "con_writer.h"
 #include "con_serialize.h"
@@ -178,6 +179,38 @@ enum ConError con_serialize_number(struct ConSerialize *context, char const *num
 enum ConError con_serialize_string(struct ConSerialize *context, char const *string, size_t string_size) {
     assert(context != NULL);
     if (string == NULL) { return CON_ERROR_NULL; }
+
+    bool escaped = false;
+    for (size_t i = 0; i < string_size; i++) {
+        if (!escaped) {
+            escaped = string[i] == '\\';
+        } else {
+            switch (string[i]) {
+                case '"':
+                case '\\':
+                case '/':
+                case 'b':
+                case 'f':
+                case 'n':
+                case 'r':
+                case 't':
+                    break;
+                case 'u':
+                    if (i + 4 >= string_size) { return CON_ERROR_INVALID_JSON; }
+                    size_t start = i;
+                    for (i = start; i < start + 4; i++) {
+                        if (!isxdigit((unsigned char) string[i])) {
+                            return CON_ERROR_INVALID_JSON;
+                        }
+                    }
+                    break;
+                default:
+                    return CON_ERROR_INVALID_JSON;
+            }
+
+            escaped = false;
+        }
+    }
 
     enum ConState prev = context->state;
     enum ConContainer current = con_serialize_container_current(context);
