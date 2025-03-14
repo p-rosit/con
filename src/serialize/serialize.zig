@@ -119,14 +119,14 @@ test "number int-like" {
 
 test "number float-like" {
     var depth: [0]zcon.Container = undefined;
-    var buffer: [2]u8 = undefined;
+    var buffer: [3]u8 = undefined;
     var fifo = Fifo.init(&buffer);
     var writer = ConFifo.init(&fifo.writer());
     var context = try Serialize.init(writer.interface(), &depth);
     defer context.deinit();
 
-    try context.number("5.");
-    try testing.expectEqualStrings("5.", &buffer);
+    try context.number("5.0");
+    try testing.expectEqualStrings("5.0", &buffer);
 }
 
 test "number scientific-like" {

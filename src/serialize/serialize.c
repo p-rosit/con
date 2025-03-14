@@ -159,6 +159,16 @@ enum ConError con_serialize_number(struct ConSerialize *context, char const *num
     enum ConError comma_err = con_serialize_comma(context, prev);
     if (comma_err) { return comma_err; }
 
+    enum StateNumber state = NUMBER_START;
+    for (size_t i = 0; i < number_size; i++) {
+        state = con_utils_state_number_next(state, number[i]);
+        if (state == NUMBER_ERROR) { return CON_ERROR_NOT_NUMBER; }
+    }
+
+    if (!con_utils_state_number_terminal(state)) {
+        return CON_ERROR_NOT_NUMBER;
+    }
+
     size_t result = con_writer_write(context->writer, number, number_size);
     if (result != number_size) { return CON_ERROR_WRITER; }
 

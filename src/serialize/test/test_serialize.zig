@@ -86,7 +86,7 @@ test "number int-like" {
 }
 
 test "number float-like" {
-    var buffer: [2]u8 = undefined;
+    var buffer: [3]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
     const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
@@ -101,7 +101,7 @@ test "number float-like" {
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
-    const num_err = lib.con_serialize_number(&context, ".3", 2);
+    const num_err = lib.con_serialize_number(&context, "0.3", 3);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
 }
 
