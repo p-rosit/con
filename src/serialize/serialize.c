@@ -212,6 +212,8 @@ enum ConError con_serialize_string(struct ConSerialize *context, char const *str
                 escaped = false;
             }
         }
+
+        if (escaped) { return CON_ERROR_INVALID_JSON; }
     }
 
     enum ConState prev = context->state;

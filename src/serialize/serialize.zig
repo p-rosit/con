@@ -259,6 +259,10 @@ test "string invalid escape" {
     context = try Serialize.init(writer.interface(), &depth);
     const err3 = context.string("\\uff");
     try testing.expectError(error.InvalidJson, err3);
+
+    context = try Serialize.init(writer.interface(), &depth);
+    const err4 = context.string("\\");
+    try testing.expectError(error.InvalidJson, err4);
 }
 
 test "string first quote writer fail" {
