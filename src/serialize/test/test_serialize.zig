@@ -2436,12 +2436,19 @@ test "string check invalid escape" {
     try testing.expectEqual(4, pos3);
     try testing.expectEqual('q', data3[pos3]);
 
-    const data4 = "\\u45,   ";
+    const data4 = "\\u56";
     var pos4: usize = undefined;
     const err4 = lib.con_serialize_string_check(data4, data4.len, &pos4);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err4);
     try testing.expectEqual(4, pos4);
-    try testing.expectEqual(',', data4[pos4]);
+    try testing.expect(pos4 == data4.len);
+
+    const data5 = "\\u45,   ";
+    var pos5: usize = undefined;
+    const err5 = lib.con_serialize_string_check(data5, data5.len, &pos5);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err5);
+    try testing.expectEqual(4, pos5);
+    try testing.expectEqual(',', data5[pos5]);
 }
 
 // Section: Integration test ---------------------------------------------------

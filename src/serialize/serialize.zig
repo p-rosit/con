@@ -1476,10 +1476,15 @@ test "string check invalid escape" {
     try testing.expectEqual(4, pos3);
     try testing.expectEqual('q', data3[pos3]);
 
-    const data4 = "\\u45,   ";
+    const data4 = "\\u56";
     const pos4 = try Serialize.stringCheck(data4);
     try testing.expectEqual(4, pos4);
-    try testing.expectEqual(',', data4[pos4]);
+    try testing.expect(pos4 == data4.len);
+
+    const data5 = "\\u45,   ";
+    const pos5 = try Serialize.stringCheck(data5);
+    try testing.expectEqual(4, pos5);
+    try testing.expectEqual(',', data5[pos5]);
 }
 
 // Section: Integration test ---------------------------------------------------

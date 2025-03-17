@@ -274,7 +274,10 @@ enum ConError con_serialize_string_check(char const *string, size_t string_size,
                 case 't':
                     break;
                 case 'u':
-                    if (*first_error + 4 >= string_size) { return CON_ERROR_INVALID_JSON; }
+                    if (*first_error + 4 >= string_size) {
+                        *first_error = string_size;
+                        return CON_ERROR_INVALID_JSON;
+                    }
                     size_t start = *first_error + 1;
                     for (*first_error = start; *first_error < start + 4; (*first_error)++) {
                         if (!isxdigit((unsigned char) string[*first_error])) {
