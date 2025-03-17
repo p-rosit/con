@@ -373,6 +373,29 @@ test "indent write one character at a time" {
     );
 }
 
+test "indent empty container" {
+    var b: [14]u8 = undefined;
+    var c = try String.init(&b);
+    var context = try Indent.init(c.interface());
+    const writer = context.interface();
+
+    const str = "[{},[]]";
+
+    for (str) |ch| {
+        const single: [1]u8 = .{ch};
+        try writer.write(&single);
+    }
+
+    try testing.expectEqualStrings(
+        \\[
+        \\  {},
+        \\  []
+        \\]
+    ,
+        &b,
+    );
+}
+
 test "indent body writer fail" {
     var b: [0]u8 = undefined;
     var c = try String.init(&b);

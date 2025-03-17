@@ -418,6 +418,34 @@ test "indent write one character at a time" {
     );
 }
 
+test "indent empty container" {
+    var b: [14]u8 = undefined;
+    var c: lib.ConWriterString = undefined;
+    const i_err = lib.con_writer_string_init(&c, &b, b.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
+
+    var context: lib.ConWriterIndent = undefined;
+    const init_err = lib.con_writer_indent_init(
+        &context,
+        lib.con_writer_string_interface(&c),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const writer = lib.con_writer_indent_interface(&context);
+
+    const json = "[{},[]]";
+    const res = lib.con_writer_write(writer, json, 7);
+    try testing.expectEqual(7, res);
+    try testing.expectEqualStrings(
+        \\[
+        \\  {},
+        \\  []
+        \\]
+    ,
+        &b,
+    );
+}
+
 test "indent body writer fail" {
     var b: [0]u8 = undefined;
     var c: lib.ConWriterString = undefined;
