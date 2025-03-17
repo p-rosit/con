@@ -1,5 +1,6 @@
 #ifndef CON_COMMON_H
 #define CON_COMMON_H
+#include <stdbool.h>
 
 enum ConError {
     CON_ERROR_OK                = 0,
@@ -38,6 +39,12 @@ enum ConContainer {
     CON_CONTAINER_NONE  = 0,
     CON_CONTAINER_DICT  = 1,
     CON_CONTAINER_ARRAY = 2,
+};
+
+struct ConStateChar {
+    enum ConState state;
+    bool in_string;
+    bool escaped;
 };
 
 #endif

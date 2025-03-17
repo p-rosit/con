@@ -220,8 +220,8 @@ size_t con_reader_buffer_read(void const *void_context, char *buffer, size_t buf
 enum ConError con_reader_comment_init(struct ConReaderComment *context, struct ConInterfaceReader reader) {
     if (context == NULL) { return CON_ERROR_NULL; }
     context->reader = reader;
+    context->state = con_utils_state_char_init();
     context->buffer_char = EOF;
-    context->state = con_utils_json_to_char(con_utils_json_init());
     context->in_comment = false;
     return CON_ERROR_OK;
 }
@@ -284,14 +284,13 @@ size_t con_reader_comment_read(void const *void_context, char *buffer, size_t bu
     }
 
     while (length < buffer_size) {
-        enum ConJsonState state = con_utils_json_from_char(context->state);
         char c;
 
         size_t l = con_reader_read(context->reader, &c, 1);
         assert(l == 0 || l == 1);
         if (l != 1) { break; }
 
-        if (!context->in_comment && !con_utils_json_is_string(state) && c == '/') {
+        if (!context->in_comment && !con_utils_state_char_is_string(context->state) && c == '/') {
             l = con_reader_comment_comment_start(context, buffer + length, buffer_size - length);
             if (l == 0 && !context->in_comment) {
                 context->buffer_char = '/';
@@ -306,7 +305,7 @@ size_t con_reader_comment_read(void const *void_context, char *buffer, size_t bu
             buffer[length++] = c;
         }
 
-        context->state = con_utils_json_to_char(con_utils_json_next(state, c));
+        con_utils_state_char_next(&context->state, c);
         any_read = true;
     }
 

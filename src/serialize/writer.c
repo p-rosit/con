@@ -144,8 +144,8 @@ enum ConError con_writer_indent_init(
     if (context == NULL) { return CON_ERROR_NULL; }
 
     context->writer = writer;
+    context->state = con_utils_state_char_init();
     context->depth = 0;
-    context->state = con_utils_json_to_char(con_utils_json_init());
 
     return CON_ERROR_OK;
 }
@@ -174,22 +174,21 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
 
     size_t length = 0;
     while (length < data_size) {
-        enum ConJsonState state = con_utils_json_from_char(context->state);
         char c = data[length];
 
-        if (con_utils_json_is_empty(state) && !con_utils_json_is_close(state, c)) {
+        if (con_utils_state_char_is_container_empty(context->state) && !con_utils_state_char_is_close(context->state, c)) {
             bool success = con_writer_indent_whitespace(context);
             if (!success) { break; }
         }
 
-        if (con_utils_json_is_close(state, c) && context->depth > 0) {
+        if (con_utils_state_char_is_close(context->state, c) && context->depth > 0) {
             context->depth -= 1;
 
-            if (!con_utils_json_is_empty(state)) {
+            if (context->state.state != CON_STATE_FIRST) {
                 bool success = con_writer_indent_whitespace(context);
                 if (!success) { break; }
             }
-        } else if (con_utils_json_is_open(state, c)) {
+        } else if (con_utils_state_char_is_open(context->state, c)) {
             if (context->depth > SIZE_MAX - 1) {
                 return length;
             }
@@ -197,23 +196,23 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
             context->depth += 1;
         }
 
-        if (con_utils_json_is_meaningful(state, c)) {
+        if (con_utils_state_char_is_meaningful(context->state, c)) {
             size_t result = con_writer_write(context->writer, &c, 1);
             if (result != 1) { break; }
         }
         length += 1;
 
-        if (con_utils_json_is_key_separator(state, c)) {
+        if (con_utils_state_char_is_key_separator(context->state, c)) {
             size_t result = con_writer_write(context->writer, " ", 1);
             if (result != 1) { break; }
         }
 
-        if (con_utils_json_is_item_separator(state, c)) {
+        if (con_utils_state_char_is_item_separator(context->state, c)) {
             bool success = con_writer_indent_whitespace(context);
             if (!success) { break; }
         }
 
-        context->state = con_utils_json_to_char(con_utils_json_next(state, c));
+        con_utils_state_char_next(&context->state, c);
     }
 
     return length;

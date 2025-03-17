@@ -166,111 +166,81 @@ enum StateNumber con_utils_state_number_next(enum StateNumber state, char c) {
     assert(false);
 }
 
-enum ConJsonState con_utils_json_init(void) {
-    return JSON_STATE_NORMAL;
+struct ConStateChar con_utils_state_char_init(void) {
+    return (struct ConStateChar) {
+        .state = con_utils_state_init(),
+        .in_string = false,
+        .escaped = false,
+    };
 }
 
-enum ConJsonState con_utils_json_next(enum ConJsonState state, char c) {
-    assert(0 < state && state < JSON_STATE_MAX);
-    enum ConJsonState next_state;
-
-    switch (state) {
-        case JSON_STATE_UNKNOWN:
-        case JSON_STATE_MAX:
-            assert(false);
-        case JSON_STATE_FIRST_ITEM:
-        case JSON_STATE_NORMAL: {
-            if (c == '[' || c == '{') {
-                next_state = JSON_STATE_FIRST_ITEM;
-            } else if (c == ']' || c == '}') {
-                next_state = JSON_STATE_NORMAL;
-            } else if (c == '"') {
-                next_state = JSON_STATE_IN_STRING;
-            } else if (!isspace((unsigned char) c)) {
-                next_state = JSON_STATE_NORMAL;
-            } else {
-                next_state = state;
-            }
-            break;
+void con_utils_state_char_next(struct ConStateChar *state, char c) {
+    if (state->in_string && state->escaped) {
+        state->escaped = false;
+    } else if (state->in_string && !state->escaped) {
+        if (c == '"') {
+            state->in_string = false;
+        } else if (c == '\\') {
+            state->escaped = true;
         }
-        case JSON_STATE_IN_STRING: {
-            if (c == '"') {
-                next_state = JSON_STATE_NORMAL;
-            } else if (c == '\\') {
-                next_state = JSON_STATE_ESCAPE;
-            } else {
-                next_state = JSON_STATE_IN_STRING;
-            }
-            break;
+    } else {
+        switch (state->state) {
+            case (CON_STATE_EMPTY):
+            case (CON_STATE_FIRST):
+            case (CON_STATE_LATER):
+                if (c == '[' || c == '{') {
+                    enum ConError err = con_utils_state_open(&state->state, CON_CONTAINER_ARRAY);
+                    assert(err == CON_ERROR_OK);
+                } else if (c == ']' || c == '}') {
+                    enum ConError err = con_utils_state_close(&state->state, CON_CONTAINER_ARRAY);
+                    assert(err == CON_ERROR_OK);
+                } else if (c == '"') {
+                    enum ConError err = con_utils_state_next(&state->state, CON_CONTAINER_ARRAY);
+                    assert(err == CON_ERROR_OK);
+                    state->in_string = true;
+                } else if (isdigit((unsigned char) c) || c == '-') {
+                    enum ConError err = con_utils_state_next(&state->state, CON_CONTAINER_ARRAY);
+                    assert(err == CON_ERROR_OK);
+                    if (state->state == CON_STATE_COMPLETE) {
+                        state->state = CON_STATE_LATER;
+                    }
+                }
+                assert(state->state != CON_STATE_COMPLETE);
+                break;
+            case (CON_STATE_COMPLETE):
+            case (CON_STATE_VALUE):
+            case (CON_STATE_MAX):
+            case (CON_STATE_UNKNOWN):
+                assert(false);
+                break;
         }
-        case JSON_STATE_ESCAPE: {
-            next_state = JSON_STATE_IN_STRING;
-            break;
-        }
-        default:
-            assert(false);
     }
-
-    return next_state;
 }
 
-char con_utils_json_to_char(enum ConJsonState state) {
-    assert(0 < state && state < CHAR_MAX);
-    assert(0 < state && state < JSON_STATE_MAX);
-    return (char) state;
+bool con_utils_state_char_is_meaningful(struct ConStateChar state, char c) {
+    return state.in_string || !isspace((unsigned char) c);
 }
 
-enum ConJsonState con_utils_json_from_char(char state) {
-    assert(0 < state && state < JSON_STATE_MAX);
-    return (enum ConJsonState) state;
+bool con_utils_state_char_is_open(struct ConStateChar state, char c) {
+    return !state.in_string && (c == '[' || c == '{');
 }
 
-bool con_utils_json_is_meaningful(enum ConJsonState state, char c) {
-    assert(0 < state && state < JSON_STATE_MAX);
-    if (state == JSON_STATE_IN_STRING || state == JSON_STATE_ESCAPE) {
-        return true;
-    }
-    return !isspace((unsigned char) c);
+bool con_utils_state_char_is_close(struct ConStateChar state, char c) {
+    return !state.in_string && (c == ']' || c == '}');
 }
 
-bool con_utils_json_is_open(enum ConJsonState state, char c) {
-    assert(0 < state && state < JSON_STATE_MAX);
-    if (state != JSON_STATE_NORMAL && state != JSON_STATE_FIRST_ITEM) {
-        return false;
-    }
-    return c == '[' || c == '{';
+bool con_utils_state_char_is_key_separator(struct ConStateChar state, char c) {
+    return !state.in_string && c == ':';
 }
 
-bool con_utils_json_is_close(enum ConJsonState state, char c) {
-    assert(0 < state && state < JSON_STATE_MAX);
-    if (state != JSON_STATE_NORMAL && state != JSON_STATE_FIRST_ITEM) {
-        return false;
-    }
-    return c == ']' || c == '}';
+bool con_utils_state_char_is_item_separator(struct ConStateChar state, char c) {
+    return !state.in_string && c == ',';
 }
 
-bool con_utils_json_is_key_separator(enum ConJsonState state, char c) {
-    assert(0 < state && state < JSON_STATE_MAX);
-    if (state != JSON_STATE_NORMAL && state != JSON_STATE_FIRST_ITEM) {
-        return false;
-    }
-    return c == ':';
+bool con_utils_state_char_is_container_empty(struct ConStateChar state) {
+    return state.state == CON_STATE_FIRST;
 }
 
-bool con_utils_json_is_item_separator(enum ConJsonState state, char c) {
-    assert(0 < state && state < JSON_STATE_MAX);
-    if (state != JSON_STATE_NORMAL && state != JSON_STATE_FIRST_ITEM) {
-        return false;
-    }
-    return c == ',';
-}
-
-bool con_utils_json_is_empty(enum ConJsonState state) {
-    assert(0 < state && state < JSON_STATE_MAX);
-    return state == JSON_STATE_FIRST_ITEM;
-}
-
-bool con_utils_json_is_string(enum ConJsonState state) {
-    assert(0 < state && state < JSON_STATE_MAX);
-    return state == JSON_STATE_IN_STRING || state == JSON_STATE_ESCAPE;
+bool con_utils_state_char_is_string(struct ConStateChar state) {
+    return state.in_string;
 }

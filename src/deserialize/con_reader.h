@@ -62,8 +62,8 @@ struct ConInterfaceReader con_reader_buffer_interface(struct ConReaderBuffer *co
 
 struct ConReaderComment {
     struct ConInterfaceReader reader;
+    struct ConStateChar state;
     int buffer_char;
-    char state;
     bool in_comment;
 };
 

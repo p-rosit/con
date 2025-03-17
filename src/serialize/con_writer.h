@@ -98,8 +98,8 @@ bool con_writer_buffer_flush(struct ConWriterBuffer *context);
 // the inner writer of this writer should be buffered if anything.
 struct ConWriterIndent {
     struct ConInterfaceWriter writer;
+    struct ConStateChar state;
     size_t depth;
-    char state;
 };
 
 // Initializes a `struct ConWriterIndent`
