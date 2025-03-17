@@ -72,9 +72,9 @@ pub const Serialize = struct {
         return internal.enumToError(err);
     }
 
-    pub fn stringCheck(str: []const u8) !usize {
+    pub fn checkString(str: []const u8) !usize {
         var first_error: usize = undefined;
-        const err = lib.con_serialize_string_check(str.ptr, str.len, &first_error);
+        const err = lib.con_serialize_check_string(str.ptr, str.len, &first_error);
         if (err == lib.CON_ERROR_OK) {
             return error.Ok;
         }
@@ -1422,74 +1422,74 @@ test "dict complete" {
 
 test "string check" {
     const data = "a string";
-    const err = Serialize.stringCheck(data);
+    const err = Serialize.checkString(data);
     try testing.expectError(error.Ok, err);
 }
 
 test "string check control code" {
     const data1 = "b\x08"; // \b
-    const pos1 = try Serialize.stringCheck(data1);
+    const pos1 = try Serialize.checkString(data1);
     try testing.expectEqual(1, pos1);
     try testing.expectEqual('\x08', data1[pos1]);
 
     const data2 = "b\x0c"; // \f
-    const pos2 = try Serialize.stringCheck(data2);
+    const pos2 = try Serialize.checkString(data2);
     try testing.expectEqual(1, pos2);
     try testing.expectEqual('\x0c', data2[pos2]);
 
     const data3 = "---\n--";
-    const pos3 = try Serialize.stringCheck(data3);
+    const pos3 = try Serialize.checkString(data3);
     try testing.expectEqual(3, pos3);
     try testing.expectEqual('\n', data3[pos3]);
 
     const data4 = "--\r\n--";
-    const pos4 = try Serialize.stringCheck(data4);
+    const pos4 = try Serialize.checkString(data4);
     try testing.expectEqual(2, pos4);
     try testing.expectEqual('\r', data4[pos4]);
 
     const data5 = "-  [] -\t";
-    const pos5 = try Serialize.stringCheck(data5);
+    const pos5 = try Serialize.checkString(data5);
     try testing.expectEqual(7, pos5);
     try testing.expectEqual('\t', data5[pos5]);
 }
 
 test "string check unescaped quote" {
     const data = "quote: \"";
-    const pos = try Serialize.stringCheck(data);
+    const pos = try Serialize.checkString(data);
     try testing.expectEqual(7, pos);
     try testing.expectEqual('"', data[pos]);
 }
 
 test "string check final unescaped" {
     const data = "\\";
-    const pos = try Serialize.stringCheck(data);
+    const pos = try Serialize.checkString(data);
     try testing.expectEqual(0, pos);
     try testing.expectEqual('\\', data[pos]);
 }
 
 test "string check invalid escape" {
     const data1 = "\\y";
-    const pos1 = try Serialize.stringCheck(data1);
+    const pos1 = try Serialize.checkString(data1);
     try testing.expectEqual(1, pos1);
     try testing.expectEqual('y', data1[pos1]);
 
     const data2 = "\\'";
-    const pos2 = try Serialize.stringCheck(data2);
+    const pos2 = try Serialize.checkString(data2);
     try testing.expectEqual(1, pos2);
     try testing.expectEqual('\'', data2[pos2]);
 
     const data3 = "\\u23q4";
-    const pos3 = try Serialize.stringCheck(data3);
+    const pos3 = try Serialize.checkString(data3);
     try testing.expectEqual(4, pos3);
     try testing.expectEqual('q', data3[pos3]);
 
     const data4 = "\\u56";
-    const pos4 = try Serialize.stringCheck(data4);
+    const pos4 = try Serialize.checkString(data4);
     try testing.expectEqual(4, pos4);
     try testing.expect(pos4 == data4.len);
 
     const data5 = "\\u45,   ";
-    const pos5 = try Serialize.stringCheck(data5);
+    const pos5 = try Serialize.checkString(data5);
     try testing.expectEqual(4, pos5);
     try testing.expectEqual(',', data5[pos5]);
 }

@@ -128,7 +128,7 @@ enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *k
 
     {
         size_t first_error;
-        enum ConError err = con_serialize_string_check(key, key_size, &first_error);
+        enum ConError err = con_serialize_check_string(key, key_size, &first_error);
         if (err) { return err; }
     }
 
@@ -188,7 +188,7 @@ enum ConError con_serialize_string(struct ConSerialize *context, char const *str
 
     {
         size_t first_error;
-        enum ConError err = con_serialize_string_check(string, string_size, &first_error);
+        enum ConError err = con_serialize_check_string(string, string_size, &first_error);
         if (err) { return err; }
     }
 
@@ -250,7 +250,7 @@ enum ConError con_serialize_null(struct ConSerialize *context) {
     return CON_ERROR_OK;
 }
 
-enum ConError con_serialize_string_check(char const *string, size_t string_size, size_t *first_error) {
+enum ConError con_serialize_check_string(char const *string, size_t string_size, size_t *first_error) {
     assert(string != NULL);
     assert(first_error != NULL);
 
