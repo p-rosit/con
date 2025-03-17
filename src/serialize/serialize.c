@@ -126,6 +126,12 @@ enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *k
     assert(context != NULL);
     if (key == NULL) { return CON_ERROR_NULL; }
 
+    {
+        size_t first_error;
+        enum ConError err = con_serialize_string_check(key, key_size, &first_error);
+        if (err) { return err; }
+    }
+
     enum ConContainer current = con_serialize_container_current(context);
     if (current != CON_CONTAINER_DICT) {
         return CON_ERROR_NOT_DICT;
@@ -181,52 +187,9 @@ enum ConError con_serialize_string(struct ConSerialize *context, char const *str
     if (string == NULL) { return CON_ERROR_NULL; }
 
     {
-        bool escaped = false;
-        for (size_t i = 0; i < string_size; i++) {
-            if (!escaped) {
-                escaped = string[i] == '\\';
-                switch (string[i]) {  // unescaped
-                    case '"':
-                        return CON_ERROR_INVALID_JSON;
-                }
-            } else {
-                switch (string[i]) {  // escape sequence
-                    case '"':
-                    case '\\':
-                    case '/':
-                    case 'b':
-                    case 'f':
-                    case 'n':
-                    case 'r':
-                    case 't':
-                        break;
-                    case 'u':
-                        if (i + 4 >= string_size) { return CON_ERROR_INVALID_JSON; }
-                        size_t start = i + 1;
-                        for (i = start; i < start + 4; i++) {
-                            if (!isxdigit((unsigned char) string[i])) {
-                                return CON_ERROR_INVALID_JSON;
-                            }
-                        }
-                        break;
-                    default:
-                        return CON_ERROR_INVALID_JSON;
-                }
-
-                escaped = false;
-            }
-
-            switch (string[i]) {
-                case ('\b'):
-                case ('\f'):
-                case ('\n'):
-                case ('\r'):
-                case ('\t'):
-                    return CON_ERROR_INVALID_JSON;
-            }
-        }
-
-        if (escaped) { return CON_ERROR_INVALID_JSON; }
+        size_t first_error;
+        enum ConError err = con_serialize_string_check(string, string_size, &first_error);
+        if (err) { return err; }
     }
 
     enum ConState prev = context->state;
@@ -284,6 +247,59 @@ enum ConError con_serialize_null(struct ConSerialize *context) {
     size_t result = con_writer_write(context->writer, "null", 4);
     if (result != 4) { return CON_ERROR_WRITER; }
 
+    return CON_ERROR_OK;
+}
+
+enum ConError con_serialize_string_check(char const *string, size_t string_size, size_t *first_error) {
+    assert(string != NULL);
+    assert(first_error != NULL);
+
+    bool escaped = false;
+    for (*first_error = 0; *first_error < string_size; (*first_error)++) {
+        if (!escaped) {
+            escaped = string[*first_error] == '\\';
+            switch (string[*first_error]) {  // unescaped
+                case '"':
+                    return CON_ERROR_INVALID_JSON;
+            }
+        } else {
+            switch (string[*first_error]) {  // escape sequence
+                case '"':
+                case '\\':
+                case '/':
+                case 'b':
+                case 'f':
+                case 'n':
+                case 'r':
+                case 't':
+                    break;
+                case 'u':
+                    if (*first_error + 4 >= string_size) { return CON_ERROR_INVALID_JSON; }
+                    size_t start = *first_error + 1;
+                    for (*first_error = start; *first_error < start + 4; (*first_error)++) {
+                        if (!isxdigit((unsigned char) string[*first_error])) {
+                            return CON_ERROR_INVALID_JSON;
+                        }
+                    }
+                    break;
+                default:
+                    return CON_ERROR_INVALID_JSON;
+            }
+
+            escaped = false;
+        }
+
+        switch (string[*first_error]) {
+            case ('\b'):
+            case ('\f'):
+            case ('\n'):
+            case ('\r'):
+            case ('\t'):
+                return CON_ERROR_INVALID_JSON;
+        }
+    }
+
+    if (escaped) { return CON_ERROR_INVALID_JSON; }
     return CON_ERROR_OK;
 }
 
