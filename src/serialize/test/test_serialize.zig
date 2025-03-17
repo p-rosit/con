@@ -2359,6 +2359,91 @@ test "dict complete" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMPLETE), err);
 }
 
+// Section: String error check -------------------------------------------------
+
+test "string check" {
+    const data = "a string";
+    var pos: usize = undefined;
+    const err = lib.con_serialize_string_check(data, data.len, &pos);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+}
+
+test "string check control code" {
+    const data1 = "b\x08"; // \b
+    var pos1: usize = undefined;
+    const err1 = lib.con_serialize_string_check(data1, data1.len, &pos1);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err1);
+    try testing.expectEqual(1, pos1);
+    try testing.expectEqual('\x08', data1[pos1]);
+
+    const data2 = "b\x0c"; // \f
+    var pos2: usize = undefined;
+    const err2 = lib.con_serialize_string_check(data2, data2.len, &pos2);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err2);
+    try testing.expectEqual(1, pos2);
+    try testing.expectEqual('\x0c', data2[pos2]);
+
+    const data3 = "---\n---";
+    var pos3: usize = undefined;
+    const err3 = lib.con_serialize_string_check(data3, data3.len, &pos3);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err3);
+    try testing.expectEqual(3, pos3);
+    try testing.expectEqual('\n', data3[pos3]);
+
+    const data4 = "--\r\n--";
+    var pos4: usize = undefined;
+    const err4 = lib.con_serialize_string_check(data4, data4.len, &pos4);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err4);
+    try testing.expectEqual(2, pos4);
+    try testing.expectEqual('\r', data4[pos4]);
+
+    const data5 = "-  [] -\t";
+    var pos5: usize = undefined;
+    const err5 = lib.con_serialize_string_check(data5, data5.len, &pos5);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err5);
+    try testing.expectEqual(7, pos5);
+    try testing.expectEqual('\t', data5[pos5]);
+}
+
+test "string check unescaped quote" {
+    const data = "quote: \"";
+    var pos: usize = undefined;
+    const err = lib.con_serialize_string_check(data, data.len, &pos);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err);
+    try testing.expectEqual(7, pos);
+    try testing.expectEqual('"', data[pos]);
+}
+
+test "string check invalid escape" {
+    const data1 = "\\y";
+    var pos1: usize = undefined;
+    const err1 = lib.con_serialize_string_check(data1, data1.len, &pos1);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err1);
+    try testing.expectEqual(1, pos1);
+    try testing.expectEqual('y', data1[pos1]);
+
+    const data2 = "\\'";
+    var pos2: usize = undefined;
+    const err2 = lib.con_serialize_string_check(data2, data2.len, &pos2);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err2);
+    try testing.expectEqual(1, pos2);
+    try testing.expectEqual('\'', data2[pos2]);
+
+    const data3 = "\\u23q4";
+    var pos3: usize = undefined;
+    const err3 = lib.con_serialize_string_check(data3, data3.len, &pos3);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err3);
+    try testing.expectEqual(4, pos3);
+    try testing.expectEqual('q', data3[pos3]);
+
+    const data4 = "\\u45,   ";
+    var pos4: usize = undefined;
+    const err4 = lib.con_serialize_string_check(data4, data4.len, &pos4);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err4);
+    try testing.expectEqual(4, pos4);
+    try testing.expectEqual(',', data4[pos4]);
+}
+
 // Section: Integration test ---------------------------------------------------
 
 test "nested structures" {
