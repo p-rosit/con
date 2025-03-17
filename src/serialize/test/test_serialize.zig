@@ -2414,6 +2414,15 @@ test "string check unescaped quote" {
     try testing.expectEqual('"', data[pos]);
 }
 
+test "string check final unescaped" {
+    const data = "\\";
+    var pos: usize = undefined;
+    const err = lib.con_serialize_string_check(data, data.len, &pos);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err);
+    try testing.expectEqual(0, pos);
+    try testing.expectEqual('\\', data[pos]);
+}
+
 test "string check invalid escape" {
     const data1 = "\\y";
     var pos1: usize = undefined;

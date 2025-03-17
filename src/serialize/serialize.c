@@ -302,7 +302,10 @@ enum ConError con_serialize_string_check(char const *string, size_t string_size,
         }
     }
 
-    if (escaped) { return CON_ERROR_INVALID_JSON; }
+    if (escaped) {
+        *first_error -= 1;
+        return CON_ERROR_INVALID_JSON;
+    }
     return CON_ERROR_OK;
 }
 

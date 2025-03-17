@@ -1460,6 +1460,13 @@ test "string check unescaped quote" {
     try testing.expectEqual('"', data[pos]);
 }
 
+test "string check final unescaped" {
+    const data = "\\";
+    const pos = try Serialize.stringCheck(data);
+    try testing.expectEqual(0, pos);
+    try testing.expectEqual('\\', data[pos]);
+}
+
 test "string check invalid escape" {
     const data1 = "\\y";
     const pos1 = try Serialize.stringCheck(data1);
