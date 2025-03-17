@@ -185,8 +185,12 @@ enum ConError con_serialize_string(struct ConSerialize *context, char const *str
         for (size_t i = 0; i < string_size; i++) {
             if (!escaped) {
                 escaped = string[i] == '\\';
+                switch (string[i]) {  // unescaped
+                    case '"':
+                        return CON_ERROR_INVALID_JSON;
+                }
             } else {
-                switch (string[i]) {
+                switch (string[i]) {  // escape sequence
                     case '"':
                     case '\\':
                     case '/':
@@ -211,6 +215,15 @@ enum ConError con_serialize_string(struct ConSerialize *context, char const *str
 
                 escaped = false;
             }
+
+            switch (string[i]) {
+                case ('\b'):
+                case ('\f'):
+                case ('\n'):
+                case ('\r'):
+                case ('\t'):
+                    return CON_ERROR_INVALID_JSON;
+            }
         }
 
         if (escaped) { return CON_ERROR_INVALID_JSON; }
@@ -226,61 +239,8 @@ enum ConError con_serialize_string(struct ConSerialize *context, char const *str
 
     size_t result = con_writer_write(context->writer, "\"", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
-
-    for (size_t i = 0; i < string_size; i++) {
-        switch (string[i]) {
-            case ('"'): {
-                char next[2] = "\\\"";
-                result = con_writer_write(context->writer, next, 2);
-                if (result != 2) { return CON_ERROR_WRITER; }
-                break;
-            }
-            case ('\b'): {
-                char next[2] = "\\b";
-                result = con_writer_write(context->writer, next, 2);
-                if (result != 2) { return CON_ERROR_WRITER; }
-                break;
-            }
-            case ('\f'): {
-                char next[2] = "\\f";
-                result = con_writer_write(context->writer, next, 2);
-                if (result != 2) { return CON_ERROR_WRITER; }
-                break;
-            }
-            case ('\n'): {
-                char next[2] = "\\n";
-                result = con_writer_write(context->writer, next, 2);
-                if (result != 2) { return CON_ERROR_WRITER; }
-                break;
-            }
-            case ('\r'): {
-                char next[2] = "\\r";
-                result = con_writer_write(context->writer, next, 2);
-                if (result != 2) { return CON_ERROR_WRITER; }
-                break;
-            }
-            case ('\t'): {
-                char next[2] = "\\t";
-                result = con_writer_write(context->writer, next, 2);
-                if (result != 2) { return CON_ERROR_WRITER; }
-                break;
-            }
-            case ('\\'): {
-                if (i < string_size && string[i + 1] == '\\') {
-                    char next[2] = "\\\\";
-                    result = con_writer_write(context->writer, next, 2);
-                    if (result != 2) { return CON_ERROR_WRITER; }
-                    i += 1;
-                    break;
-                }
-            }
-            default:
-                result = con_writer_write(context->writer, string + i, 1);
-                if (result != 1) { return CON_ERROR_WRITER; }
-                break;
-        }
-    }
-
+    result = con_writer_write(context->writer, string, string_size);
+    if (result != string_size) { return CON_ERROR_WRITER; }
     result = con_writer_write(context->writer, "\"", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 

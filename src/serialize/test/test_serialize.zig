@@ -281,27 +281,6 @@ test "string null" {
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NULL), str_err);
 }
 
-test "string unescaped" {
-    var buffer: [16]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const writer_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
-
-    var depth: [0]lib.ConContainer = undefined;
-    var context: lib.ConSerialize = undefined;
-    const init_err = lib.con_serialize_init(
-        &context,
-        lib.con_writer_string_interface(&writer),
-        &depth,
-        depth.len,
-    );
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
-
-    const str_err = lib.con_serialize_string(&context, "\"\\\\\x08\x0c\n\r\t", 8);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
-    try testing.expectEqualStrings("\"\\\"\\\\\\b\\f\\n\\r\\t\"", &buffer);
-}
-
 test "string escaped" {
     var buffer: [18]u8 = undefined;
     var writer: lib.ConWriterString = undefined;
@@ -2510,7 +2489,7 @@ test "indent writer" {
         const str_err = lib.con_serialize_string(&context, "string", 6);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
 
-        const no_indent_err = lib.con_serialize_string(&context, "\"[2, 3] {\"m\":1,\"n\":2}", 21);
+        const no_indent_err = lib.con_serialize_string(&context, "\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}", 26);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), no_indent_err);
 
         const null_err = lib.con_serialize_null(&context);

@@ -217,18 +217,6 @@ test "string" {
     try testing.expectEqualStrings("\"a\"", &buffer);
 }
 
-test "string unescaped" {
-    var depth: [0]zcon.Container = undefined;
-    var buffer: [16]u8 = undefined;
-    var fifo = Fifo.init(&buffer);
-    var writer = ConFifo.init(&fifo.writer());
-    var context = try Serialize.init(writer.interface(), &depth);
-    defer context.deinit();
-
-    try context.string("\"\\\\\x08\x0c\n\r\t");
-    try testing.expectEqualStrings("\"\\\"\\\\\\b\\f\\n\\r\\t\"", &buffer);
-}
-
 test "string escaped" {
     var depth: [0]zcon.Container = undefined;
     var buffer: [18]u8 = undefined;
@@ -1492,7 +1480,7 @@ test "indent writer" {
 
         try context.number("123");
         try context.string("string");
-        try context.string("\"[2, 3] {\"m\":1,\"n\":2}");
+        try context.string("\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}");
         try context.null();
     }
 
