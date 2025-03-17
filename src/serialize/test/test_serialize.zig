@@ -2361,6 +2361,36 @@ test "dict complete" {
 
 // Section: String error check -------------------------------------------------
 
+test "number check" {
+    const data = "-2.0e+10";
+    var pos: usize = undefined;
+    const err = lib.con_serialize_check_number(data, data.len, &pos);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
+}
+
+test "number check invalid" {
+    const data1 = "-2.0Ee+10";
+    var pos1: usize = undefined;
+    const err1 = lib.con_serialize_check_number(data1, data1.len, &pos1);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), err1);
+    try testing.expectEqual(5, pos1);
+    try testing.expectEqual('e', data1[pos1]);
+
+    const data2 = ".3";
+    var pos2: usize = undefined;
+    const err2 = lib.con_serialize_check_number(data2, data2.len, &pos2);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), err2);
+    try testing.expectEqual(0, pos2);
+    try testing.expectEqual('.', data2[pos2]);
+
+    const data3 = "-";
+    var pos3: usize = undefined;
+    const err3 = lib.con_serialize_check_number(data3, data3.len, &pos3);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_NOT_NUMBER), err3);
+    try testing.expectEqual(1, pos3);
+    try testing.expect(data3.len == pos3);
+}
+
 test "string check" {
     const data = "a string";
     var pos: usize = undefined;

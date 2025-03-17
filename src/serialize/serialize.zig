@@ -72,6 +72,18 @@ pub const Serialize = struct {
         return internal.enumToError(err);
     }
 
+    pub fn checkNumber(num: []const u8) !usize {
+        var first_error: usize = undefined;
+        const err = lib.con_serialize_check_number(num.ptr, num.len, &first_error);
+        if (err == lib.CON_ERROR_OK) {
+            return error.Ok;
+        }
+        if (err != lib.CON_ERROR_NOT_NUMBER) {
+            try internal.enumToError(err);
+        }
+        return first_error;
+    }
+
     pub fn checkString(str: []const u8) !usize {
         var first_error: usize = undefined;
         const err = lib.con_serialize_check_string(str.ptr, str.len, &first_error);
@@ -1419,6 +1431,29 @@ test "dict complete" {
 }
 
 // Section: String error check -------------------------------------------------
+
+test "number check" {
+    const data = "-2.0e+10";
+    const err = Serialize.checkNumber(data);
+    try testing.expectError(error.Ok, err);
+}
+
+test "number check invalid" {
+    const data1 = "-2.0Ee+10";
+    const pos1 = try Serialize.checkNumber(data1);
+    try testing.expectEqual(5, pos1);
+    try testing.expectEqual('e', data1[pos1]);
+
+    const data2 = ".3";
+    const pos2 = try Serialize.checkNumber(data2);
+    try testing.expectEqual(0, pos2);
+    try testing.expectEqual('.', data2[pos2]);
+
+    const data3 = "-";
+    const pos3 = try Serialize.checkNumber(data3);
+    try testing.expectEqual(1, pos3);
+    try testing.expect(data3.len == pos3);
+}
 
 test "string check" {
     const data = "a string";
