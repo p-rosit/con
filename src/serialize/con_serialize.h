@@ -143,6 +143,8 @@ enum ConError con_serialize_bool(struct ConSerialize *context, bool value);
 //  CON_ERROR_KEY:      Missing dictionary key before this element.
 enum ConError con_serialize_null(struct ConSerialize *context);
 
+enum ConError con_serialize_check_number(char const *num, size_t num_size, size_t *first_error);
+
 enum ConError con_serialize_check_string(char const *string, size_t string_size, size_t *first_error);
 
 #endif
