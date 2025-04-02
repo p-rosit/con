@@ -1,4 +1,5 @@
 const std = @import("std");
+const gci = @import("gci");
 const internal = @import("../internal.zig");
 const lib = internal.lib;
 
@@ -132,18 +133,22 @@ pub const Buffer = struct {
 pub const Comment = struct {
     inner: lib.ConReaderComment,
 
-    pub fn init(reader: InterfaceReader) !Comment {
+    pub fn init(reader: gci.InterfaceReader) !Comment {
         var self: Comment = undefined;
         const err = lib.con_reader_comment_init(
             &self.inner,
-            reader.reader,
+            @as(*lib.GciInterfaceReader, @ptrCast(@constCast(&reader.reader))).*,
         );
         try internal.enumToError(err);
         return self;
     }
 
-    pub fn interface(self: *Comment) InterfaceReader {
-        return .{ .reader = lib.con_reader_comment_interface(&self.inner) };
+    pub fn interface(self: *Comment) gci.InterfaceReader {
+        const temp: gci.InterfaceReader = undefined;
+        return .{ .reader = @as(
+            *@TypeOf(temp.reader),
+            @ptrCast(@constCast(&lib.con_reader_comment_interface(&self.inner))),
+        ).* };
     }
 };
 
@@ -456,7 +461,7 @@ test "double buffer clear error large" {
 
 test "comment init" {
     const d = "";
-    var c = try String.init(d);
+    var c = try gci.ReaderString.init(d);
 
     var context = try Comment.init(c.interface());
     _ = context.interface();
@@ -464,7 +469,7 @@ test "comment init" {
 
 test "comment read" {
     const d = "12";
-    var c = try String.init(d);
+    var c = try gci.ReaderString.init(d);
 
     var context = try Comment.init(c.interface());
     const reader = context.interface();
@@ -476,7 +481,7 @@ test "comment read" {
 
 test "comment read comment" {
     const d = "[  //:(\n \"k //:)\",1/]";
-    var c = try String.init(d);
+    var c = try gci.ReaderString.init(d);
 
     var context = try Comment.init(c.interface());
     const reader = context.interface();
@@ -488,7 +493,7 @@ test "comment read comment" {
 
 test "comment read comment one char at a time" {
     const d = "[  //:(\n \"k //:)\",1/]";
-    var c = try String.init(d);
+    var c = try gci.ReaderString.init(d);
 
     var context = try Comment.init(c.interface());
     const reader = context.interface();
@@ -504,7 +509,7 @@ test "comment read comment one char at a time" {
 
 test "comment inner reader empty" {
     const d = "";
-    var c = try String.init(d);
+    var c = try gci.ReaderString.init(d);
 
     var context = try Comment.init(c.interface());
     const reader = context.interface();
@@ -516,7 +521,7 @@ test "comment inner reader empty" {
 
 test "comment inner reader empty comment" {
     const d = "/";
-    var c = try String.init(d);
+    var c = try gci.ReaderString.init(d);
 
     var context = try Comment.init(c.interface());
     const reader = context.interface();
@@ -527,8 +532,8 @@ test "comment inner reader empty comment" {
 }
 
 test "comment inner reader fail" {
-    var c1 = try String.init("1");
-    var c2 = try Fail.init(c1.interface(), 0);
+    var c1 = try gci.ReaderString.init("1");
+    var c2 = try gci.ReaderFail.init(c1.interface(), 0);
 
     var context = try Comment.init(c2.interface());
     const reader = context.interface();
@@ -539,8 +544,8 @@ test "comment inner reader fail" {
 }
 
 test "comment inner reader fail comment" {
-    var c1 = try String.init("/");
-    var c2 = try Fail.init(c1.interface(), 1);
+    var c1 = try gci.ReaderString.init("/");
+    var c2 = try gci.ReaderFail.init(c1.interface(), 1);
 
     var context = try Comment.init(c2.interface());
     const reader = context.interface();
@@ -555,7 +560,7 @@ test "comment inner reader fail comment" {
 
 test "comment read only comment" {
     const d = "// only a comment";
-    var c = try String.init(d);
+    var c = try gci.ReaderString.init(d);
 
     var context = try Comment.init(c.interface());
     const reader = context.interface();
@@ -566,8 +571,8 @@ test "comment read only comment" {
 }
 
 test "comment read clear error" {
-    var c1 = try String.init("1");
-    var c2 = try Fail.init(c1.interface(), 0);
+    var c1 = try gci.ReaderString.init("1");
+    var c2 = try gci.ReaderFail.init(c1.interface(), 0);
 
     var context = try Comment.init(c2.interface());
     const reader = context.interface();
@@ -582,8 +587,8 @@ test "comment read clear error" {
 }
 
 test "comment read comment clear error" {
-    var c1 = try String.init("//\n1");
-    var c2 = try Fail.init(c1.interface(), 1);
+    var c1 = try gci.ReaderString.init("//\n1");
+    var c2 = try gci.ReaderFail.init(c1.interface(), 1);
 
     var context = try Comment.init(c2.interface());
     const reader = context.interface();
@@ -599,8 +604,8 @@ test "comment read comment clear error" {
 }
 
 test "comment reader half comment clear error" {
-    var c1 = try String.init("/1");
-    var c2 = try Fail.init(c1.interface(), 1);
+    var c1 = try gci.ReaderString.init("/1");
+    var c2 = try gci.ReaderFail.init(c1.interface(), 1);
 
     var context = try Comment.init(c2.interface());
     const reader = context.interface();

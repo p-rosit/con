@@ -217,7 +217,7 @@ size_t con_reader_buffer_read(void const *void_context, char *buffer, size_t buf
     return read_length;
 }
 
-enum ConError con_reader_comment_init(struct ConReaderComment *context, struct ConInterfaceReader reader) {
+enum ConError con_reader_comment_init(struct ConReaderComment *context, struct GciInterfaceReader reader) {
     if (context == NULL) { return CON_ERROR_NULL; }
     context->reader = reader;
     context->state = con_utils_state_char_init();
@@ -226,8 +226,8 @@ enum ConError con_reader_comment_init(struct ConReaderComment *context, struct C
     return CON_ERROR_OK;
 }
 
-struct ConInterfaceReader con_reader_comment_interface(struct ConReaderComment *context) {
-    return (struct ConInterfaceReader) { .context = context, .read = con_reader_comment_read };
+struct GciInterfaceReader con_reader_comment_interface(struct ConReaderComment *context) {
+    return (struct GciInterfaceReader) { .context = context, .read = con_reader_comment_read };
 }
 
 size_t con_reader_comment_comment_start(struct ConReaderComment *context, char *buffer, size_t buffer_size) {
@@ -235,7 +235,7 @@ size_t con_reader_comment_comment_start(struct ConReaderComment *context, char *
     size_t length = 0;
 
     char c;
-    size_t l = con_reader_read(context->reader, &c, 1);
+    size_t l = gci_reader_read(context->reader, &c, 1);
     assert(l == 0 || l == 1);
 
     if (l != 1) {
@@ -286,7 +286,7 @@ size_t con_reader_comment_read(void const *void_context, char *buffer, size_t bu
     while (length < buffer_size) {
         char c;
 
-        size_t l = con_reader_read(context->reader, &c, 1);
+        size_t l = gci_reader_read(context->reader, &c, 1);
         assert(l == 0 || l == 1);
         if (l != 1) { break; }
 

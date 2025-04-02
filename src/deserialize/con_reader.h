@@ -2,6 +2,7 @@
 #define CON_READER_H
 #include <stdbool.h>
 #include <stdio.h>
+#include <gci_interface_reader.h>
 #include <con_common.h>
 #include <con_interface_reader.h>
 
@@ -61,7 +62,7 @@ enum ConError con_reader_double_buffer_init(
 struct ConInterfaceReader con_reader_buffer_interface(struct ConReaderBuffer *context);
 
 struct ConReaderComment {
-    struct ConInterfaceReader reader;
+    struct GciInterfaceReader reader;
     struct ConStateChar state;
     int buffer_char;
     bool in_comment;
@@ -69,9 +70,9 @@ struct ConReaderComment {
 
 enum ConError con_reader_comment_init(
     struct ConReaderComment *context,
-    struct ConInterfaceReader reader
+    struct GciInterfaceReader reader
 );
 
-struct ConInterfaceReader con_reader_comment_interface(struct ConReaderComment *context);
+struct GciInterfaceReader con_reader_comment_interface(struct ConReaderComment *context);
 
 #endif
