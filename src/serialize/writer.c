@@ -139,7 +139,7 @@ bool con_writer_buffer_flush(struct ConWriterBuffer *context) {
 
 enum ConError con_writer_indent_init(
     struct ConWriterIndent *context,
-    struct ConInterfaceWriter writer
+    struct GciInterfaceWriter writer
 ) {
     if (context == NULL) { return CON_ERROR_NULL; }
 
@@ -150,16 +150,16 @@ enum ConError con_writer_indent_init(
     return CON_ERROR_OK;
 }
 
-struct ConInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *context) {
-    return (struct ConInterfaceWriter) { .context=context, .write=con_writer_indent_write };
+struct GciInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *context) {
+    return (struct GciInterfaceWriter) { .context=context, .write=con_writer_indent_write };
 }
 
 static inline bool con_writer_indent_whitespace(struct ConWriterIndent *context) {
-    size_t result = con_writer_write(context->writer, "\n", 1);
+    size_t result = gci_writer_write(context->writer, "\n", 1);
     if (result != 1) { return false; }
 
     for (size_t i = 0; i < context->depth; i++) {
-        result = con_writer_write(context->writer, "  ", 2);
+        result = gci_writer_write(context->writer, "  ", 2);
         if (result != 2) { return false; }
     }
 
@@ -197,13 +197,13 @@ size_t con_writer_indent_write(void const *void_context, char const *data, size_
         }
 
         if (con_utils_state_char_is_meaningful(context->state, c)) {
-            size_t result = con_writer_write(context->writer, &c, 1);
+            size_t result = gci_writer_write(context->writer, &c, 1);
             if (result != 1) { break; }
         }
         length += 1;
 
         if (con_utils_state_char_is_key_separator(context->state, c)) {
-            size_t result = con_writer_write(context->writer, " ", 1);
+            size_t result = gci_writer_write(context->writer, " ", 1);
             if (result != 1) { break; }
         }
 

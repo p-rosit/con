@@ -1573,56 +1573,56 @@ test "nested structures" {
     try testing.expectEqualStrings("{\"a\":[\"hello\",{\"a.a\":null,\"a.b\":true}],\"b\":[234,false]}", &buffer);
 }
 
-// test "indent writer" {
-//     var depth: [3]zcon.Container = undefined;
-//     var buffer: [119]u8 = undefined;
-//     var fifo = Fifo.init(&buffer);
-//     var c = ConFifo.init(&fifo.writer());
-//
-//     var indent = try zcon.WriterIndent.init(c.interface());
-//
-//     var context = try Serialize.init(indent.interface(), &depth);
-//     defer context.deinit();
-//
-//     try context.arrayOpen();
-//
-//     {
-//         try context.dictOpen();
-//         {
-//             try context.dictKey("key1");
-//             try context.arrayOpen();
-//             try context.arrayClose();
-//
-//             try context.dictKey("key2");
-//             try context.dictOpen();
-//             try context.dictClose();
-//
-//             try context.dictKey("key3");
-//             try context.bool(true);
-//         }
-//         try context.dictClose();
-//
-//         try context.number("123");
-//         try context.string("string");
-//         try context.string("\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}");
-//         try context.null();
-//     }
-//
-//     try context.arrayClose();
-//
-//     try testing.expectEqualStrings(
-//         \\[
-//         \\  {
-//         \\    "key1": [],
-//         \\    "key2": {},
-//         \\    "key3": true
-//         \\  },
-//         \\  123,
-//         \\  "string",
-//         \\  "\"[2, 3] {\"m\":1,\"n\":2}",
-//         \\  null
-//         \\]
-//     ,
-//         &buffer,
-//     );
-// }
+test "indent writer" {
+    var depth: [3]zcon.Container = undefined;
+    var buffer: [119]u8 = undefined;
+    var fifo = Fifo.init(&buffer);
+    var c = ConFifo.init(&fifo.writer());
+
+    var indent = try zcon.WriterIndent.init(c.interface());
+
+    var context = try Serialize.init(indent.interface(), &depth);
+    defer context.deinit();
+
+    try context.arrayOpen();
+
+    {
+        try context.dictOpen();
+        {
+            try context.dictKey("key1");
+            try context.arrayOpen();
+            try context.arrayClose();
+
+            try context.dictKey("key2");
+            try context.dictOpen();
+            try context.dictClose();
+
+            try context.dictKey("key3");
+            try context.bool(true);
+        }
+        try context.dictClose();
+
+        try context.number("123");
+        try context.string("string");
+        try context.string("\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}");
+        try context.null();
+    }
+
+    try context.arrayClose();
+
+    try testing.expectEqualStrings(
+        \\[
+        \\  {
+        \\    "key1": [],
+        \\    "key2": {},
+        \\    "key3": true
+        \\  },
+        \\  123,
+        \\  "string",
+        \\  "\"[2, 3] {\"m\":1,\"n\":2}",
+        \\  null
+        \\]
+    ,
+        &buffer,
+    );
+}

@@ -2560,89 +2560,89 @@ test "nested structures" {
     try testing.expectEqualStrings("{\"a\":[\"hello\",{\"a.a\":null,\"a.b\":true}],\"b\":[234,false]}", &buffer);
 }
 
-// test "indent writer" {
-//     var buffer: [119]u8 = undefined;
-//     var writer: lib.GciWriterString = undefined;
-//     const writer_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
-//     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
-//
-//     var indent: lib.ConWriterIndent = undefined;
-//     const indent_err = lib.con_writer_indent_init(
-//         &indent,
-//         lib.gci_writer_string_interface(&writer),
-//     );
-//     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), indent_err);
-//
-//     var depth: [3]lib.ConContainer = undefined;
-//     var context: lib.ConSerialize = undefined;
-//     const init_err = lib.con_serialize_init(
-//         &context,
-//         lib.con_writer_indent_interface(&indent),
-//         &depth,
-//         depth.len,
-//     );
-//     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
-//
-//     const open_err = lib.con_serialize_array_open(&context);
-//     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
-//
-//     {
-//         const open_dict_err = lib.con_serialize_dict_open(&context);
-//         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_dict_err);
-//
-//         {
-//             const key1_err = lib.con_serialize_dict_key(&context, "key1", 4);
-//             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
-//             const empty_open_array_err = lib.con_serialize_array_open(&context);
-//             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_open_array_err);
-//             const empty_close_array_err = lib.con_serialize_array_close(&context);
-//             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_close_array_err);
-//
-//             const key2_err = lib.con_serialize_dict_key(&context, "key2", 4);
-//             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key2_err);
-//             const empty_open_dict_err = lib.con_serialize_dict_open(&context);
-//             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_open_dict_err);
-//             const empty_close_dict_err = lib.con_serialize_dict_close(&context);
-//             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_close_dict_err);
-//
-//             const key3_err = lib.con_serialize_dict_key(&context, "key3", 4);
-//             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key3_err);
-//             const bool_err = lib.con_serialize_bool(&context, true);
-//             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), bool_err);
-//         }
-//
-//         const close_dict_err = lib.con_serialize_dict_close(&context);
-//         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_dict_err);
-//
-//         const num_err = lib.con_serialize_number(&context, "123", 3);
-//         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
-//
-//         const str_err = lib.con_serialize_string(&context, "string", 6);
-//         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
-//
-//         const no_indent_err = lib.con_serialize_string(&context, "\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}", 26);
-//         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), no_indent_err);
-//
-//         const null_err = lib.con_serialize_null(&context);
-//         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null_err);
-//     }
-//
-//     const close_err = lib.con_serialize_array_close(&context);
-//     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
-//
-//     try testing.expectEqualStrings(
-//         \\[
-//         \\  {
-//         \\    "key1": [],
-//         \\    "key2": {},
-//         \\    "key3": true
-//         \\  },
-//         \\  123,
-//         \\  "string",
-//         \\  "\"[2, 3] {\"m\":1,\"n\":2}",
-//         \\  null
-//         \\]
-//     ,
-//         &buffer,
-//     );
-// }
+test "indent writer" {
+    var buffer: [119]u8 = undefined;
+    var writer: lib.GciWriterString = undefined;
+    const writer_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), writer_err);
+
+    var indent: lib.ConWriterIndent = undefined;
+    const indent_err = lib.con_writer_indent_init(
+        &indent,
+        lib.gci_writer_string_interface(&writer),
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), indent_err);
+
+    var depth: [3]lib.ConContainer = undefined;
+    var context: lib.ConSerialize = undefined;
+    const init_err = lib.con_serialize_init(
+        &context,
+        lib.con_writer_indent_interface(&indent),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_serialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        const open_dict_err = lib.con_serialize_dict_open(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_dict_err);
+
+        {
+            const key1_err = lib.con_serialize_dict_key(&context, "key1", 4);
+            try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
+            const empty_open_array_err = lib.con_serialize_array_open(&context);
+            try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_open_array_err);
+            const empty_close_array_err = lib.con_serialize_array_close(&context);
+            try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_close_array_err);
+
+            const key2_err = lib.con_serialize_dict_key(&context, "key2", 4);
+            try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key2_err);
+            const empty_open_dict_err = lib.con_serialize_dict_open(&context);
+            try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_open_dict_err);
+            const empty_close_dict_err = lib.con_serialize_dict_close(&context);
+            try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), empty_close_dict_err);
+
+            const key3_err = lib.con_serialize_dict_key(&context, "key3", 4);
+            try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key3_err);
+            const bool_err = lib.con_serialize_bool(&context, true);
+            try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), bool_err);
+        }
+
+        const close_dict_err = lib.con_serialize_dict_close(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_dict_err);
+
+        const num_err = lib.con_serialize_number(&context, "123", 3);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
+
+        const str_err = lib.con_serialize_string(&context, "string", 6);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
+
+        const no_indent_err = lib.con_serialize_string(&context, "\\\"[2, 3] {\\\"m\\\":1,\\\"n\\\":2}", 26);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), no_indent_err);
+
+        const null_err = lib.con_serialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null_err);
+    }
+
+    const close_err = lib.con_serialize_array_close(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
+
+    try testing.expectEqualStrings(
+        \\[
+        \\  {
+        \\    "key1": [],
+        \\    "key2": {},
+        \\    "key3": true
+        \\  },
+        \\  123,
+        \\  "string",
+        \\  "\"[2, 3] {\"m\":1,\"n\":2}",
+        \\  null
+        \\]
+    ,
+        &buffer,
+    );
+}

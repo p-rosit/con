@@ -1,4 +1,5 @@
 const std = @import("std");
+const gci = @import("gci");
 const internal = @import("../internal.zig");
 const lib = internal.lib;
 
@@ -120,15 +121,19 @@ pub const Buffer = struct {
 pub const Indent = struct {
     inner: lib.ConWriterIndent,
 
-    pub fn init(writer: InterfaceWriter) !Indent {
+    pub fn init(writer: gci.InterfaceWriter) !Indent {
         var self: Indent = undefined;
-        const err = lib.con_writer_indent_init(&self.inner, writer.writer);
+        const err = lib.con_writer_indent_init(&self.inner, @as(*lib.GciInterfaceWriter, @ptrCast(@constCast(&writer.writer))).*);
         try internal.enumToError(err);
         return self;
     }
 
-    pub fn interface(self: *Indent) InterfaceWriter {
-        return .{ .writer = lib.con_writer_indent_interface(&self.inner) };
+    pub fn interface(self: *Indent) gci.InterfaceWriter {
+        const temp: gci.InterfaceWriter = undefined;
+        return .{ .writer = @as(
+            *@TypeOf(temp.writer),
+            @ptrCast(@constCast(&lib.con_writer_indent_interface(&self.inner))),
+        ).* };
     }
 };
 
@@ -312,14 +317,14 @@ test "buffer flush writer fail" {
 
 test "indent init" {
     var b: [0]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     _ = context.interface();
 }
 
 test "indent write" {
     var b: [1]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -329,7 +334,7 @@ test "indent write" {
 
 test "indent write minified" {
     var b: [56]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -349,7 +354,7 @@ test "indent write minified" {
 
 test "indent write one character at a time" {
     var b: [56]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -375,7 +380,7 @@ test "indent write one character at a time" {
 
 test "indent empty container" {
     var b: [14]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -398,7 +403,7 @@ test "indent empty container" {
 
 test "indent body writer fail" {
     var b: [0]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -408,7 +413,7 @@ test "indent body writer fail" {
 
 test "indent newline array open writer fail" {
     var b: [1]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -419,7 +424,7 @@ test "indent newline array open writer fail" {
 
 test "indent whitespace array open writer fail" {
     var b: [2]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -430,7 +435,7 @@ test "indent whitespace array open writer fail" {
 
 test "indent newline array close writer fail" {
     var b: [5]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -441,7 +446,7 @@ test "indent newline array close writer fail" {
 
 test "indent whitespace array close writer fail" {
     var b: [6]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -452,7 +457,7 @@ test "indent whitespace array close writer fail" {
 
 test "indent newline dict writer fail" {
     var b: [1]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -463,7 +468,7 @@ test "indent newline dict writer fail" {
 
 test "indent whitespace dict writer fail" {
     var b: [2]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -474,7 +479,7 @@ test "indent whitespace dict writer fail" {
 
 test "indent newline dict close writer fail" {
     var b: [10]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -485,7 +490,7 @@ test "indent newline dict close writer fail" {
 
 test "indent whitespace dict close writer fail" {
     var b: [11]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -496,7 +501,7 @@ test "indent whitespace dict close writer fail" {
 
 test "indent space writer fail" {
     var b: [8]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -507,7 +512,7 @@ test "indent space writer fail" {
 
 test "indent newline comma writer fail" {
     var b: [6]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 
@@ -518,7 +523,7 @@ test "indent newline comma writer fail" {
 
 test "indent whitespace comma writer fail" {
     var b: [7]u8 = undefined;
-    var c = try String.init(&b);
+    var c = try gci.WriterString.init(&b);
     var context = try Indent.init(c.interface());
     const writer = context.interface();
 

@@ -2,6 +2,7 @@
 #define CON_WRITER_H
 #include <stdbool.h>
 #include <stdio.h>
+#include <gci_interface_writer.h>
 #include <con_common.h>
 #include <con_interface_writer.h>
 
@@ -97,7 +98,7 @@ bool con_writer_buffer_flush(struct ConWriterBuffer *context);
 // writes. Therefore this should not be the inner writer to a buffered writer,
 // the inner writer of this writer should be buffered if anything.
 struct ConWriterIndent {
-    struct ConInterfaceWriter writer;
+    struct GciInterfaceWriter writer;
     struct ConStateChar state;
     size_t depth;
 };
@@ -113,11 +114,11 @@ struct ConWriterIndent {
 //  CON_ERROR_NULL: `context` is null.
 enum ConError con_writer_indent_init(
     struct ConWriterIndent *context,
-    struct ConInterfaceWriter writer
+    struct GciInterfaceWriter writer
 );
 
 // Makes a writer interface from an already initialized `struct ConWriterIndent`
 // the returned writer owns the passed in `context`.
-struct ConInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *context);
+struct GciInterfaceWriter con_writer_indent_interface(struct ConWriterIndent *context);
 
 #endif
