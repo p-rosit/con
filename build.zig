@@ -30,7 +30,7 @@ pub fn build(b: *std.Build) void {
         .name = "con-serialize",
         .root = "src/serialize",
         .sources = &.{ "serialize.c", "writer.c" },
-        .headers = &.{ "con_serialize.h", "con_interface_writer.h", "con_writer.h" },
+        .headers = &.{ "con_serialize.h", "con_writer.h" },
     });
     serialize.linkLibrary(utils);
     serialize.addIncludePath(gci.path("src/interface"));

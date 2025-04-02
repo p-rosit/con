@@ -7,13 +7,7 @@ const reader = @import("deserialize/reader.zig");
 pub const State = lib.ConState;
 pub const Container = lib.ConContainer;
 
-pub const InterfaceWriter = writer.InterfaceWriter;
 pub const Serialize = serialize.Serialize;
-
-pub const Writer = writer.Writer;
-pub const WriterFile = writer.File;
-pub const WriterString = writer.String;
-pub const WriterBuffer = writer.Buffer;
 pub const WriterIndent = writer.Indent;
 
 pub const InterfaceReader = reader.InterfaceReader;
