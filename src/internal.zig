@@ -1,4 +1,6 @@
 pub const lib = @cImport({
+    @cInclude("gci_interface_writer.h");
+    @cInclude("gci_writer.h");
     @cInclude("con_serialize.h");
     @cInclude("con_interface_writer.h");
     @cInclude("con_writer.h");

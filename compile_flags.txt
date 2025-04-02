@@ -7,6 +7,10 @@ c
 /home/pontus/clang/con/src/serialize
 -I
 /home/pontus/clang/con/src/deserialize
+-I
+/home/pontus/clang/gci/src/interface
+-I
+/home/pontus/clang/gci/src/implementation
 -Wall
 -Wextra
 -Wconversion

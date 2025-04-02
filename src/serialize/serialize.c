@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <ctype.h>
 #include <utils.h>
-#include "con_writer.h"
 #include "con_serialize.h"
 
 static inline enum ConError con_serialize_comma(struct ConSerialize *context, enum ConState state);
@@ -9,7 +8,7 @@ static inline enum ConContainer con_serialize_container_current(struct ConSerial
 
 enum ConError con_serialize_init(
     struct ConSerialize *context,
-    struct ConInterfaceWriter writer,
+    struct GciInterfaceWriter writer,
     enum ConContainer *depth_buffer,
     int depth_buffer_size
 ) {
@@ -45,7 +44,7 @@ enum ConError con_serialize_array_open(struct ConSerialize *context) {
     context->depth_buffer[context->depth] = CON_CONTAINER_ARRAY;
     context->depth += 1;
 
-    size_t result = con_writer_write(context->writer, "[", 1);
+    size_t result = gci_writer_write(context->writer, "[", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
     return CON_ERROR_OK;
 }
@@ -63,7 +62,7 @@ enum ConError con_serialize_array_close(struct ConSerialize *context) {
     enum ConError err = con_utils_state_close(&context->state, current);
     if (err) { return err; }
 
-    size_t result = con_writer_write(context->writer, "]", 1);
+    size_t result = gci_writer_write(context->writer, "]", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 
     context->depth -= 1;
@@ -93,7 +92,7 @@ enum ConError con_serialize_dict_open(struct ConSerialize *context) {
     context->depth_buffer[context->depth] = CON_CONTAINER_DICT;
     context->depth += 1;
 
-    size_t result = con_writer_write(context->writer, "{", 1);
+    size_t result = gci_writer_write(context->writer, "{", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
     return CON_ERROR_OK;
 }
@@ -111,7 +110,7 @@ enum ConError con_serialize_dict_close(struct ConSerialize *context) {
     enum ConError err = con_utils_state_close(&context->state, current);
     if (err) { return err; }
 
-    size_t result = con_writer_write(context->writer, "}", 1);
+    size_t result = gci_writer_write(context->writer, "}", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 
     context->depth -= 1;
@@ -144,11 +143,11 @@ enum ConError con_serialize_dict_key(struct ConSerialize *context, char const *k
     enum ConError comma_err = con_serialize_comma(context, prev);
     if (comma_err) { return comma_err; }
 
-    size_t result = con_writer_write(context->writer, "\"", 1);
+    size_t result = gci_writer_write(context->writer, "\"", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
-    result = con_writer_write(context->writer, key, key_size);
+    result = gci_writer_write(context->writer, key, key_size);
     if (result != key_size) { return CON_ERROR_WRITER; }
-    result = con_writer_write(context->writer, "\":", 2);
+    result = gci_writer_write(context->writer, "\":", 2);
     if (result != 2) { return CON_ERROR_WRITER; }
     return CON_ERROR_OK;
 }
@@ -172,7 +171,7 @@ enum ConError con_serialize_number(struct ConSerialize *context, char const *num
     enum ConError comma_err = con_serialize_comma(context, prev);
     if (comma_err) { return comma_err; }
 
-    size_t result = con_writer_write(context->writer, number, number_size);
+    size_t result = gci_writer_write(context->writer, number, number_size);
     if (result != number_size) { return CON_ERROR_WRITER; }
 
     return CON_ERROR_OK;
@@ -196,11 +195,11 @@ enum ConError con_serialize_string(struct ConSerialize *context, char const *str
     enum ConError comma_err = con_serialize_comma(context, prev);
     if (comma_err) { return comma_err; }
 
-    size_t result = con_writer_write(context->writer, "\"", 1);
+    size_t result = gci_writer_write(context->writer, "\"", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
-    result = con_writer_write(context->writer, string, string_size);
+    result = gci_writer_write(context->writer, string, string_size);
     if (result != string_size) { return CON_ERROR_WRITER; }
-    result = con_writer_write(context->writer, "\"", 1);
+    result = gci_writer_write(context->writer, "\"", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 
     return CON_ERROR_OK;
@@ -220,10 +219,10 @@ enum ConError con_serialize_bool(struct ConSerialize *context, bool value) {
     size_t expected;
     if (value) {
         expected = 4;
-        result = con_writer_write(context->writer, "true", expected);
+        result = gci_writer_write(context->writer, "true", expected);
     } else {
         expected = 5;
-        result = con_writer_write(context->writer, "false", expected);
+        result = gci_writer_write(context->writer, "false", expected);
     }
     if (result != expected) { return CON_ERROR_WRITER; }
 
@@ -240,7 +239,7 @@ enum ConError con_serialize_null(struct ConSerialize *context) {
     enum ConError comma_err = con_serialize_comma(context, prev);
     if (comma_err) { return comma_err; }
 
-    size_t result = con_writer_write(context->writer, "null", 4);
+    size_t result = gci_writer_write(context->writer, "null", 4);
     if (result != 4) { return CON_ERROR_WRITER; }
 
     return CON_ERROR_OK;
@@ -332,7 +331,7 @@ static inline enum ConError con_serialize_comma(struct ConSerialize *context, en
     }
 
     assert(context != NULL);
-    size_t result = con_writer_write(context->writer, ",", 1);
+    size_t result = gci_writer_write(context->writer, ",", 1);
     if (result != 1) { return CON_ERROR_WRITER; }
 
     return CON_ERROR_OK;
