@@ -42,7 +42,7 @@ pub fn build(b: *std.Build) void {
         .name = "con-deserialize",
         .root = "src/deserialize",
         .sources = &.{ "deserialize.c", "reader.c" },
-        .headers = &.{ "con_deserialize.h", "con_reader.h", "con_interface_reader.h" },
+        .headers = &.{ "con_deserialize.h", "con_reader.h" },
     });
     serialize.linkLibrary(utils);
     deserialize.addIncludePath(gci.path("src/interface"));

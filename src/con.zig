@@ -10,15 +10,8 @@ pub const Container = lib.ConContainer;
 pub const Serialize = serialize.Serialize;
 pub const WriterIndent = writer.Indent;
 
-pub const InterfaceReader = reader.InterfaceReader;
 pub const Deserialize = deserialize.Deserialize;
-
-pub const Reader = reader.Reader;
-pub const ReaderFile = reader.File;
-pub const ReaderString = reader.String;
-pub const ReaderBuffer = reader.Buffer;
 pub const ReaderComment = reader.Comment;
-pub const ReaderFail = reader.Fail;
 
 test {
     @import("std").testing.refAllDecls(@This());

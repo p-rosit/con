@@ -6,7 +6,6 @@ pub const lib = @cImport({
     @cInclude("con_serialize.h");
     @cInclude("con_writer.h");
     @cInclude("con_deserialize.h");
-    @cInclude("con_interface_reader.h");
     @cInclude("con_reader.h");
     @cInclude("con_common.h");
 });

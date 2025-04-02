@@ -3,6 +3,7 @@
 #include <utils.h>
 #include <limits.h>
 #include <string.h>
+#include <stdio.h>
 #include "con_writer.h"
 #include "con_deserialize.h"
 
