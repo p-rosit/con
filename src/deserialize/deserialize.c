@@ -9,10 +9,10 @@
 static inline enum ConContainer con_deserialize_container_current(struct ConDeserialize *context);
 static inline enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum ConDeserializeType *type, bool *same_token);
 static inline enum ConError con_deserialize_internal_next_character(struct ConDeserialize *context, char *c, bool *same_token);
-static inline enum ConError con_deserialize_string_get(struct ConDeserialize *context, struct ConInterfaceWriter writer);
+static inline enum ConError con_deserialize_string_get(struct ConDeserialize *context, struct GciInterfaceWriter writer);
 static inline enum ConError con_deserialize_string_next(struct ConDeserialize *context, bool escaped, char *c, bool *is_u);
 
-enum ConError con_deserialize_init(struct ConDeserialize *context, struct ConInterfaceReader reader, enum ConContainer *depth_buffer, int depth_buffer_size) {
+enum ConError con_deserialize_init(struct ConDeserialize *context, struct GciInterfaceReader reader, enum ConContainer *depth_buffer, int depth_buffer_size) {
     if (context == NULL) { return CON_ERROR_NULL; }
     if (depth_buffer == NULL && depth_buffer_size > 0) { return CON_ERROR_NULL; }
     if (depth_buffer_size < 0) { return CON_ERROR_BUFFER; }
@@ -167,7 +167,7 @@ enum ConError con_deserialize_dict_close(struct ConDeserialize *context) {
     return CON_ERROR_OK;
 }
 
-enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
+enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct GciInterfaceWriter writer) {
     assert(context != NULL);
 
     enum ConDeserializeType next;
@@ -198,7 +198,7 @@ enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct Co
     return CON_ERROR_OK;
 }
 
-enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
+enum ConError con_deserialize_number(struct ConDeserialize *context, struct GciInterfaceWriter writer) {
     assert(context != NULL);
 
     enum ConDeserializeType next;
@@ -216,7 +216,7 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
     state = con_utils_state_number_next(state, (char) context->buffer_char);
     assert(state != NUMBER_ERROR);
 
-    size_t amount_written = con_writer_write(writer, (char*) &context->buffer_char, 1);
+    size_t amount_written = gci_writer_write(writer, (char*) &context->buffer_char, 1);
     if (amount_written != 1) { return CON_ERROR_WRITER; }
 
     context->buffer_char = EOF;
@@ -236,7 +236,7 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
             state = con_utils_state_number_next(state, c);
 
             if (state != NUMBER_ERROR) {
-                amount_written = con_writer_write(writer, &c, 1);
+                amount_written = gci_writer_write(writer, &c, 1);
                 if (amount_written != 1) { return CON_ERROR_WRITER; }
             } else {
                 return CON_ERROR_INVALID_JSON;
@@ -251,7 +251,7 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
     return CON_ERROR_OK;
 }
 
-enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
+enum ConError con_deserialize_string(struct ConDeserialize *context, struct GciInterfaceWriter writer) {
     assert(context != NULL);
 
     enum ConDeserializeType next;
@@ -425,7 +425,7 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
             context->buffer_char = EOF;
 
             char next;
-            size_t length = con_reader_read(context->reader, &next, 1);
+            size_t length = gci_reader_read(context->reader, &next, 1);
             if (length != 1) {
                 return CON_ERROR_READER;
             }
@@ -468,7 +468,7 @@ static inline enum ConError con_deserialize_internal_next_character(struct ConDe
     return CON_ERROR_OK;
 }
 
-static inline enum ConError con_deserialize_string_get(struct ConDeserialize *context, struct ConInterfaceWriter writer) {
+static inline enum ConError con_deserialize_string_get(struct ConDeserialize *context, struct GciInterfaceWriter writer) {
     assert(context != NULL);
 
     assert(context->buffer_char != EOF);
@@ -488,7 +488,7 @@ static inline enum ConError con_deserialize_string_get(struct ConDeserialize *co
             escaped = true;
         } else {
             escaped = false;
-            size_t amount_written = con_writer_write(writer, c, 1 + is_u);
+            size_t amount_written = gci_writer_write(writer, c, 1 + is_u);
             if (amount_written != 1 + is_u) { return CON_ERROR_WRITER; }
         }
     }
@@ -497,7 +497,7 @@ static inline enum ConError con_deserialize_string_get(struct ConDeserialize *co
 }
 
 static inline enum ConError con_deserialize_string_next(struct ConDeserialize *context, bool escaped, char *c, bool *is_u) {
-    size_t length = con_reader_read(context->reader, c, 1);
+    size_t length = gci_reader_read(context->reader, c, 1);
     if (length != 1) { return CON_ERROR_READER; }
     *is_u = false;
 
@@ -530,7 +530,7 @@ static inline enum ConError con_deserialize_string_next(struct ConDeserialize *c
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 2; j++) {
                         char d;
-                        size_t length = con_reader_read(context->reader, &d, 1);
+                        size_t length = gci_reader_read(context->reader, &d, 1);
                         if (length != 1) { return CON_ERROR_READER; }
                         if (!isxdigit((unsigned char) d)) { return CON_ERROR_INVALID_JSON; }
 

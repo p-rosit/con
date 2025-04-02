@@ -1,8 +1,8 @@
 #ifndef CON_DESERIALIZE_H
 #define CON_DESERIALIZE_H
+#include <gci_interface_reader.h>
+#include <gci_interface_writer.h>
 #include <con_common.h>
-#include <con_interface_writer.h>
-#include <con_interface_reader.h>
 
 // Represents token types
 enum ConDeserializeType {
@@ -50,7 +50,7 @@ enum ConDeserializeType {
 //  state:              Managed internally, do not modify.
 //  found_comma:        Valid to read of `buffer_char` is not EOF.
 struct ConDeserialize {
-    struct ConInterfaceReader reader;
+    struct GciInterfaceReader reader;
     size_t depth;
     enum ConContainer *depth_buffer;
     int depth_buffer_size;
@@ -81,7 +81,7 @@ struct ConDeserialize {
 //  CON_ERROR_BUFFER:   `depth_buffer_size` is negative.
 enum ConError con_deserialize_init(
     struct ConDeserialize *context,
-    struct ConInterfaceReader reader,
+    struct GciInterfaceReader reader,
     enum ConContainer *depth_buffer,
     int depth_buffer_size
 );
@@ -177,7 +177,7 @@ enum ConError con_deserialize_dict_close(struct ConDeserialize *context);
 //  CON_ERROR_COMMA_UNEXPECTED: Comma found before the first element in a
 //                              container.
 //  CON_ERROR_TYPE:             Next token is not a string.
-enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct ConInterfaceWriter writer);
+enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct GciInterfaceWriter writer);
 
 // Return:
 //  CON_ERROR_OK:               Call succeded.
@@ -195,7 +195,7 @@ enum ConError con_deserialize_dict_key(struct ConDeserialize *context, struct Co
 //      1. comma found before the first element in a container.
 //      2. comma found outside a container.
 //  CON_ERROR_TYPE:             Next token is not a number.
-enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConInterfaceWriter writer);
+enum ConError con_deserialize_number(struct ConDeserialize *context, struct GciInterfaceWriter writer);
 
 // Return:
 //  CON_ERROR_OK:               Call succeded.
@@ -210,7 +210,7 @@ enum ConError con_deserialize_number(struct ConDeserialize *context, struct ConI
 //  CON_ERROR_COMMA_UNEXPECTED: Comma found before the first element in a
 //                              container.
 //  CON_ERROR_TYPE:             Next token is not a string.
-enum ConError con_deserialize_string(struct ConDeserialize *context, struct ConInterfaceWriter writer);
+enum ConError con_deserialize_string(struct ConDeserialize *context, struct GciInterfaceWriter writer);
 
 // Return:
 //  CON_ERROR_OK:               Call succeded.

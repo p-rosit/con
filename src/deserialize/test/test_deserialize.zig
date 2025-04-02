@@ -2,12 +2,12 @@ const testing = @import("std").testing;
 const lib = @import("../../internal.zig").lib;
 
 test "context init" {
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -15,11 +15,11 @@ test "context init" {
 }
 
 test "context init null" {
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     var depth: [0]lib.ConContainer = undefined;
     const init_err = lib.con_deserialize_init(
         null,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -27,10 +27,10 @@ test "context init null" {
 }
 
 test "context depth null, length positive" {
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     const init_err = lib.con_deserialize_init(
         null,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         null,
         1,
     );
@@ -38,11 +38,11 @@ test "context depth null, length positive" {
 }
 
 test "context depth null, length zero" {
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         null,
         0,
     );
@@ -50,12 +50,12 @@ test "context depth null, length zero" {
 }
 
 test "context depth negative" {
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         -1,
     );
@@ -66,15 +66,15 @@ test "context depth negative" {
 
 test "next empty" {
     const data = "  \n\t ";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -90,14 +90,14 @@ test "next empty" {
 
 test "next error" {
     const data = "";
-    var r: lib.ConReaderString = undefined;
-    const i1_err = lib.con_reader_string_init(&r, data, data.len);
+    var r: lib.GciReaderString = undefined;
+    const i1_err = lib.gci_reader_string_init(&r, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i1_err);
 
-    var reader: lib.ConReaderFail = undefined;
-    const i2_err = lib.con_reader_fail_init(
+    var reader: lib.GciReaderFail = undefined;
+    const i2_err = lib.gci_reader_fail_init(
         &reader,
-        lib.con_reader_string_interface(&r),
+        lib.gci_reader_string_interface(&r),
         0,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
@@ -106,7 +106,7 @@ test "next error" {
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_fail_interface(&reader),
+        lib.gci_reader_fail_interface(&reader),
         &depth,
         0,
     );
@@ -122,15 +122,15 @@ test "next error" {
 
 test "next number" {
     const data = " 1";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -148,15 +148,15 @@ test "next number" {
 
 test "next string" {
     const data = " \"abc\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -174,15 +174,15 @@ test "next string" {
 
 test "next bool true" {
     const data = "  true";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -200,15 +200,15 @@ test "next bool true" {
 
 test "next bool false" {
     const data = "\tfalse";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -226,15 +226,15 @@ test "next bool false" {
 
 test "next null" {
     const data = "null";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -252,15 +252,15 @@ test "next null" {
 
 test "next array open" {
     const data = "[";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -278,15 +278,15 @@ test "next array open" {
 
 test "next array close" {
     const data = "[]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -307,15 +307,15 @@ test "next array close" {
 
 test "next array first" {
     const data = "[true]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -338,15 +338,15 @@ test "next array first" {
 
 test "next array second" {
     const data = "[null, 0.0]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -372,15 +372,15 @@ test "next array second" {
 
 test "next dict open" {
     const data = "{";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         0,
     );
@@ -398,15 +398,15 @@ test "next dict open" {
 
 test "next dict close" {
     const data = "{}";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -427,15 +427,15 @@ test "next dict close" {
 
 test "next dict key" {
     const data = "{\"k\":";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -456,15 +456,15 @@ test "next dict key" {
 
 test "next dict first" {
     const data = "{\"k\":\"a\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -475,11 +475,11 @@ test "next dict first" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", &buffer);
 
@@ -496,15 +496,15 @@ test "next dict first" {
 
 test "next dict second" {
     const data = "{\"k\":\"a\",\"m\":\"b\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -515,19 +515,19 @@ test "next dict second" {
 
     {
         var buffer: [3]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key1_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key1_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
         try testing.expectEqualStrings("k", buffer[0..1]);
 
-        const str_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
         try testing.expectEqualStrings("a", buffer[1..2]);
 
-        const key2_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key2_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key2_err);
         try testing.expectEqualStrings("m", buffer[2..3]);
 
@@ -546,21 +546,21 @@ test "next dict second" {
 
 test "number int-like" {
     const data = "-6 ";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [5]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
     try testing.expectEqual(2, writer.current);
     try testing.expectEqualStrings("-6", buffer[0..2]);
@@ -568,21 +568,21 @@ test "number int-like" {
 
 test "number float-like" {
     const data = "0.3";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [5]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
     try testing.expectEqual(3, writer.current);
     try testing.expectEqualStrings("0.3", buffer[0..3]);
@@ -590,21 +590,21 @@ test "number float-like" {
 
 test "number scientific-like" {
     const data = "2e+4";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [5]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
     try testing.expectEqual(4, writer.current);
     try testing.expectEqualStrings("2e+4", buffer[0..4]);
@@ -612,108 +612,108 @@ test "number scientific-like" {
 
 test "number small" {
     const data = "";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [5]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const err1 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err1 = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err1);
 }
 
 test "number reader fail" {
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     var buffer: [6]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
+    var writer: lib.GciWriterString = undefined;
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
 
     const data1 = "2.";
-    const ir1_err = lib.con_reader_string_init(&reader, data1, data1.len);
+    const ir1_err = lib.gci_reader_string_init(&reader, data1, data1.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir1_err);
-    const iw1_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw1_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw1_err);
-    const init1_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init1_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
-    const err1 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err1 = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err1);
     try testing.expectEqual(2, writer.current);
     try testing.expectEqualStrings("2.", buffer[0..2]);
 
     const data2 = "2.5E";
-    const ir2_err = lib.con_reader_string_init(&reader, data2, data2.len);
+    const ir2_err = lib.gci_reader_string_init(&reader, data2, data2.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir2_err);
-    const iw2_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw2_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw2_err);
-    const init2_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init2_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
-    const err2 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err2 = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err2);
     try testing.expectEqual(4, writer.current);
     try testing.expectEqualStrings("2.5E", buffer[0..4]);
 
     const data3 = "-";
-    const ir3_err = lib.con_reader_string_init(&reader, data3, data3.len);
+    const ir3_err = lib.gci_reader_string_init(&reader, data3, data3.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir3_err);
-    const iw3_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw3_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw3_err);
-    const init3_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init3_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init3_err);
-    const err3 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err3 = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err3);
     try testing.expectEqual(1, writer.current);
     try testing.expectEqualStrings("-", buffer[0..1]);
 
     const data4 = "3.4e-";
-    const ir4_err = lib.con_reader_string_init(&reader, data4, data4.len);
+    const ir4_err = lib.gci_reader_string_init(&reader, data4, data4.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir4_err);
-    const iw4_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw4_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw4_err);
-    const init4_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init4_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init4_err);
-    const err4 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err4 = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err4);
     try testing.expectEqual(5, writer.current);
     try testing.expectEqualStrings("3.4e-", buffer[0..5]);
 }
 
 test "number invalid" {
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     var buffer: [6]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
+    var writer: lib.GciWriterString = undefined;
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
 
     const data1 = "+";
-    const ir1_err = lib.con_reader_string_init(&reader, data1, data1.len);
+    const ir1_err = lib.gci_reader_string_init(&reader, data1, data1.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir1_err);
-    const iw1_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw1_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw1_err);
-    const init1_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init1_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
-    const err1 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err1 = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err1);
     try testing.expectEqual(0, writer.current);
 
     const data2 = "0f";
-    const ir2_err = lib.con_reader_string_init(&reader, data2, data2.len);
+    const ir2_err = lib.gci_reader_string_init(&reader, data2, data2.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir2_err);
-    const iw2_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw2_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw2_err);
-    const init2_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init2_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
-    const err2 = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err2 = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err2);
     try testing.expectEqual(1, writer.current);
     try testing.expectEqualStrings("0", buffer[0..1]);
@@ -721,21 +721,21 @@ test "number invalid" {
 
 test "string" {
     const data = "\"a b\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [5]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    const err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
     try testing.expectEqual(3, writer.current);
     try testing.expectEqualStrings("a b", buffer[0..3]);
@@ -743,89 +743,89 @@ test "string" {
 
 test "string escaped" {
     const data = "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u12f4\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [16]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    const err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err);
     try testing.expectEqual(10, writer.current);
     try testing.expectEqualStrings("\"\\/\x08\x0c\n\r\t\x12\xf4", buffer[0..10]);
 }
 
 test "string invalid" {
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     var buffer: [6]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
+    var writer: lib.GciWriterString = undefined;
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
 
     const data1 = "ab\"";
-    const ir1_err = lib.con_reader_string_init(&reader, data1, data1.len);
+    const ir1_err = lib.gci_reader_string_init(&reader, data1, data1.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir1_err);
-    const iw1_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw1_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw1_err);
-    const init1_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init1_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
-    const err1 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    const err1 = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err1);
     try testing.expectEqual(0, writer.current);
 
     const data2 = "\"ab";
-    const ir2_err = lib.con_reader_string_init(&reader, data2, data2.len);
+    const ir2_err = lib.gci_reader_string_init(&reader, data2, data2.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir2_err);
-    const iw2_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw2_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw2_err);
-    const init2_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init2_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
-    const err2 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    const err2 = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err2);
     try testing.expectEqual(2, writer.current);
     try testing.expectEqualStrings("ab", buffer[0..2]);
 
     const data3 = "\"1\\h";
-    const ir3_err = lib.con_reader_string_init(&reader, data3, data3.len);
+    const ir3_err = lib.gci_reader_string_init(&reader, data3, data3.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir3_err);
-    const iw3_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw3_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw3_err);
-    const init3_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init3_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init3_err);
-    const err3 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    const err3 = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err3);
     try testing.expectEqual(1, writer.current);
     try testing.expectEqualStrings("1", buffer[0..1]);
 
     const data4 = "\"2\\u123";
-    const ir4_err = lib.con_reader_string_init(&reader, data4, data4.len);
+    const ir4_err = lib.gci_reader_string_init(&reader, data4, data4.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir4_err);
-    const iw4_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw4_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw4_err);
-    const init4_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init4_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init4_err);
-    const err4 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    const err4 = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err4);
     try testing.expectEqual(1, writer.current);
     try testing.expectEqualStrings("2", buffer[0..1]);
 
     const data5 = "\"3\\u123G";
-    const ir5_err = lib.con_reader_string_init(&reader, data5, data5.len);
+    const ir5_err = lib.gci_reader_string_init(&reader, data5, data5.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir5_err);
-    const iw5_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    const iw5_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw5_err);
-    const init5_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init5_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init5_err);
-    const err5 = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    const err5 = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err5);
     try testing.expectEqual(1, writer.current);
     try testing.expectEqualStrings("3", buffer[0..1]);
@@ -833,13 +833,13 @@ test "string invalid" {
 
 test "bool true" {
     const data = "true";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var value: bool = undefined;
@@ -850,13 +850,13 @@ test "bool true" {
 
 test "bool false" {
     const data = "false";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var value: bool = undefined;
@@ -867,54 +867,54 @@ test "bool false" {
 
 test "bool invalid" {
     var depth: [0]lib.ConContainer = undefined;
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     var context: lib.ConDeserialize = undefined;
     var value: bool = undefined;
 
     const data1 = "t";
-    const i1_err = lib.con_reader_string_init(&reader, data1, data1.len);
+    const i1_err = lib.gci_reader_string_init(&reader, data1, data1.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i1_err);
-    const init1_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init1_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
     const err1 = lib.con_deserialize_bool(&context, &value);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err1);
 
     const data2 = "f a l s e";
-    const i2_err = lib.con_reader_string_init(&reader, data2, data2.len);
+    const i2_err = lib.gci_reader_string_init(&reader, data2, data2.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
-    const init2_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init2_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
     const err2 = lib.con_deserialize_bool(&context, &value);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err2);
 
     const data3 = "talse";
-    const i3_err = lib.con_reader_string_init(&reader, data3, data3.len);
+    const i3_err = lib.gci_reader_string_init(&reader, data3, data3.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i3_err);
-    const init3_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init3_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init3_err);
     const err3 = lib.con_deserialize_bool(&context, &value);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err3);
 
     const data4 = "frue";
-    const i4_err = lib.con_reader_string_init(&reader, data4, data4.len);
+    const i4_err = lib.gci_reader_string_init(&reader, data4, data4.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i4_err);
-    const init4_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init4_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init4_err);
     const err4 = lib.con_deserialize_bool(&context, &value);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err4);
 
     const data5 = "f,";
-    const i5_err = lib.con_reader_string_init(&reader, data5, data5.len);
+    const i5_err = lib.gci_reader_string_init(&reader, data5, data5.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i5_err);
-    const init5_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init5_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init5_err);
     const err5 = lib.con_deserialize_bool(&context, &value);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMMA_UNEXPECTED), err5);
 
     const data6 = "truet";
-    const i6_err = lib.con_reader_string_init(&reader, data6, data6.len);
+    const i6_err = lib.gci_reader_string_init(&reader, data6, data6.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i6_err);
-    const init6_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init6_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init6_err);
     const err6 = lib.con_deserialize_bool(&context, &value);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err6);
@@ -922,13 +922,13 @@ test "bool invalid" {
 
 test "null" {
     const data = "null";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const err = lib.con_deserialize_null(&context);
@@ -937,29 +937,29 @@ test "null" {
 
 test "null invalid" {
     var depth: [0]lib.ConContainer = undefined;
-    var reader: lib.ConReaderString = undefined;
+    var reader: lib.GciReaderString = undefined;
     var context: lib.ConDeserialize = undefined;
 
     const data1 = "n";
-    const i1_err = lib.con_reader_string_init(&reader, data1, data1.len);
+    const i1_err = lib.gci_reader_string_init(&reader, data1, data1.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i1_err);
-    const init1_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init1_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init1_err);
     const err1 = lib.con_deserialize_null(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), err1);
 
     const data2 = "nulll";
-    const i2_err = lib.con_reader_string_init(&reader, data2, data2.len);
+    const i2_err = lib.gci_reader_string_init(&reader, data2, data2.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i2_err);
-    const init2_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init2_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init2_err);
     const err2 = lib.con_deserialize_null(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err2);
 
     const data3 = "nu ll";
-    const i3_err = lib.con_reader_string_init(&reader, data3, data3.len);
+    const i3_err = lib.gci_reader_string_init(&reader, data3, data3.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i3_err);
-    const init3_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init3_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init3_err);
     const err3 = lib.con_deserialize_null(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_INVALID_JSON), err3);
@@ -969,13 +969,13 @@ test "null invalid" {
 
 test "array open" {
     const data = "[";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const err = lib.con_deserialize_array_open(&context);
@@ -984,13 +984,13 @@ test "array open" {
 
 test "array open too many" {
     const data = "[";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const err = lib.con_deserialize_array_open(&context);
@@ -999,13 +999,13 @@ test "array open too many" {
 
 test "array nested open too many" {
     const data = "[1,[";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1013,11 +1013,11 @@ test "array nested open too many" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const num_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
 
         const err = lib.con_deserialize_array_open(&context);
@@ -1027,13 +1027,13 @@ test "array nested open too many" {
 
 test "array open reader fail" {
     const data = "";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const err = lib.con_deserialize_array_open(&context);
@@ -1042,13 +1042,13 @@ test "array open reader fail" {
 
 test "array close" {
     const data = "[]";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1060,13 +1060,13 @@ test "array close" {
 
 test "array close too many" {
     const data = "]";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const err = lib.con_deserialize_array_close(&context);
@@ -1075,13 +1075,13 @@ test "array close too many" {
 
 test "array close reader fail" {
     const data = "[";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1093,13 +1093,13 @@ test "array close reader fail" {
 
 test "dict open" {
     const data = "{";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const err = lib.con_deserialize_dict_open(&context);
@@ -1108,13 +1108,13 @@ test "dict open" {
 
 test "dict open too many" {
     const data = "{";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [0]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const err = lib.con_deserialize_dict_open(&context);
@@ -1123,13 +1123,13 @@ test "dict open too many" {
 
 test "dict nested open too many" {
     const data = "[1,{";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1137,11 +1137,11 @@ test "dict nested open too many" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const num_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
 
         const err = lib.con_deserialize_dict_open(&context);
@@ -1151,13 +1151,13 @@ test "dict nested open too many" {
 
 test "dict open reader fail" {
     const data = "";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const err = lib.con_deserialize_dict_open(&context);
@@ -1166,13 +1166,13 @@ test "dict open reader fail" {
 
 test "dict close" {
     const data = "{}";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_dict_open(&context);
@@ -1184,13 +1184,13 @@ test "dict close" {
 
 test "dict close too many" {
     const data = "}";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const close_err = lib.con_deserialize_dict_close(&context);
@@ -1199,13 +1199,13 @@ test "dict close too many" {
 
 test "dict close reader fail" {
     const data = "{";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_dict_open(&context);
@@ -1219,15 +1219,15 @@ test "dict close reader fail" {
 
 test "dict key" {
     const data = "{\"k\":";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1238,11 +1238,11 @@ test "dict key" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", &buffer);
     }
@@ -1250,15 +1250,15 @@ test "dict key" {
 
 test "dict key multiple" {
     const data = "{\"k\":null,\"m\":";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1269,18 +1269,18 @@ test "dict key multiple" {
 
     {
         var buffer: [2]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key1_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key1_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
         try testing.expectEqualStrings("k", buffer[0..1]);
 
         const null_err = lib.con_deserialize_null(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null_err);
 
-        const key2_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key2_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key2_err);
         try testing.expectEqualStrings("m", buffer[1..2]);
     }
@@ -1288,15 +1288,15 @@ test "dict key multiple" {
 
 test "dict key reader fail" {
     const data = "{\"k";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1307,11 +1307,11 @@ test "dict key reader fail" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), key_err);
         try testing.expectEqual(1, writer.current);
         try testing.expectEqualStrings("k", &buffer);
@@ -1320,15 +1320,15 @@ test "dict key reader fail" {
 
 test "dict key colon reader fail" {
     const data = "{\"k\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1339,11 +1339,11 @@ test "dict key colon reader fail" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), key_err);
         try testing.expectEqual(1, writer.current);
         try testing.expectEqualStrings("k", &buffer);
@@ -1352,15 +1352,15 @@ test "dict key colon reader fail" {
 
 test "dict key comma extra" {
     const data = "{\"k\":,null";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1371,11 +1371,11 @@ test "dict key comma extra" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key1_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key1_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
         try testing.expectEqualStrings("k", &buffer);
 
@@ -1386,15 +1386,15 @@ test "dict key comma extra" {
 
 test "dict key comma missing" {
     const data = "{\"k\":null\"m\":";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1405,33 +1405,33 @@ test "dict key comma missing" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key1_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key1_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
         try testing.expectEqualStrings("k", &buffer);
 
         const null_err = lib.con_deserialize_null(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null_err);
 
-        const key2_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key2_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMMA_MISSING), key2_err);
     }
 }
 
 test "dict key comma reader fail" {
     const data = "{\"k\":null";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1442,59 +1442,59 @@ test "dict key comma reader fail" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key1_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key1_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
         try testing.expectEqualStrings("k", &buffer);
 
         const null_err = lib.con_deserialize_null(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null_err);
 
-        const key2_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key2_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), key2_err);
     }
 }
 
 test "dict key outside dict" {
     const data = "\"k\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [1]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+    const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_TYPE), key_err);
     try testing.expectEqual(0, writer.current);
 }
 
 test "dict key in array" {
     const data = "[\"k\":";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1505,26 +1505,26 @@ test "dict key in array" {
 
     {
         var buffer: [0]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_TYPE), key_err);
     }
 }
 
 test "dict key twice" {
     const data = "{\"k\":\"m\":";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1535,31 +1535,31 @@ test "dict key twice" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key1_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key1_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
         try testing.expectEqual(1, writer.current);
         try testing.expectEqualStrings("k", &buffer);
 
-        const key2_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key2_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_TYPE), key2_err);
     }
 }
 
 test "dict number key missing" {
     const data = "{3";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1570,26 +1570,26 @@ test "dict number key missing" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const num_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_KEY), num_err);
     }
 }
 
 test "dict number second key missing" {
     const data = "{\"k\":3,4";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1600,34 +1600,34 @@ test "dict number second key missing" {
 
     {
         var buffer: [2]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", buffer[0..1]);
 
-        const num1_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num1_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num1_err);
         try testing.expectEqualStrings("3", buffer[1..2]);
 
-        const num2_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num2_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_KEY), num2_err);
     }
 }
 
 test "dict string key missing" {
     const data = "{\"k\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1638,26 +1638,26 @@ test "dict string key missing" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const str_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_KEY), str_err);
     }
 }
 
 test "dict string second key missing" {
     const data = "{\"k\":\"a\",\"b\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1668,34 +1668,34 @@ test "dict string second key missing" {
 
     {
         var buffer: [2]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", buffer[0..1]);
 
-        const num1_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const num1_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num1_err);
         try testing.expectEqualStrings("a", buffer[1..2]);
 
-        const num2_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const num2_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_KEY), num2_err);
     }
 }
 
 test "dict array key missing" {
     const data = "{[";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1712,15 +1712,15 @@ test "dict array key missing" {
 
 test "dict array second key missing" {
     const data = "{\"k\":[],[";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1731,11 +1731,11 @@ test "dict array second key missing" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
 
         const open2_err = lib.con_deserialize_array_open(&context);
@@ -1750,15 +1750,15 @@ test "dict array second key missing" {
 
 test "dict dict key missing" {
     const data = "{{";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1775,15 +1775,15 @@ test "dict dict key missing" {
 
 test "dict dict second key missing" {
     const data = "{\"k\":{},{";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
     const init_err = lib.con_deserialize_init(
         &context,
-        lib.con_reader_string_interface(&reader),
+        lib.gci_reader_string_interface(&reader),
         &depth,
         depth.len,
     );
@@ -1794,11 +1794,11 @@ test "dict dict second key missing" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
 
         const open2_err = lib.con_deserialize_dict_open(&context);
@@ -1815,13 +1815,13 @@ test "dict dict second key missing" {
 
 test "array open -> dict close" {
     const data = "[}";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1833,13 +1833,13 @@ test "array open -> dict close" {
 
 test "dict open -> array close" {
     const data = "{]";
-    var reader: lib.ConReaderString = undefined;
-    const i_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const i_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), i_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_dict_open(&context);
@@ -1851,13 +1851,13 @@ test "dict open -> array close" {
 
 test "array first trailing comma" {
     const data = "[,]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1869,13 +1869,13 @@ test "array first trailing comma" {
 
 test "array later trailing comma" {
     const data = "[1,]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1883,11 +1883,11 @@ test "array later trailing comma" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const num_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
         try testing.expectEqualStrings("1", &buffer);
     }
@@ -1898,13 +1898,13 @@ test "array later trailing comma" {
 
 test "array number single" {
     const data = "[2]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1912,11 +1912,11 @@ test "array number single" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const num_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
         try testing.expectEqualStrings("2", &buffer);
     }
@@ -1927,13 +1927,13 @@ test "array number single" {
 
 test "array number multiple" {
     const data = "[2,3]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1941,15 +1941,15 @@ test "array number multiple" {
 
     {
         var buffer: [2]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const num1_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num1_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num1_err);
         try testing.expectEqualStrings("2", buffer[0..1]);
 
-        const num2_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num2_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num2_err);
         try testing.expectEqualStrings("3", buffer[1..2]);
     }
@@ -1960,13 +1960,13 @@ test "array number multiple" {
 
 test "array number comma missing" {
     const data = "[2 3";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -1974,28 +1974,28 @@ test "array number comma missing" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const num1_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num1_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num1_err);
         try testing.expectEqualStrings("2", buffer[0..1]);
 
-        const num2_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num2_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMMA_MISSING), num2_err);
     }
 }
 
 test "array number comma reader fail" {
     const data = "[2";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2003,28 +2003,28 @@ test "array number comma reader fail" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const num1_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num1_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num1_err);
         try testing.expectEqualStrings("2", buffer[0..1]);
 
-        const num2_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num2_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), num2_err);
     }
 }
 
 test "array string single" {
     const data = "[\"a\"]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2032,11 +2032,11 @@ test "array string single" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const str_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
         try testing.expectEqualStrings("a", &buffer);
     }
@@ -2047,13 +2047,13 @@ test "array string single" {
 
 test "array string multiple" {
     const data = "[\"a\",\"b\"]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2061,15 +2061,15 @@ test "array string multiple" {
 
     {
         var buffer: [2]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const str1_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str1_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str1_err);
         try testing.expectEqualStrings("a", buffer[0..1]);
 
-        const str2_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str2_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str2_err);
         try testing.expectEqualStrings("b", buffer[1..2]);
     }
@@ -2080,13 +2080,13 @@ test "array string multiple" {
 
 test "array string comma missing" {
     const data = "[\"a\" \"b\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2094,28 +2094,28 @@ test "array string comma missing" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const str1_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str1_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str1_err);
         try testing.expectEqualStrings("a", buffer[0..1]);
 
-        const str2_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str2_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMMA_MISSING), str2_err);
     }
 }
 
 test "array string comma reader fail" {
     const data = "[\"a\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2123,28 +2123,28 @@ test "array string comma reader fail" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const str1_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str1_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str1_err);
         try testing.expectEqualStrings("a", buffer[0..1]);
 
-        const str2_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str2_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_READER), str2_err);
     }
 }
 
 test "array bool single" {
     const data = "[true]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2163,13 +2163,13 @@ test "array bool single" {
 
 test "array bool multiple" {
     const data = "[false, true]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2193,13 +2193,13 @@ test "array bool multiple" {
 
 test "array bool comma missing" {
     const data = "[false true";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2219,13 +2219,13 @@ test "array bool comma missing" {
 
 test "array bool comma reader fail" {
     const data = "[false";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2245,13 +2245,13 @@ test "array bool comma reader fail" {
 
 test "array null single" {
     const data = "[null]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2268,13 +2268,13 @@ test "array null single" {
 
 test "array null multiple" {
     const data = "[null, null]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2294,13 +2294,13 @@ test "array null multiple" {
 
 test "array null comma missing" {
     const data = "[null null";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2317,13 +2317,13 @@ test "array null comma missing" {
 
 test "array null comma reader fail" {
     const data = "[null";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2340,13 +2340,13 @@ test "array null comma reader fail" {
 
 test "array array single" {
     const data = "[[]]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_array_open(&context);
@@ -2366,13 +2366,13 @@ test "array array single" {
 
 test "array array multiple" {
     const data = "[[], []]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_array_open(&context);
@@ -2398,13 +2398,13 @@ test "array array multiple" {
 
 test "array array comma missing" {
     const data = "[[] [";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_array_open(&context);
@@ -2424,13 +2424,13 @@ test "array array comma missing" {
 
 test "array array comma reader fail" {
     const data = "[[]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_array_open(&context);
@@ -2450,13 +2450,13 @@ test "array array comma reader fail" {
 
 test "array dict single" {
     const data = "[{}]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_array_open(&context);
@@ -2476,13 +2476,13 @@ test "array dict single" {
 
 test "array dict multiple" {
     const data = "[{}, {}]";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_array_open(&context);
@@ -2508,13 +2508,13 @@ test "array dict multiple" {
 
 test "array dict comma missing" {
     const data = "[{} {";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_array_open(&context);
@@ -2534,13 +2534,13 @@ test "array dict comma missing" {
 
 test "array dict comma reader fail" {
     const data = "[{}";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_array_open(&context);
@@ -2560,13 +2560,13 @@ test "array dict comma reader fail" {
 
 test "dict number single" {
     const data = "{\"k\":1}";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_dict_open(&context);
@@ -2574,15 +2574,15 @@ test "dict number single" {
 
     {
         var buffer: [2]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", buffer[0..1]);
 
-        const num_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+        const num_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
         try testing.expectEqualStrings("1", buffer[1..2]);
     }
@@ -2593,13 +2593,13 @@ test "dict number single" {
 
 test "dict string single" {
     const data = "{\"k\":\"a\"}";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_dict_open(&context);
@@ -2607,15 +2607,15 @@ test "dict string single" {
 
     {
         var buffer: [2]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", buffer[0..1]);
 
-        const str_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+        const str_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
         try testing.expectEqualStrings("a", buffer[1..2]);
     }
@@ -2626,13 +2626,13 @@ test "dict string single" {
 
 test "dict bool single" {
     const data = "{\"k\":true}";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_dict_open(&context);
@@ -2640,11 +2640,11 @@ test "dict bool single" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", &buffer);
 
@@ -2660,13 +2660,13 @@ test "dict bool single" {
 
 test "dict null single" {
     const data = "{\"k\":null}";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open_err = lib.con_deserialize_dict_open(&context);
@@ -2674,11 +2674,11 @@ test "dict null single" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", &buffer);
 
@@ -2692,13 +2692,13 @@ test "dict null single" {
 
 test "dict array single" {
     const data = "{\"k\":[]}";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_dict_open(&context);
@@ -2706,11 +2706,11 @@ test "dict array single" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", &buffer);
 
@@ -2727,13 +2727,13 @@ test "dict array single" {
 
 test "dict dict single" {
     const data = "{\"k\":{}}";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [2]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const open1_err = lib.con_deserialize_dict_open(&context);
@@ -2741,11 +2741,11 @@ test "dict dict single" {
 
     {
         var buffer: [1]u8 = undefined;
-        var writer: lib.ConWriterString = undefined;
-        const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        var writer: lib.GciWriterString = undefined;
+        const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-        const key_err = lib.con_deserialize_dict_key(&context, lib.con_writer_string_interface(&writer));
+        const key_err = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&writer));
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key_err);
         try testing.expectEqualStrings("k", &buffer);
 
@@ -2764,18 +2764,18 @@ test "dict dict single" {
 
 test "number complete" {
     const data = "[] 1";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [1]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
     const open_err = lib.con_deserialize_array_open(&context);
@@ -2783,24 +2783,24 @@ test "number complete" {
     const close_err = lib.con_deserialize_array_close(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
 
-    const err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMPLETE), err);
 }
 
 test "string complete" {
     const data = "{} \"a\"";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [1]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
     const open_err = lib.con_deserialize_dict_open(&context);
@@ -2808,27 +2808,27 @@ test "string complete" {
     const close_err = lib.con_deserialize_dict_close(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close_err);
 
-    const err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    const err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_COMPLETE), err);
 }
 
 test "bool complete" {
     const data = "1 true";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [1]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const num_err = lib.con_deserialize_number(&context, lib.con_writer_string_interface(&writer));
+    const num_err = lib.con_deserialize_number(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
     try testing.expectEqualStrings("1", &buffer);
 
@@ -2839,21 +2839,21 @@ test "bool complete" {
 
 test "null complete" {
     const data = "\"a\" null";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [1]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const iw_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+    var writer: lib.GciWriterString = undefined;
+    const iw_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw_err);
 
-    const str_err = lib.con_deserialize_string(&context, lib.con_writer_string_interface(&writer));
+    const str_err = lib.con_deserialize_string(&context, lib.gci_writer_string_interface(&writer));
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
     try testing.expectEqualStrings("a", &buffer);
 
@@ -2863,13 +2863,13 @@ test "null complete" {
 
 test "array complete" {
     const data = "true []";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var r: bool = undefined;
@@ -2883,13 +2883,13 @@ test "array complete" {
 
 test "dict complete" {
     const data = "null {}";
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [1]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     const null_err = lib.con_deserialize_null(&context);
@@ -2917,24 +2917,24 @@ test "nested structures" {
         \\  ]
         \\}
     ;
-    var reader: lib.ConReaderString = undefined;
-    const ir_err = lib.con_reader_string_init(&reader, data, data.len);
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
 
     var depth: [3]lib.ConContainer = undefined;
     var context: lib.ConDeserialize = undefined;
-    const init_err = lib.con_deserialize_init(&context, lib.con_reader_string_interface(&reader), &depth, depth.len);
+    const init_err = lib.con_deserialize_init(&context, lib.gci_reader_string_interface(&reader), &depth, depth.len);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
 
     var buffer: [5]u8 = undefined;
-    var writer: lib.ConWriterString = undefined;
-    const interface = lib.con_writer_string_interface(&writer);
+    var writer: lib.GciWriterString = undefined;
+    const interface = lib.gci_writer_string_interface(&writer);
 
     const open1_err = lib.con_deserialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open1_err);
 
     {
-        const iw1_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        const iw1_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw1_err);
         const key1_err = lib.con_deserialize_dict_key(&context, interface);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key1_err);
@@ -2943,7 +2943,7 @@ test "nested structures" {
         const open2_err = lib.con_deserialize_array_open(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open2_err);
         {
-            const iw2_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+            const iw2_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw2_err);
             const str_err = lib.con_deserialize_string(&context, interface);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), str_err);
@@ -2952,7 +2952,7 @@ test "nested structures" {
             const open3_err = lib.con_deserialize_dict_open(&context);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open3_err);
             {
-                const iw3_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+                const iw3_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
                 try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw3_err);
                 const key2_err = lib.con_deserialize_dict_key(&context, interface);
                 try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key2_err);
@@ -2961,7 +2961,7 @@ test "nested structures" {
                 const null_err = lib.con_deserialize_null(&context);
                 try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), null_err);
 
-                const iw4_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+                const iw4_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
                 try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw4_err);
                 const key3_err = lib.con_deserialize_dict_key(&context, interface);
                 try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key3_err);
@@ -2977,7 +2977,7 @@ test "nested structures" {
         const close2_err = lib.con_deserialize_array_close(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), close2_err);
 
-        const iw5_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+        const iw5_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw5_err);
         const key4_err = lib.con_deserialize_dict_key(&context, interface);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), key4_err);
@@ -2986,7 +2986,7 @@ test "nested structures" {
         const open4_err = lib.con_deserialize_array_open(&context);
         try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open4_err);
         {
-            const iw6_err = lib.con_writer_string_init(&writer, &buffer, buffer.len);
+            const iw6_err = lib.gci_writer_string_init(&writer, &buffer, buffer.len);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), iw6_err);
             const num_err = lib.con_deserialize_number(&context, interface);
             try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), num_err);
