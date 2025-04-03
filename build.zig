@@ -56,6 +56,9 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
     con.addIncludePath(b.path("src"));
+    con.addIncludePath(gci.path("src"));
+    con.addIncludePath(gci.path("src/interface"));
+    con.addIncludePath(gci.path("src/implementation"));
     con.linkLibrary(serialize);
     con.linkLibrary(deserialize);
 
