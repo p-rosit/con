@@ -10,6 +10,7 @@ pub const Container = lib.ConContainer;
 pub const Serialize = serialize.Serialize;
 pub const WriterIndent = writer.Indent;
 
+pub const DeserializeType = deserialize.Type;
 pub const Deserialize = deserialize.Deserialize;
 pub const ReaderComment = reader.Comment;
 
