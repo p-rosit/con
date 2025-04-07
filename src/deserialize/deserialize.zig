@@ -243,7 +243,7 @@ test "next array open" {
     try testing.expectEqual(.array_open, etype2);
 }
 
-test "next array close" {
+test "next array close empty" {
     const data = "[]";
     var reader = try gci.ReaderString.init(data);
 
@@ -253,6 +253,26 @@ test "next array close" {
     try context.arrayOpen();
 
     {
+        const etype1 = try context.next();
+        try testing.expectEqual(.array_close, etype1);
+
+        const etype2 = try context.next();
+        try testing.expectEqual(.array_close, etype2);
+    }
+}
+
+test "next array close" {
+    const data = "[null]";
+    var reader = try gci.ReaderString.init(data);
+
+    var depth: [1]zcon.Container = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.arrayOpen();
+
+    {
+        try context.null();
+
         const etype1 = try context.next();
         try testing.expectEqual(.array_close, etype1);
 
@@ -313,7 +333,7 @@ test "next dict open" {
     try testing.expectEqual(.dict_open, etype2);
 }
 
-test "next dict close" {
+test "next dict close empty" {
     const data = "{}";
     var reader = try gci.ReaderString.init(data);
 
@@ -322,11 +342,35 @@ test "next dict close" {
 
     try context.dictOpen();
 
-    const etype1 = try context.next();
-    try testing.expectEqual(.dict_close, etype1);
+    {
+        const etype1 = try context.next();
+        try testing.expectEqual(.dict_close, etype1);
 
-    const etype2 = try context.next();
-    try testing.expectEqual(.dict_close, etype2);
+        const etype2 = try context.next();
+        try testing.expectEqual(.dict_close, etype2);
+    }
+}
+
+test "next dict close" {
+    const data = "{\"\": null}";
+    var reader = try gci.ReaderString.init(data);
+
+    var depth: [1]zcon.Container = undefined;
+    var context = try Deserialize.init(reader.interface(), &depth);
+
+    try context.dictOpen();
+
+    {
+        var w: gci.WriterString = undefined;
+        try context.dictKey(w.interface());
+        try context.null();
+
+        const etype1 = try context.next();
+        try testing.expectEqual(.dict_close, etype1);
+
+        const etype2 = try context.next();
+        try testing.expectEqual(.dict_close, etype2);
+    }
 }
 
 test "next dict key" {

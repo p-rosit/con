@@ -276,7 +276,7 @@ test "next array open" {
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_ARRAY_OPEN), etype);
 }
 
-test "next array close" {
+test "next array close empty" {
     const data = "[]";
     var reader: lib.GciReaderString = undefined;
     const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
@@ -295,14 +295,50 @@ test "next array close" {
     const open_err = lib.con_deserialize_array_open(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
-    var etype: lib.ConDeserializeType = undefined;
-    const err1 = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
-    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_ARRAY_CLOSE), etype);
+    {
+        var etype: lib.ConDeserializeType = undefined;
+        const err1 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_ARRAY_CLOSE), etype);
 
-    const err2 = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
-    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_ARRAY_CLOSE), etype);
+        const err2 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_ARRAY_CLOSE), etype);
+    }
+}
+
+test "next array close" {
+    const data = "[null]";
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]lib.ConContainer = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(
+        &context,
+        lib.gci_reader_string_interface(&reader),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_array_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        const err1 = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+
+        var etype: lib.ConDeserializeType = undefined;
+        const err2 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_ARRAY_CLOSE), etype);
+
+        const err3 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err3);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_ARRAY_CLOSE), etype);
+    }
 }
 
 test "next array first" {
@@ -396,7 +432,7 @@ test "next dict open" {
     try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_OPEN), etype);
 }
 
-test "next dict close" {
+test "next dict close empty" {
     const data = "{}";
     var reader: lib.GciReaderString = undefined;
     const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
@@ -415,14 +451,53 @@ test "next dict close" {
     const open_err = lib.con_deserialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
-    var etype: lib.ConDeserializeType = undefined;
-    const err1 = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
-    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_CLOSE), etype);
+    {
+        var etype: lib.ConDeserializeType = undefined;
+        const err1 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_CLOSE), etype);
 
-    const err2 = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
-    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_CLOSE), etype);
+        const err2 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_CLOSE), etype);
+    }
+}
+
+test "next dict close" {
+    const data = "{\"\": null}";
+    var reader: lib.GciReaderString = undefined;
+    const ir_err = lib.gci_reader_string_init(&reader, data, data.len);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), ir_err);
+
+    var depth: [1]lib.ConContainer = undefined;
+    var context: lib.ConDeserialize = undefined;
+    const init_err = lib.con_deserialize_init(
+        &context,
+        lib.gci_reader_string_interface(&reader),
+        &depth,
+        depth.len,
+    );
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), init_err);
+
+    const open_err = lib.con_deserialize_dict_open(&context);
+    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
+
+    {
+        var w: lib.GciWriterString = undefined;
+        const err1 = lib.con_deserialize_dict_key(&context, lib.gci_writer_string_interface(&w));
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+        const err2 = lib.con_deserialize_null(&context);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
+
+        var etype: lib.ConDeserializeType = undefined;
+        const err3 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err3);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_CLOSE), etype);
+
+        const err4 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err4);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_CLOSE), etype);
+    }
 }
 
 test "next dict key" {
@@ -444,14 +519,16 @@ test "next dict key" {
     const open_err = lib.con_deserialize_dict_open(&context);
     try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), open_err);
 
-    var etype: lib.ConDeserializeType = undefined;
-    const err1 = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
-    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_KEY), etype);
+    {
+        var etype: lib.ConDeserializeType = undefined;
+        const err1 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err1);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_KEY), etype);
 
-    const err2 = lib.con_deserialize_next(&context, &etype);
-    try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
-    try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_KEY), etype);
+        const err2 = lib.con_deserialize_next(&context, &etype);
+        try testing.expectEqual(@as(c_uint, lib.CON_ERROR_OK), err2);
+        try testing.expectEqual(@as(c_uint, lib.CON_DESERIALIZE_TYPE_DICT_KEY), etype);
+    }
 }
 
 test "next dict first" {

@@ -67,12 +67,9 @@ enum ConError con_deserialize_array_close(struct ConDeserialize *context) {
 
     enum ConState current_state = context->state;
     assert(current_state == CON_STATE_EMPTY || current_state == CON_STATE_FIRST || current_state == CON_STATE_LATER);
-    if (current_state == CON_STATE_FIRST && next_err != CON_ERROR_OK) {
-        assert(next_err != CON_ERROR_COMMA_MISSING);
-        if (next_err == CON_ERROR_COMMA_UNEXPECTED) { return CON_ERROR_COMMA_TRAILING; }
-        return next_err;
-    } else if (current_state == CON_STATE_LATER && next_err != CON_ERROR_COMMA_MISSING) {
-        assert(next_err != CON_ERROR_OK);
+    if (next_err == CON_ERROR_COMMA_UNEXPECTED) {
+        return CON_ERROR_COMMA_TRAILING;
+    } else if (next_err) {
         return next_err;
     }
     if (next != CON_DESERIALIZE_TYPE_ARRAY_CLOSE) { return CON_ERROR_TYPE; }
@@ -134,12 +131,9 @@ enum ConError con_deserialize_dict_close(struct ConDeserialize *context) {
 
     enum ConState current_state = context->state;
     assert(current_state == CON_STATE_EMPTY || current_state == CON_STATE_FIRST || current_state == CON_STATE_LATER);
-    if (current_state == CON_STATE_FIRST && next_err != CON_ERROR_OK) {
-        assert(next_err != CON_ERROR_COMMA_MISSING);
-        if (next_err == CON_ERROR_COMMA_UNEXPECTED) { return CON_ERROR_COMMA_TRAILING; }
-        return next_err;
-    } else if (current_state == CON_STATE_LATER && next_err != CON_ERROR_COMMA_MISSING) {
-        assert(next_err != CON_ERROR_OK);
+    if (next_err == CON_ERROR_COMMA_UNEXPECTED) {
+        return CON_ERROR_COMMA_TRAILING;
+    } else if (next_err) {
         return next_err;
     }
     if (next != CON_DESERIALIZE_TYPE_DICT_CLOSE) { return CON_ERROR_TYPE; }
@@ -400,11 +394,23 @@ enum ConError con_deserialize_internal_next(struct ConDeserialize *context, enum
     } else if (next == ']') {
         *type = CON_DESERIALIZE_TYPE_ARRAY_CLOSE;
         if (context->found_comma) { return CON_ERROR_COMMA_TRAILING; }
+        if (state == CON_STATE_FIRST) {
+            assert(next_err == CON_ERROR_OK);
+        } else if (state == CON_STATE_LATER) {
+            assert(next_err == CON_ERROR_COMMA_MISSING);
+        }
+        next_err = CON_ERROR_OK;
     } else if (next == '{') {
         *type = CON_DESERIALIZE_TYPE_DICT_OPEN;
     } else if (next == '}') {
         *type = CON_DESERIALIZE_TYPE_DICT_CLOSE;
         if (context->found_comma) { return CON_ERROR_COMMA_TRAILING; }
+        if (state == CON_STATE_FIRST) {
+            assert(next_err == CON_ERROR_OK);
+        } else if (state == CON_STATE_LATER) {
+            assert(next_err == CON_ERROR_COMMA_MISSING);
+        }
+        next_err = CON_ERROR_OK;
     } else {
         *type = CON_DESERIALIZE_TYPE_UNKNOWN;
         return CON_ERROR_INVALID_JSON;
